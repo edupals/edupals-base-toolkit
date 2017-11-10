@@ -47,6 +47,18 @@ namespace edupals
             \return raw string
         */
         std::string cmdline();
+        
+         /*!
+            Gets installed RAM
+            \return ram size in bytes
+        */
+        uint64_t get_total_memory();
+        
+        /*!
+            Gets current free ram
+            \return free ram in bytes
+        */
+        uint64_t get_free_memory();
     }
 }
 

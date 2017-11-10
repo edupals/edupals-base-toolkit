@@ -26,6 +26,8 @@
 
 #include <fstream>
 
+#include <unistd.h>
+
 using namespace std;
 
 static void read_single_line(string path,string& dest)
@@ -65,4 +67,18 @@ string edupals::system::cmdline()
     read_single_line("/proc/cmdline",cmdline);
     
     return cmdline;
+}
+
+uint64_t edupals::system::get_total_memory()
+{
+    uint64_t pages = sysconf(_SC_PHYS_PAGES);
+    uint64_t page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+}
+
+uint64_t edupals::system::get_free_memory()
+{
+    uint64_t pages = sysconf(_SC_AVPHYS_PAGES);
+    uint64_t page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
 }

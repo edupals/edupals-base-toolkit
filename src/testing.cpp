@@ -33,7 +33,7 @@ using namespace std;
 bool test_system_version()
 {
 
-    clog<<"* version:"<<system::version()<<endl;
+    clog<<"* version: "<<system::version()<<endl;
     
     return true;
 }
@@ -41,7 +41,7 @@ bool test_system_version()
 bool test_system_uptime()
 {
 
-    clog<<"* uptime:"<<system::uptime()<<endl;
+    clog<<"* uptime: "<<system::uptime()<<endl;
     
     return true;
 }
@@ -49,16 +49,25 @@ bool test_system_uptime()
 bool test_system_cmdline()
 {
 
-    clog<<"* cmdline:"<<system::cmdline()<<endl;
+    clog<<"* cmdline: "<<system::cmdline()<<endl;
     
     return true;
 }
+
+bool test_system_memory()
+{
+    clog<<"* total memory: "<<system::get_total_memory()/1024<<" kB"<<endl;
+    clog<<"* free memory: "<<system::get_free_memory()/1024<<" kB"<<endl;
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
     test_system_version();
     test_system_uptime();
     test_system_cmdline();
+    test_system_memory();
     
     return 0;
 }
