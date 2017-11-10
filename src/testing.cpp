@@ -21,48 +21,44 @@
  *
  */
  
-
+ 
 #include "system.hpp"
 
-#include <fstream>
+#include <iostream>
 
+
+using namespace edupals;
 using namespace std;
 
-static void read_single_line(string path,string& dest)
+bool test_system_version()
 {
-    ifstream file;
+
+    clog<<"* version:"<<system::version()<<endl;
     
-    file.open(path.c_str());
-    std::getline(file,dest);
-    file.close();
+    return true;
 }
 
-string edupals::system::version()
+bool test_system_uptime()
 {
-    string version;
+
+    clog<<"* uptime:"<<system::uptime()<<endl;
     
-    read_single_line("/proc/version",version);
-    
-    return version;
+    return true;
 }
 
-double edupals::system::uptime()
+bool test_system_cmdline()
 {
-    ifstream file;
-    string uptime;
-    
-    file.open("/proc/uptime");
-    file>>uptime;
-    file.close();
-    
-    return std::stod(uptime);
-}
 
-string edupals::system::cmdline()
+    clog<<"* cmdline:"<<system::cmdline()<<endl;
+    
+    return true;
+}
+int main (int argc,char* argv[])
 {
-    string cmdline;
+
+    test_system_version();
+    test_system_uptime();
+    test_system_cmdline();
     
-    read_single_line("/proc/cmdline",cmdline);
-    
-    return cmdline;
+    return 0;
 }

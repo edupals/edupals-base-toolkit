@@ -24,11 +24,29 @@
 #ifndef EDUPALS_SYSTEM
 #define EDUPALS_SYSTEM
 
+#include <string>
+
 namespace edupals 
 {
     namespace system
     {
-    
+        /*!
+            Gets current kernel version from /proc/version
+            \return raw string
+        */
+        std::string version();
+        
+        /*!
+            Gets system uptime
+            \return uptime in seconds
+        */
+        double uptime();
+        
+        /*!
+            Gets current boot cmdline
+            \return raw string
+        */
+        std::string cmdline();
     }
 }
 
