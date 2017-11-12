@@ -25,6 +25,7 @@
 #define EDUPALS_SYSTEM
 
 #include <string>
+#include <vector>
 
 namespace edupals 
 {
@@ -59,6 +60,12 @@ namespace edupals
             \return free ram in bytes
         */
         uint64_t get_free_memory();
+        
+        /*!
+            Gets loaded kernel modules
+            \return vector of module names
+        */
+        std::vector<std::string> get_modules();
     }
 }
 

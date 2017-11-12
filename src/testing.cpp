@@ -61,6 +61,18 @@ bool test_system_memory()
     return true;
 }
 
+bool test_system_get_modules()
+{
+    vector<string> modules = system::get_modules();
+    
+    clog<<"* modules:"<<endl;
+    for (string& module : modules) {
+        clog<<"->"<<module<<endl;
+    }
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -68,6 +80,7 @@ int main (int argc,char* argv[])
     test_system_uptime();
     test_system_cmdline();
     test_system_memory();
+    test_system_get_modules();
     
     return 0;
 }

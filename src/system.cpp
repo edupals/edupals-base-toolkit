@@ -82,3 +82,29 @@ uint64_t edupals::system::get_free_memory()
     uint64_t page_size = sysconf(_SC_PAGE_SIZE);
     return pages * page_size;
 }
+
+vector<string> edupals::system::get_modules()
+{
+    //TODO: Crappy implementation
+    vector<string> modules;
+    ifstream file;
+    char buffer[256];
+    
+    file.open("/proc/modules");
+    
+    while (!file.eof()) {
+        
+        string name;
+        
+        file>>name;
+        file.getline(buffer,256);
+        
+        if (name.size()>0) {
+            modules.push_back(name);
+        }
+    }
+    
+    file.close();
+    
+    return modules;
+}
