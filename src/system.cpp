@@ -92,7 +92,7 @@ vector<string> edupals::system::get_modules()
     
     file.open("/proc/modules");
     
-    while (!file.eof()) {
+    while (file.good()) {
         
         string name;
         

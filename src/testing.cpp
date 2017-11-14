@@ -23,12 +23,25 @@
  
  
 #include "system.hpp"
+#include "filesystem.hpp"
 
 #include <iostream>
 
 
 using namespace edupals;
 using namespace std;
+
+bool test_filesystem()
+{
+    filesystem::Path root("/");
+    
+    clog<<"list root:"<<endl;
+    for (auto & d:root.list()) {
+        clog<<d.path<<endl;
+    }
+
+    return true;
+}
 
 bool test_system_version()
 {
@@ -73,8 +86,11 @@ bool test_system_get_modules()
     return true;
 }
 
+
 int main (int argc,char* argv[])
 {
+
+    test_filesystem();
 
     test_system_version();
     test_system_uptime();
