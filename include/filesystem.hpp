@@ -33,14 +33,60 @@ namespace edupals
     {
         class Path
         {
+            private:
+            
+            std::string value;
+            
+            void sanitize();
+            
             public:
             
-            std::string path;
             
+            /*!
+            
+            */
             Path(){};
+            
+            /*!
+            
+            */
+            Path(std::string path);
+            
+            /*!
+            
+            */
             Path(const char* path);
             
+            /*!
+            
+            */
+            std::string name();
+            
+            /*!
+            
+            */
             std::vector<Path> list();
+
+            /*!
+            
+            */
+            bool exists();
+            
+            /*!
+            
+            */
+            bool is_dir();
+            
+            /*!
+            
+            */
+            bool is_relative();
+            /*!
+            
+            */
+            static Path home();
+            
+            Path operator + (Path right);
         };
     }
 }

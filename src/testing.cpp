@@ -33,13 +33,25 @@ using namespace std;
 
 bool test_filesystem()
 {
-    filesystem::Path root("/");
-    
-    clog<<"list root:"<<endl;
-    for (auto & d:root.list()) {
-        clog<<d.path<<endl;
-    }
 
+    filesystem::Path usr("/usr");
+    filesystem::Path share("share");
+
+    filesystem::Path path=usr+share;
+    
+    if (path.exists()) {
+    
+        clog<<"list:"<<path.name()<<endl;
+        for (auto & d:path.list()) {
+            if (d.is_dir()) {
+                clog<<"[D]"<<d.name()<<endl;
+            }
+            else {
+                clog<<d.name()<<endl;
+            }
+        }
+    }
+    
     return true;
 }
 
