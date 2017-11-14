@@ -24,6 +24,8 @@
 
 #include "filesystem.hpp"
 
+#include <cstring>
+
 #include <dirent.h>
 #include <pwd.h>
 #include <sys/types.h>
@@ -31,6 +33,8 @@
 #include <limits.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <libgen.h>
+#include <glob.h>
 
 using namespace edupals::filesystem;
 using namespace std;
@@ -73,6 +77,28 @@ string Path::name()
     return value;
 }
 
+string Path::base()
+{
+    char * dup = new char[value.length()+1];
+    strcpy(dup,value.c_str());
+    string ret(basename(dup));
+    
+    delete dup;
+    
+    return ret;
+}
+
+string Path::dir()
+{
+    char * dup = new char[value.length()+1];
+    strcpy(dup,value.c_str());
+    string ret(dirname(dup));
+    
+    delete dup;
+    
+    return ret;
+}
+
 vector<Path> Path::list()
 {
     vector<Path> content;
@@ -87,6 +113,26 @@ vector<Path> Path::list()
         
         content.push_back(Path(path));
     }
+    
+    return content;
+}
+
+vector<Path> Path::list(string expression)
+{
+    vector<Path> content;
+    
+    //TODO: Almost copy pasted, needs a deeper undestanding
+    
+    glob_t glob_result;
+    
+    string full = this->value+"/"+expression;
+    glob(full.c_str(),GLOB_TILDE,nullptr,&glob_result);
+
+    for (unsigned int n=0;n<glob_result.gl_pathc;n++) {
+        content.push_back(Path(glob_result.gl_pathv[n]));
+    }
+    
+    globfree(&glob_result);
     
     return content;
 }
@@ -123,7 +169,7 @@ Path Path::home()
     return Path(pw->pw_dir);
 }
 
-Path Path::operator + (Path right)
+Path Path::operator + (Path& right)
 {
     string path;
     
@@ -131,3 +177,14 @@ Path Path::operator + (Path right)
     
     return Path(path);
 }
+
+bool Path::operator == (Path& right)
+{
+    return (value==right.value);
+}
+
+bool Path::operator != (Path& right)
+{
+    return (value!=right.value);
+}
+

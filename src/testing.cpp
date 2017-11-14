@@ -42,7 +42,7 @@ bool test_filesystem()
     if (path.exists()) {
     
         clog<<"list:"<<path.name()<<endl;
-        for (auto & d:path.list()) {
+        for (auto & d:path.list("*gnome*")) {
             if (d.is_dir()) {
                 clog<<"[D]"<<d.name()<<endl;
             }
@@ -51,6 +51,11 @@ bool test_filesystem()
             }
         }
     }
+    
+    filesystem::Path usrshare("/usr/share");
+    
+    clog<<usrshare.name()<<"=="<<path.name()<<":"<<(usrshare==path)<<endl;
+    
     
     return true;
 }

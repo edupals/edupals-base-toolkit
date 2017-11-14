@@ -43,50 +43,85 @@ namespace edupals
             
             
             /*!
-            
+                Default constructor
             */
             Path(){};
             
             /*!
-            
+                Constructor
             */
             Path(std::string path);
             
             /*!
-            
+                Constructor
             */
             Path(const char* path);
             
             /*!
-            
+                Gets full path
+                \return full path as a string
             */
             std::string name();
             
             /*!
+                Gets path basename
+                \return string with basename
+            */
+            std::string base();
             
+            /*!
+                Gets path dirname
+                \return string with dirname
+            */
+            std::string dir();
+            
+            /*!
+                Lists directory content
+                \return vector of Paths
             */
             std::vector<Path> list();
-
-            /*!
             
+            /*!
+                List directory using glob expression
+                \return vector of Paths matching expression
+            */
+            std::vector<Path> list(std::string expression);
+            
+            /*!
+                Check if exists path
             */
             bool exists();
             
             /*!
-            
+                Whenever path is a directory
             */
             bool is_dir();
             
             /*!
-            
+                Whenever path is relative
             */
             bool is_relative();
+
             /*!
-            
+                Gets the current user home
+                \return Path 
             */
             static Path home();
             
-            Path operator + (Path right);
+            /*!
+                Concatenates two Paths
+            */
+            Path operator + (Path& right);
+            
+            /*!
+                Checks whenever both paths are the same
+            */
+            bool operator == (Path& right);
+            
+            /*!
+                Checks whenever both paths are not the same
+            */
+            bool operator != (Path& right);
         };
     }
 }
