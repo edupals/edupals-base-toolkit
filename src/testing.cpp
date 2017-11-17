@@ -103,6 +103,18 @@ bool test_system_get_modules()
     return true;
 }
 
+bool test_system_get_pids()
+{
+    vector<int32_t> pids = system::get_pids();
+    
+    clog<<"Process id:"<<endl;
+    
+    for (int32_t pid : pids) {
+        clog<<pid<<endl;
+    }
+    
+    return true;
+}
 
 int main (int argc,char* argv[])
 {
@@ -113,6 +125,7 @@ int main (int argc,char* argv[])
     test_system_uptime();
     test_system_cmdline();
     test_system_memory();
+    test_system_get_pids();
     test_system_get_modules();
     
     return 0;

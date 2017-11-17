@@ -23,12 +23,26 @@
  
 
 #include "system.hpp"
+#include "filesystem.hpp"
 
 #include <fstream>
 
 #include <unistd.h>
 
+using namespace edupals;
 using namespace std;
+
+static bool is_numeric(const string& s)
+{
+    
+    for (char c:s) {
+        if (c<'0' or c>'9') {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 static void read_single_line(string path,string& dest)
 {
@@ -107,4 +121,22 @@ vector<string> edupals::system::get_modules()
     file.close();
     
     return modules;
+}
+
+vector<int32_t> edupals::system::get_pids()
+{
+    vector<int32_t> pids;
+    
+    filesystem::Path proc("/proc");
+    
+    for (filesystem::Path& p : proc.list()) {
+    
+        string tmp = p.base();
+        if (is_numeric(tmp)) {
+            pids.push_back(stoi(tmp));
+        }
+        
+    }
+    
+    return pids;
 }

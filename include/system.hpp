@@ -66,6 +66,12 @@ namespace edupals
             \return vector of module names
         */
         std::vector<std::string> get_modules();
+        
+        /*!
+            Gets current list of process IDs
+            \return vector with PID
+        */
+        std::vector<int32_t> get_pids();
     }
 }
 
