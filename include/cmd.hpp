@@ -25,13 +25,14 @@
 #define EDUPALS_CMD
 
 #include <string>
+#include <vector>
 
 namespace edupals
 {
     namespace cmd
     {
     
-        enum OptionArgument {
+        enum class ArgumentType {
             None=0,
             Required=1,
             Optional=2
@@ -40,13 +41,34 @@ namespace edupals
         class Option
         {
             public:
+            
+            char letter;
+            std::string name;
+            ArgumentType type;
+            
+            std::string value;
+        };
+        
+        class ParseResult
+        {
+            public:
+            
+            std::vector<Option> options;
+            std::vector<std::string> args;
+            
         };
     
         class ArgumentParser
         {
+            private:
+            
+            std::vector<Option> options;
+            
             public:
             
+            void add_option(Option option);
             
+            ParseResult parse(int argc,char* argv[]);
         };
     }
 }

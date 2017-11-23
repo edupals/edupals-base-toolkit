@@ -22,7 +22,7 @@
  */
  
 
-#include "filesystem.hpp"
+#include <filesystem.hpp>
 
 #include <cstring>
 
@@ -83,7 +83,7 @@ string Path::base()
     strcpy(dup,value.c_str());
     string ret(basename(dup));
     
-    delete dup;
+    delete [] dup;
     
     return ret;
 }
@@ -94,7 +94,7 @@ string Path::dir()
     strcpy(dup,value.c_str());
     string ret(dirname(dup));
     
-    delete dup;
+    delete [] dup;
     
     return ret;
 }

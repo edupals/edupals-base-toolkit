@@ -22,8 +22,9 @@
  */
  
  
-#include "system.hpp"
-#include "filesystem.hpp"
+#include <system.hpp>
+#include <filesystem.hpp>
+#include <cmd.hpp>
 
 #include <iostream>
 
@@ -118,7 +119,26 @@ bool test_system_get_pids()
 
 int main (int argc,char* argv[])
 {
-
+/*
+    parser.add_option({'a',"append",Required});
+    parser.add_option({'d',"delete",Required});
+    
+    auto args = parser.parse(argc,argv);
+    
+    if (parser["help"]) {
+    }
+    
+    if (parser["version"]) {
+    }
+    
+    if (parser["append"]) {
+        int a=parser["append"].get<int>();
+    }
+    
+    for (string arg : args) {
+    
+    }
+*/
     test_filesystem();
 
     test_system_version();
