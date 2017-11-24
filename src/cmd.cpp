@@ -59,37 +59,44 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
         }
         else {
             
+            // short option(s)
             if (tmp[0]=='-') {
-                // short option(s)
-                if (tmp[1]=='-') {
-                }
-                //long option
-                else {
                 
+                //long option
+                if (tmp[1]=='-') {
+                    
                     //stop parsing options
                     if (tmp.size()==2) {
                         //TODO
                     }
                     else {
-                        //get option name
-                        string option_name = tmp.substr(2);
                         
-                        //check for it
-                        int opt=find_long_option(options,option_name);
+                        //check for equal character
+                        size_t equal=tmp.find('=');
                         
-                        // option not found!
-                        if (opt<0) {
+                        string left,right;
+                        
+                        if (equal!=string::npos) {
+                            left=tmp.substr(2,equal-1);
+                            right=tmp.substr(equal+1);
+                        }
+                        else {
+                            left=tmp.substr(2);
+                        }
+                        
+                        int oindex=find_long_option(options,left);
+                        
+                        //option not found!
+                        if (oindex==-1) {
                             //TODO
                         }
                         else {
-                            Option& option=options[opt];
-                            result.options.push_back(option);
+                            Option& option=options[oindex];
                             
-                            if (option.type==) {
-                            }
+                            if (option.type)
                         }
-                    }
                     
+                    }
                 }
             }
             
