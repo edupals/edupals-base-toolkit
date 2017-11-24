@@ -46,6 +46,8 @@ namespace edupals
             std::string name;
             ArgumentType type;
             
+            Option(char letter,std::string name,ArgumentType type);
+            
             std::string value;
         };
         

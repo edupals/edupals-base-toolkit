@@ -23,19 +23,29 @@
  
 #include <cmd.hpp>
 
+#include <iostream>
+
 using namespace std;
 using namespace edupals::cmd;
 
 static int find_long_option(vector<Option> & options,string name)
 {
     
-    for (int n=0;n<options.size();n++) {
+    for (unsigned int n=0;n<options.size();n++) {
         if (options[n].name==name) {
             return n;
         }
     }
     
     return -1;
+}
+
+Option::Option(char letter,string name,ArgumentType type)
+{
+    //TODO: beautify
+    this->letter=letter;
+    this->name=name;
+    this->type=type;
 }
 
 void ArgumentParser::add_option(Option option)
@@ -46,11 +56,13 @@ void ArgumentParser::add_option(Option option)
 ParseResult ArgumentParser::parse(int argc,char* argv[])
 {
     ParseResult result;
-    ArgumentType eat=ArgumentType::None;
+    bool eatr=false;
+    bool eato=false;
     
     for (int n=0;n<argc;n++) {
         
         string tmp = argv[n];
+        
         
         
         // single letter
@@ -61,6 +73,14 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
             
             // short option(s)
             if (tmp[0]=='-') {
+                
+                //optional argument is not comming
+                eato=false;
+                
+                //Required argument not found!
+                if (eatr) {
+                    //TODO
+                }
                 
                 //long option
                 if (tmp[1]=='-') {
@@ -77,7 +97,7 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                         string left,right;
                         
                         if (equal!=string::npos) {
-                            left=tmp.substr(2,equal-1);
+                            left=tmp.substr(2,equal-2);
                             right=tmp.substr(equal+1);
                         }
                         else {
@@ -91,15 +111,57 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                             //TODO
                         }
                         else {
-                            Option& option=options[oindex];
+                            Option option=options[oindex];
                             
-                            if (option.type)
+                            //required argument
+                            if (option.type==ArgumentType::Required) {
+                                //there is equal
+                                if (right.size()>0) {
+                                    option.value=right;
+                                    result.options.push_back(option);
+                                }
+                                else {
+                                    //eat next
+                                    eatr=true;
+                                    result.options.push_back(option);
+                                }
+                            }
+                            
+                            //no argument
+                            if (option.type==ArgumentType::None) {
+                                result.options.push_back(option);
+                            }
+                            
+                            //optional argument
+                            if (option.type==ArgumentType::Optional) {
+                                //there is equal
+                                if (right.size()>0) {
+                                    option.value=right;
+                                    result.options.push_back(option);
+                                }
+                                else {
+                                    //eat next
+                                    eato=true;
+                                    result.options.push_back(option);
+                                }
+                            }
                         }
                     
                     }
                 }
             }
+            else {
             
+                //eat argument
+                if (eatr or eato) {
+                    result.options.back().value=tmp;
+                    eato=false;
+                    eatr=false;
+                }
+                else {
+                    result.args.push_back(tmp);
+                }
+            }
             
         }
     }

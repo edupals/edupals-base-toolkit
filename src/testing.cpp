@@ -119,26 +119,30 @@ bool test_system_get_pids()
 
 int main (int argc,char* argv[])
 {
-/*
-    parser.add_option({'a',"append",Required});
-    parser.add_option({'d',"delete",Required});
+
+    cmd::ArgumentParser parser;
+    cmd::ParseResult result;
     
-    auto args = parser.parse(argc,argv);
+    parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
+    parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
+    parser.add_option(cmd::Option('h',"help",cmd::ArgumentType::None));
+    parser.add_option(cmd::Option('v',"version",cmd::ArgumentType::None));
     
-    if (parser["help"]) {
+    result=parser.parse(argc,argv);
+    
+    clog<<"options:"<<endl;
+    
+    for (cmd::Option& o:result.options) {
+        clog<<"* "<<o.name<<":"<<o.value<<endl;
     }
     
-    if (parser["version"]) {
+    clog<<endl<<"args:"<<endl;
+    
+    for (string s:result.args) {
+        clog<<"* "<<s<<endl;
     }
     
-    if (parser["append"]) {
-        int a=parser["append"].get<int>();
-    }
-    
-    for (string arg : args) {
-    
-    }
-*/
+    /*
     test_filesystem();
 
     test_system_version();
@@ -147,6 +151,6 @@ int main (int argc,char* argv[])
     test_system_memory();
     test_system_get_pids();
     test_system_get_modules();
-    
+    */
     return 0;
 }
