@@ -128,12 +128,17 @@ int main (int argc,char* argv[])
     parser.add_option(cmd::Option('h',"help",cmd::ArgumentType::None));
     parser.add_option(cmd::Option('v',"version",cmd::ArgumentType::None));
     
+    parser.add_option(cmd::Option('1',cmd::ArgumentType::None));
+    parser.add_option(cmd::Option('2',cmd::ArgumentType::None));
+    parser.add_option(cmd::Option('3',cmd::ArgumentType::None));
+    
+    
     result=parser.parse(argc,argv);
     
     clog<<"options:"<<endl;
     
     for (cmd::Option& o:result.options) {
-        clog<<"* "<<o.name<<":"<<o.value<<endl;
+        clog<<"* ["<<o.short_name<<"]"<<o.long_name<<":"<<o.value<<endl;
     }
     
     clog<<endl<<"args:"<<endl;

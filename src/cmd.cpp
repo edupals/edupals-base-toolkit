@@ -24,15 +24,27 @@
 #include <cmd.hpp>
 
 #include <iostream>
+#include <stdexcept>
 
 using namespace std;
 using namespace edupals::cmd;
 
-static int find_long_option(vector<Option> & options,string name)
+static int find_long_option(vector<Option> & options,string long_name)
 {
     
-    for (unsigned int n=0;n<options.size();n++) {
-        if (options[n].long_name==name) {
+    for (size_t n=0;n<options.size();n++) {
+        if (options[n].long_name==long_name) {
+            return n;
+        }
+    }
+    
+    return -1;
+}
+
+static int find_short_option(vector<Option>& options,char short_name)
+{
+    for (size_t n=0;n<options.size();n++) {
+        if (options[n].short_name==short_name) {
             return n;
         }
     }
@@ -154,6 +166,45 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                             }
                         }
                     
+                    }
+                }
+                else {
+                    // short option processing
+                    
+                    for (size_t sn=1;sn<tmp.size();sn++) {
+                        int oindex = find_short_option(options,tmp[sn]);
+                        
+                        if (oindex>=0) {
+                            Option option=options[oindex];
+                            
+                            if (option.argument_type==ArgumentType::None) {
+                                result.options.push_back(option);
+                            }
+                            
+                            if (option.argument_type==ArgumentType::Required) {
+                                string arg = tmp.substr(sn+1);
+                                
+                                if (arg.size()==0) {
+                                    //TODO: missing required argument
+                                }
+                                
+                                
+                                option.value=arg;
+                                result.options.push_back(option);
+                                break;
+                            }
+                            
+                            if (option.argument_type==ArgumentType::Optional) {
+                                
+                                option.value = tmp.substr(sn+1);
+                                
+                                result.options.push_back(option);
+                                break;
+                            }
+                        }
+                        else {
+                            //TODO: short option not found
+                        }
                     }
                 }
             }

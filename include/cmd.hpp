@@ -41,9 +41,14 @@ namespace edupals
         class Option
         {
             public:
-            
+
+            /*! single character option or 0 if none */
             char short_name;
+            
+            /*! long name option or empty string for none */
             std::string long_name;
+            
+            /*! type of option argument */
             ArgumentType argument_type;
             
             Option(char short_name,std::string long_name,ArgumentType argument_type);
@@ -70,8 +75,16 @@ namespace edupals
             
             public:
             
+            /*!
+                Adds a new parse option
+                Options must be added before calling parse method
+            */
             void add_option(Option option);
             
+            /*!
+                Parse arguments
+                \return A ParseResult object with options and arguments
+            */
             ParseResult parse(int argc,char* argv[]);
         };
     }
