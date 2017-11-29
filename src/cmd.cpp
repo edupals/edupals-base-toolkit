@@ -32,7 +32,7 @@ static int find_long_option(vector<Option> & options,string name)
 {
     
     for (unsigned int n=0;n<options.size();n++) {
-        if (options[n].name==name) {
+        if (options[n].long_name==name) {
             return n;
         }
     }
@@ -40,12 +40,19 @@ static int find_long_option(vector<Option> & options,string name)
     return -1;
 }
 
-Option::Option(char letter,string name,ArgumentType type)
+Option::Option(char short_name,string long_name,ArgumentType argument_type)
 {
-    //TODO: beautify
-    this->letter=letter;
-    this->name=name;
-    this->type=type;
+    this->short_name=short_name;
+    this->long_name=long_name;
+    this->argument_type=argument_type;
+}
+
+Option::Option(char short_name,ArgumentType argument_type): Option(short_name,"",argument_type)
+{
+}
+
+Option::Option(string long_name,ArgumentType argument_type) : Option('\0',long_name,argument_type)
+{
 }
 
 void ArgumentParser::add_option(Option option)
@@ -114,7 +121,7 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                             Option option=options[oindex];
                             
                             //required argument
-                            if (option.type==ArgumentType::Required) {
+                            if (option.argument_type==ArgumentType::Required) {
                                 //there is equal
                                 if (right.size()>0) {
                                     option.value=right;
@@ -128,12 +135,12 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                             }
                             
                             //no argument
-                            if (option.type==ArgumentType::None) {
+                            if (option.argument_type==ArgumentType::None) {
                                 result.options.push_back(option);
                             }
                             
                             //optional argument
-                            if (option.type==ArgumentType::Optional) {
+                            if (option.argument_type==ArgumentType::Optional) {
                                 //there is equal
                                 if (right.size()>0) {
                                     option.value=right;

@@ -42,11 +42,13 @@ namespace edupals
         {
             public:
             
-            char letter;
-            std::string name;
-            ArgumentType type;
+            char short_name;
+            std::string long_name;
+            ArgumentType argument_type;
             
-            Option(char letter,std::string name,ArgumentType type);
+            Option(char short_name,std::string long_name,ArgumentType argument_type);
+            Option(char short_name,ArgumentType argument_type);
+            Option(std::string long_name,ArgumentType argument_type);
             
             std::string value;
         };
