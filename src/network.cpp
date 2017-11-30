@@ -26,6 +26,11 @@
 
 #include <sstream>
 
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 using namespace std;
 using namespace edupals::network;
 
@@ -82,6 +87,47 @@ uint8_t IP4Address::operator [] (int n)
 vector<Device> edupals::network::get_devices()
 {
     vector<Device> devices;
+    
+    int sck;
+    struct ifconf ifc;
+    struct ifreq* ifr;
+    
+    uint8_t* buffer;
+    const size_t len=sizeof(ifreq)*32; //room for 32 devices
+    
+    sck = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    if (sck<0) {
+        //TODO: error
+    }
+    
+    buffer = new int[len];
+    
+    ifc.ifc_len = len;
+    ifc.ifc_buf = buffer;
+    
+    if (ioctl(sck, SIOCGIFCONF, &ifc) < 0) {
+        //TODO: error
+    }
+    
+    ifr = ifc.ifc_req;
+    int num_ifaces = ifc.ifc_len / sizeof(struct ifreq);
+    
+    for (int n=0;n<num_ifaces;n++) {
+    
+        struct ifreq *item = &ifr[n];
+        
+        Device device;
+        
+        device.name=item->ifr_name;
+        
+        devices.push_back(device);
+    
+    }
+    
+    close(sck);
+    
+    delete [] buffer;
     
     return devices;
 }
