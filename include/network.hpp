@@ -61,7 +61,21 @@ namespace edupals
             uint8_t operator [] (int n);
         };
         
+        class Device
+        {
+            public:
+            
+            std::string name;
+            
+            MACAddress mac;
+            IP4Address ip4;
+            
+            bool link;
+            bool promisc;
+        };
         
+        
+        std::vector<Device> get_devices();
     }
 }
 

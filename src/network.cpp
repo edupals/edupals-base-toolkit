@@ -78,3 +78,10 @@ uint8_t IP4Address::operator [] (int n)
 {
     return address[n];
 }
+
+vector<Device> edupals::network::get_devices()
+{
+    vector<Device> devices;
+    
+    return devices;
+}
