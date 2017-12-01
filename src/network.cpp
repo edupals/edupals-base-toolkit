@@ -23,16 +23,22 @@
  
  
 #include <network.hpp>
+#include <filesystem.hpp>
 
 #include <sstream>
+#include <iomanip>
+#include <iostream>
+#include <fstream>
 
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 using namespace std;
 using namespace edupals::network;
+using namespace edupals::filesystem;
 
 
 MACAddress::MACAddress(array<uint8_t,6> address) : address(address)
@@ -88,11 +94,45 @@ vector<Device> edupals::network::get_devices()
 {
     vector<Device> devices;
     
+    Path sysfs("/sys/class/net");
+    
+    for (Path& dev:sysfs.list()) {
+        
+        string name;
+        name=dev.base();
+        
+        if (name=="." or name=="..") {
+            continue;
+        }
+        
+        Device device;
+        
+        device.name=name;
+        
+        Path property("address");
+        
+        Path address=dev+property;
+        
+        ifstream file;
+        string tmp;
+        
+        clog<<address.name()<<endl;
+        
+        file.open(address.name());
+        std::getline(file,tmp);
+        file.close();
+        
+        clog<<"mac:"<<tmp<<endl;
+        
+        devices.push_back(device);
+    }
+    
+    /*
     int sck;
     struct ifconf ifc;
     struct ifreq* ifr;
     
-    uint8_t* buffer;
+    char* buffer;
     const size_t len=sizeof(ifreq)*32; //room for 32 devices
     
     sck = socket(AF_INET, SOCK_DGRAM, 0);
@@ -101,7 +141,7 @@ vector<Device> edupals::network::get_devices()
         //TODO: error
     }
     
-    buffer = new int[len];
+    buffer = new char[len];
     
     ifc.ifc_len = len;
     ifc.ifc_buf = buffer;
@@ -128,6 +168,6 @@ vector<Device> edupals::network::get_devices()
     close(sck);
     
     delete [] buffer;
-    
+    */
     return devices;
 }

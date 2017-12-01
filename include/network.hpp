@@ -40,6 +40,7 @@ namespace edupals
             
             std::array<uint8_t,6> address;
             
+            MACAddress(){};
             MACAddress(std::array<uint8_t,6> address);
             
             std::string to_string();
@@ -53,6 +54,7 @@ namespace edupals
             
             std::array<uint8_t,4> address;
             
+            IP4Address(){};
             IP4Address(uint32_t address);
             IP4Address(std::array<uint8_t,4> address);
             
@@ -68,10 +70,9 @@ namespace edupals
             std::string name;
             
             MACAddress mac;
-            IP4Address ip4;
             
             bool link;
-            bool promisc;
+            uint32_t mtu;
         };
         
         

@@ -24,6 +24,7 @@
  
 #include <system.hpp>
 #include <filesystem.hpp>
+#include <network.hpp>
 #include <cmd.hpp>
 
 #include <iostream>
@@ -31,6 +32,19 @@
 
 using namespace edupals;
 using namespace std;
+
+bool test_network_get_devices()
+{
+    vector<network::Device> devices;
+    
+    devices = network::get_devices();
+    
+    clog<<"Network devices:"<<endl;
+    
+    for (auto& dev:devices) {
+        clog<<"* "<<dev.name<<endl;
+    }
+}
 
 bool test_filesystem()
 {
@@ -147,6 +161,7 @@ int main (int argc,char* argv[])
         clog<<"* "<<s<<endl;
     }
     
+    test_network_get_devices();
     /*
     test_filesystem();
 
