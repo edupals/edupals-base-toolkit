@@ -178,6 +178,44 @@ Path Path::operator + (Path& right)
     return Path(path);
 }
 
+Path Path::operator + (string& right)
+{
+    string path;
+    
+    path = this->value + '/' + right;
+    
+    return Path(path)
+}
+
+Path Path::operator + (const char* right)
+{
+    return (*this + string(right));
+}
+
+Path& operator += (Path& right)
+{
+    this->value=this->value + '/' + right.value;
+    this->sanitize();
+    
+    return *this;
+}
+
+Path& operator += (const char* right)
+{
+    this->value=this->value + '/' + right;
+    this->sanitize();
+    
+    return *this;
+}
+
+Path& operator += (string& right)
+{
+    this->value=this->value + '/' + right;
+    this->sanitize();
+    
+    return *this;
+}
+
 bool Path::operator == (Path& right)
 {
     return (value==right.value);

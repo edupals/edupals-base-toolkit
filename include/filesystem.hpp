@@ -114,6 +114,31 @@ namespace edupals
             Path operator + (Path& right);
             
             /*!
+            
+            */
+            Path operator + (const char* right);
+            
+            /*!
+            
+            */
+            Path operator + (std::string& right);
+            
+            /*!
+            
+            */
+            Path& operator += (Path& right);
+            
+            /*!
+            
+            */
+            Path& operator += (const char* right);
+            
+            /*!
+            
+            */
+            Path& operator += (std::string& right);
+            
+            /*!
                 Checks whenever both paths are the same
             */
             bool operator == (Path& right);
