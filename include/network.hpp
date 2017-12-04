@@ -42,6 +42,7 @@ namespace edupals
             
             MACAddress(){};
             MACAddress(std::array<uint8_t,6> address);
+            MACAddress(std::string address);
             
             std::string to_string();
             
@@ -69,9 +70,9 @@ namespace edupals
             
             std::string name;
             
-            MACAddress mac;
+            MACAddress address;
             
-            bool link;
+            bool carrier;
             uint32_t mtu;
         };
         

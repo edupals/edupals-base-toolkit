@@ -45,6 +45,13 @@ MACAddress::MACAddress(array<uint8_t,6> address) : address(address)
 {
 }
 
+MACAddress::MACAddress(string address)
+{
+    for (char c:address) {
+        //TODO
+    }
+}
+
 string MACAddress::to_string()
 {
     stringstream s;
@@ -109,20 +116,35 @@ vector<Device> edupals::network::get_devices()
         
         device.name=name;
         
-        Path property("address");
-        
-        Path address=dev+property;
-        
         ifstream file;
         string tmp;
         
-        clog<<address.name()<<endl;
+        // mac address
+        Path address=dev+"address";
+        
         
         file.open(address.name());
         std::getline(file,tmp);
         file.close();
         
-        clog<<"mac:"<<tmp<<endl;
+        device.address=tmp;
+        // carrier status
+        Path carrier=dev+"carrier";
+
+        file.open(carrier.name());
+        std::getline(file,tmp);
+        file.close();
+        
+        device.carrier=(tmp=="1");
+        
+        // mtu
+        Path mtu=dev+"mtu";
+        
+        file.open(mtu.name());
+        std::getline(file,tmp);
+        file.close();
+
+        device.mtu=std::stoi(tmp);
         
         devices.push_back(device);
     }

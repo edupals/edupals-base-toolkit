@@ -114,27 +114,27 @@ namespace edupals
             Path operator + (Path& right);
             
             /*!
-            
+                Concatenates two Paths
             */
             Path operator + (const char* right);
             
             /*!
-            
+                Concatenates two Paths
             */
             Path operator + (std::string& right);
             
             /*!
-            
+                Concatenates two Paths
             */
             Path& operator += (Path& right);
             
             /*!
-            
+                Concatenates two Paths
             */
             Path& operator += (const char* right);
             
             /*!
-            
+                Concatenates two Paths
             */
             Path& operator += (std::string& right);
             

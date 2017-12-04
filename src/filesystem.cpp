@@ -184,15 +184,15 @@ Path Path::operator + (string& right)
     
     path = this->value + '/' + right;
     
-    return Path(path)
+    return Path(path);
 }
 
 Path Path::operator + (const char* right)
 {
-    return (*this + string(right));
+    return Path(this->value + '/' + string(right));
 }
 
-Path& operator += (Path& right)
+Path& Path::operator += (Path& right)
 {
     this->value=this->value + '/' + right.value;
     this->sanitize();
@@ -200,7 +200,7 @@ Path& operator += (Path& right)
     return *this;
 }
 
-Path& operator += (const char* right)
+Path& Path::operator += (const char* right)
 {
     this->value=this->value + '/' + right;
     this->sanitize();
@@ -208,7 +208,7 @@ Path& operator += (const char* right)
     return *this;
 }
 
-Path& operator += (string& right)
+Path& Path::operator += (string& right)
 {
     this->value=this->value + '/' + right;
     this->sanitize();
