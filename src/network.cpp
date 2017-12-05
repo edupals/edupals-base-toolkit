@@ -47,9 +47,25 @@ MACAddress::MACAddress(array<uint8_t,6> address) : address(address)
 
 MACAddress::MACAddress(string address)
 {
+
+    //TODO: check for errors!
+
+    string hex="";
+    int n=5;
+    
     for (char c:address) {
-        //TODO
+        if (c==':') {
+            this->address[n]=stoi(hex,0,16);
+            n--;
+            hex="";
+        }
+        else {
+            hex+=c;
+        }
     }
+    
+    this->address[n]=stoi(hex,0,16);
+    
 }
 
 string MACAddress::to_string()
@@ -127,7 +143,7 @@ vector<Device> edupals::network::get_devices()
         std::getline(file,tmp);
         file.close();
         
-        device.address=tmp;
+        device.address=MACAddress(tmp);
         // carrier status
         Path carrier=dev+"carrier";
 

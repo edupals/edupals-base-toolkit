@@ -43,7 +43,12 @@ bool test_network_get_devices()
     
     for (auto& dev:devices) {
         clog<<"* "<<dev.name<<endl;
+        clog<<"\tAddress:"<<dev.address.to_string()<<endl;
+        clog<<"\tcarrier:"<<dev.carrier<<endl;
+        clog<<"\tmtu:"<<dev.mtu<<endl;
     }
+    
+    return true;
 }
 
 bool test_filesystem()
