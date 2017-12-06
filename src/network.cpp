@@ -118,8 +118,24 @@ uint8_t IP4Address::operator [] (int n)
 vector<Device> edupals::network::get_devices()
 {
 
-    for(auto& p: fs::directory_iterator("/sys/class"))
-        std::clog << p << '\n';
+    fs::path sys("/sys/class/net");
+    for (auto& dev: fs::directory_iterator(sys)) {
+    
+        clog<<"** "<<dev.path().filename()<<endl;
+        
+        fs::path address = dev.path() / "address";
+        
+        clog<<"\t"<<address<<endl;
+        
+        ifstream file;
+        string tmp;
+        
+        file.open(address);
+        std::getline(file,tmp);
+        file.close();
+        clog<<"mac: "<<tmp<<endl;
+    }
+        
 
     vector<Device> devices;
     
