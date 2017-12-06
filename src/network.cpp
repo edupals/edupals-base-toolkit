@@ -23,7 +23,6 @@
  
  
 #include <network.hpp>
-#include <filesystem.hpp>
 
 #include <sstream>
 #include <iomanip>
@@ -40,7 +39,6 @@
 using namespace std;
 namespace fs=std::experimental::filesystem;
 using namespace edupals::network;
-using namespace edupals::filesystem;
 
 
 MACAddress::MACAddress(array<uint8_t,6> address) : address(address)
@@ -118,116 +116,50 @@ uint8_t IP4Address::operator [] (int n)
 vector<Device> edupals::network::get_devices()
 {
 
-    fs::path sys("/sys/class/net");
-    for (auto& dev: fs::directory_iterator(sys)) {
+    vector<Device> devices;
     
-        clog<<"** "<<dev.path().filename()<<endl;
+    fs::path sysfs("/sys/class/net");
+    
+    for (auto& dev: fs::directory_iterator(sysfs)) {
+    
+        Device device;
         
-        fs::path address = dev.path() / "address";
-        
-        clog<<"\t"<<address<<endl;
-        
+        //device kernel name
+        device.name=dev.path().filename();
+
         ifstream file;
         string tmp;
+
+        // mac address
+        fs::path address = dev.path() / "address";
         
         file.open(address);
         std::getline(file,tmp);
         file.close();
-        clog<<"mac: "<<tmp<<endl;
-    }
-        
-
-    vector<Device> devices;
-    
-    Path sysfs("/sys/class/net");
-    
-    for (Path& dev:sysfs.list()) {
-        
-        string name;
-        name=dev.base();
-        
-        if (name=="." or name=="..") {
-            continue;
-        }
-        
-        Device device;
-        
-        device.name=name;
-        
-        ifstream file;
-        string tmp;
-        
-        // mac address
-        Path address=dev+"address";
-        
-        
-        file.open(address.name());
-        std::getline(file,tmp);
-        file.close();
         
         device.address=MACAddress(tmp);
-        // carrier status
-        Path carrier=dev+"carrier";
-
-        file.open(carrier.name());
+        
+        //carrier
+        fs::path carrier = dev.path() / "carrier";
+        
+        file.open(carrier);
         std::getline(file,tmp);
         file.close();
         
         device.carrier=(tmp=="1");
         
-        // mtu
-        Path mtu=dev+"mtu";
+        //mtu
+        fs::path mtu = dev.path() / "mtu";
         
-        file.open(mtu.name());
+        file.open(mtu);
         std::getline(file,tmp);
         file.close();
-
+        
         device.mtu=std::stoi(tmp);
         
         devices.push_back(device);
     }
     
-    /*
-    int sck;
-    struct ifconf ifc;
-    struct ifreq* ifr;
     
-    char* buffer;
-    const size_t len=sizeof(ifreq)*32; //room for 32 devices
-    
-    sck = socket(AF_INET, SOCK_DGRAM, 0);
-    
-    if (sck<0) {
-        //TODO: error
-    }
-    
-    buffer = new char[len];
-    
-    ifc.ifc_len = len;
-    ifc.ifc_buf = buffer;
-    
-    if (ioctl(sck, SIOCGIFCONF, &ifc) < 0) {
-        //TODO: error
-    }
-    
-    ifr = ifc.ifc_req;
-    int num_ifaces = ifc.ifc_len / sizeof(struct ifreq);
-    
-    for (int n=0;n<num_ifaces;n++) {
-    
-        struct ifreq *item = &ifr[n];
-        
-        Device device;
-        
-        device.name=item->ifr_name;
-        
-        devices.push_back(device);
-    
-    }
-    
-    close(sck);
-    
-    delete [] buffer;
-    */
-    return devices;
+   return devices;
 }

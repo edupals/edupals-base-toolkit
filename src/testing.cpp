@@ -23,7 +23,6 @@
  
  
 #include <system.hpp>
-#include <filesystem.hpp>
 #include <network.hpp>
 #include <cmd.hpp>
 
@@ -47,35 +46,6 @@ bool test_network_get_devices()
         clog<<"\tcarrier:"<<dev.carrier<<endl;
         clog<<"\tmtu:"<<dev.mtu<<endl;
     }
-    
-    return true;
-}
-
-bool test_filesystem()
-{
-
-    filesystem::Path usr("/usr");
-    filesystem::Path share("share");
-
-    filesystem::Path path=usr+share;
-    
-    if (path.exists()) {
-    
-        clog<<"list:"<<path.name()<<endl;
-        for (auto & d:path.list("*gnome*")) {
-            if (d.is_dir()) {
-                clog<<"[D]"<<d.name()<<endl;
-            }
-            else {
-                clog<<d.name()<<endl;
-            }
-        }
-    }
-    
-    filesystem::Path usrshare("/usr/share");
-    
-    clog<<usrshare.name()<<"=="<<path.name()<<":"<<(usrshare==path)<<endl;
-    
     
     return true;
 }
@@ -167,6 +137,8 @@ int main (int argc,char* argv[])
     }
     
     test_network_get_devices();
+    test_system_get_pids();
+
     /*
     test_filesystem();
 

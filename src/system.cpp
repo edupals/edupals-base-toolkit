@@ -23,14 +23,15 @@
  
 
 #include <system.hpp>
-#include <filesystem.hpp>
 
 #include <fstream>
-
+#include <experimental/filesystem>
 #include <unistd.h>
 
 using namespace edupals;
 using namespace std;
+namespace fs=std::experimental::filesystem;
+
 
 static bool is_numeric(const string& s)
 {
@@ -127,15 +128,12 @@ vector<int32_t> edupals::system::get_pids()
 {
     vector<int32_t> pids;
     
-    filesystem::Path proc("/proc");
-    
-    for (filesystem::Path& p : proc.list()) {
-    
-        string tmp = p.base();
+    for (auto& p:fs::directory_iterator("/proc")) {
+        string tmp = p.path().filename();
+        
         if (is_numeric(tmp)) {
             pids.push_back(stoi(tmp));
         }
-        
     }
     
     return pids;
