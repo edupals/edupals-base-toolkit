@@ -29,6 +29,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <experimental/filesystem>
 
 #include <sys/ioctl.h>
 #include <net/if.h>
@@ -37,6 +38,7 @@
 #include <unistd.h>
 
 using namespace std;
+namespace fs=std::experimental::filesystem;
 using namespace edupals::network;
 using namespace edupals::filesystem;
 
@@ -115,6 +117,10 @@ uint8_t IP4Address::operator [] (int n)
 
 vector<Device> edupals::network::get_devices()
 {
+
+    for(auto& p: fs::directory_iterator("/sys/class"))
+        std::clog << p << '\n';
+
     vector<Device> devices;
     
     Path sysfs("/sys/class/net");
