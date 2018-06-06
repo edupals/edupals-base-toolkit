@@ -112,18 +112,13 @@ int main (int argc,char* argv[])
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     
-    parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
-    parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
+    //parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
+    //parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
     parser.add_option(cmd::Option('h',"help",cmd::ArgumentType::None));
     parser.add_option(cmd::Option('v',"version",cmd::ArgumentType::None));
     
-    parser.add_option(cmd::Option('1',cmd::ArgumentType::None));
-    parser.add_option(cmd::Option('2',cmd::ArgumentType::None));
-    parser.add_option(cmd::Option('3',cmd::ArgumentType::None));
-    
-    
     result=parser.parse(argc,argv);
-    
+    /*
     clog<<"options:"<<endl;
     
     for (cmd::Option& o:result.options) {
@@ -135,19 +130,22 @@ int main (int argc,char* argv[])
     for (string s:result.args) {
         clog<<"* "<<s<<endl;
     }
-    
-    test_network_get_devices();
-    test_system_get_pids();
-
-    /*
-    test_filesystem();
-
-    test_system_version();
-    test_system_uptime();
-    test_system_cmdline();
-    test_system_memory();
-    test_system_get_pids();
-    test_system_get_modules();
     */
+    
+    for (string s:result.args) {
+        if (s=="system") {
+            test_system_version();
+            test_system_uptime();
+            test_system_cmdline();
+            test_system_memory();
+            test_system_get_pids();
+            test_system_get_modules();
+        }
+        
+        if (s=="network") {
+            test_network_get_devices();
+        }
+    }
+    
     return 0;
 }
