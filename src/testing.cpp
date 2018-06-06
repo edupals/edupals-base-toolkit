@@ -25,6 +25,7 @@
 #include <system.hpp>
 #include <network.hpp>
 #include <cmd.hpp>
+#include <process.hpp>
 
 #include <iostream>
 
@@ -106,6 +107,15 @@ bool test_system_get_pids()
     return true;
 }
 
+bool test_process()
+{
+    system::Process p;
+    
+    clog<<"process name: "<<p.get_name()<<endl;
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -144,6 +154,10 @@ int main (int argc,char* argv[])
         
         if (s=="network") {
             test_network_get_devices();
+        }
+        
+        if (s=="process") {
+            test_process();
         }
     }
     
