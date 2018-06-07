@@ -27,6 +27,7 @@
 #include <fstream>
 #include <string>
 
+
 using namespace edupals::system;
 using namespace std;
 
@@ -40,6 +41,20 @@ Process::Process(int32_t pid)
     this->pid=pid;
 }
 
+string Process::get_proc()
+{
+    string path;
+    
+    if (pid<0) {
+        path="/proc/self";
+    }
+    else {
+        path="/proc/"+to_string(pid);
+    }
+    
+    return path;
+}
+
 string Process::get_name()
 {
     return get_cmdline();
@@ -49,20 +64,16 @@ string Process::get_cmdline()
 {
 
     string dest;
-    string path;
     
-    if (pid<0) {
-        path="/proc/self/cmdline";
-    }
-    else {
-        path="/proc/"+to_string(pid)+"/cmdline";
-    }
-
+    string path=get_proc()+"/cmdline";
+    
+    
     ifstream file;
     
     file.open(path.c_str());
     std::getline(file,dest);
     file.close();
+    
     
     return dest;
 }

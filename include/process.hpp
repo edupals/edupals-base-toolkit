@@ -41,6 +41,7 @@ namespace edupals
             Process();
             Process(int32_t pid);
             
+            std::string get_proc();
             std::string get_name();
             std::string get_cmdline();
         };
