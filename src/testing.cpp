@@ -111,7 +111,11 @@ bool test_process()
 {
     system::Process p;
     
-    clog<<"process name: "<<p.get_name()<<endl;
+    clog<<"* process:"<<endl;
+    clog<<"    - cmdline: ["<<p.get_cmdline()<<"]"<<endl;
+    clog<<"    - comm: ["<<p.get_comm()<<"]"<<endl;
+    clog<<"    - state: ["<<p.get_state()<<"]"<<endl;
+    clog<<"    - ppid: ["<<p.get_ppid()<<"]"<<endl;
     
     return true;
 }

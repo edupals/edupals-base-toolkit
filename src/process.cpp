@@ -26,10 +26,19 @@
 
 #include <fstream>
 #include <string>
-
+#include <iostream>
 
 using namespace edupals::system;
 using namespace std;
+
+static void read_single_line(string path,string& dest)
+{
+    ifstream file;
+    
+    file.open(path.c_str());
+    std::getline(file,dest);
+    file.close();
+}
 
 Process::Process()
 {
@@ -57,7 +66,9 @@ string Process::get_proc()
 
 string Process::get_name()
 {
-    return get_cmdline();
+    string cmdline = get_cmdline();
+    
+    return cmdline.substr(0,cmdline.find(' ',0));
 }
 
 string Process::get_cmdline()
@@ -71,9 +82,58 @@ string Process::get_cmdline()
     ifstream file;
     
     file.open(path.c_str());
-    std::getline(file,dest);
+    
+    char c;
+    while (file.get(c)) {
+        
+        if (c=='\0') {
+            c=' ';
+        }
+        dest+=c;
+    }
+    
     file.close();
     
+    dest.pop_back();
     
     return dest;
+}
+
+string Process::get_comm()
+{
+    string path = get_proc()+"/comm";
+    string dest;
+    
+    read_single_line(path,dest);
+    
+    return dest;
+}
+
+char Process::get_state()
+{
+    string path = get_proc()+"/stat";
+    string dest;
+    
+    read_single_line(path,dest);
+    
+    size_t p=dest.find(' ',0);
+    p=dest.find(' ',p+1);
+    return dest[p+1];
+}
+
+int32_t Process::get_ppid()
+{
+    string path = get_proc()+"/stat";
+    string dest;
+    
+    read_single_line(path,dest);
+    
+    size_t p=dest.find(' ',0);
+    p=dest.find(' ',p+1);
+    p=dest.find(' ',p+1);
+    size_t q=dest.find(' ',p+1);
+    
+    string tmp = dest.substr(p,q-p);
+    
+    return stoi(tmp);
 }

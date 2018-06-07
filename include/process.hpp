@@ -43,7 +43,12 @@ namespace edupals
             
             std::string get_proc();
             std::string get_name();
+            
             std::string get_cmdline();
+            std::string get_comm();
+            
+            char get_state();
+            int32_t get_ppid();
         };
     }
 }
