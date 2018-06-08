@@ -26,8 +26,11 @@
 #include <network.hpp>
 #include <cmd.hpp>
 #include <process.hpp>
+#include <workqueue.hpp>
 
 #include <iostream>
+#include <thread>
+#include <mutex>
 
 
 using namespace edupals;
@@ -120,6 +123,47 @@ bool test_process()
     return true;
 }
 
+bool test_threading()
+{
+    threading::WorkQueue<int> queue(8);
+    mutex cm;
+    
+    clog<<"* threading:"<<endl;
+    
+    
+    thread producer([&]() mutable {
+    
+        for (int n=0;n<32;n++) {
+            queue.push(n);
+            cm.lock();
+            clog<<"pushed "<<n<<endl;
+            cm.unlock();
+        }
+    
+    });
+    
+    
+    thread consumer([&]() mutable {
+    
+        int v=0;
+        
+        while(v!=31) {
+            v=queue.pop();
+            cm.lock();
+            clog<<"poped "<<v<<endl;
+            cm.unlock();
+        }
+        
+       
+    });
+    
+    
+    producer.join();
+    consumer.join();
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -162,6 +206,10 @@ int main (int argc,char* argv[])
         
         if (s=="process") {
             test_process();
+        }
+        
+        if (s=="threading") {
+            test_threading();
         }
     }
     
