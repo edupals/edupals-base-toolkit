@@ -50,6 +50,16 @@ Process::Process(int32_t pid)
     this->pid=pid;
 }
 
+Process Process::me()
+{
+    return Process(getpid());
+}
+
+Process Process::parent()
+{
+    return Process(getppid());
+}
+
 string Process::get_proc()
 {
     string path;
@@ -119,6 +129,11 @@ char Process::get_state()
     size_t p=dest.find(' ',0);
     p=dest.find(' ',p+1);
     return dest[p+1];
+}
+
+int32_t Process::get_pid()
+{
+    return this->pid;
 }
 
 int32_t Process::get_ppid()

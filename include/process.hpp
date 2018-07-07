@@ -34,12 +34,17 @@ namespace edupals
     {
         class Process
         {
-            public:
+            protected:
             
             int32_t pid;
             
+            public:
+            
             Process();
             Process(int32_t pid);
+            
+            static Process me();
+            static Process parent();
             
             std::string get_proc();
             std::string get_name();
@@ -48,6 +53,7 @@ namespace edupals
             std::string get_comm();
             
             char get_state();
+            int32_t get_pid();
             int32_t get_ppid();
         };
     }
