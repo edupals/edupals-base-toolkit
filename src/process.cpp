@@ -24,6 +24,8 @@
 
 #include <process.hpp>
 
+#include <unistd.h>
+
 #include <fstream>
 #include <string>
 #include <iostream>

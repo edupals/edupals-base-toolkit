@@ -24,8 +24,6 @@
 
 #include <filesystem.hpp>
 
-#include <cstring>
-
 #include <dirent.h>
 #include <pwd.h>
 #include <sys/types.h>
@@ -36,193 +34,25 @@
 #include <libgen.h>
 #include <glob.h>
 
-using namespace edupals::filesystem;
+#include <cstring>
+
 using namespace std;
+namespace fs=std::experimental::filesystem;
 
-void Path::sanitize()
+vector<fs::path> edupals::filesystem::glob(string expression)
 {
-    string sane;
-    
-    bool slash=false;
-    
-    for (char c:value) {
-        if (c=='/') {
-            if (slash==false) {
-                sane+=c;
-                slash=true;
-            }
-        }
-        else {
-            sane+=c;
-            slash=false;
-        }
-    }
-    
-    value=sane;
-}
-
-Path::Path(string path)
-{
-    this->value=path;
-    sanitize();
-}
-
-Path::Path(const char* path) : Path(string(path))
-{
-
-}
-
-string Path::name()
-{
-    return value;
-}
-
-string Path::base()
-{
-    char * dup = new char[value.length()+1];
-    strcpy(dup,value.c_str());
-    string ret(basename(dup));
-    
-    delete [] dup;
-    
-    return ret;
-}
-
-string Path::dir()
-{
-    char * dup = new char[value.length()+1];
-    strcpy(dup,value.c_str());
-    string ret(dirname(dup));
-    
-    delete [] dup;
-    
-    return ret;
-}
-
-vector<Path> Path::list()
-{
-    vector<Path> content;
-    
-    DIR *dp;
-    struct dirent *dirp;
-    
-    dp  = opendir(value.c_str());
-    
-    while ((dirp = readdir(dp)) != nullptr) {
-        string path=this->value+"/"+dirp->d_name;
-        
-        content.push_back(Path(path));
-    }
-    
-    return content;
-}
-
-vector<Path> Path::list(string expression)
-{
-    vector<Path> content;
-    
-    //TODO: Almost copy pasted, needs a deeper undestanding
+    vector<fs::path> tmp;
     
     glob_t glob_result;
-    
-    string full = this->value+"/"+expression;
-    glob(full.c_str(),GLOB_TILDE,nullptr,&glob_result);
+    glob(expression.c_str(),GLOB_TILDE,nullptr,&glob_result);
 
     for (unsigned int n=0;n<glob_result.gl_pathc;n++) {
-        content.push_back(Path(glob_result.gl_pathv[n]));
+        tmp.push_back(fs::path(glob_result.gl_pathv[n]));
     }
     
     globfree(&glob_result);
+
     
-    return content;
-}
-
-bool Path::exists()
-{
-    return (access( value.c_str(), F_OK )!=-1);
-}
-
-bool Path::is_dir()
-{
-    struct stat fflags;
-    stat(value.c_str(),&fflags);
-    
-    return S_ISDIR(fflags.st_mode);
-}
-
-bool Path::is_relative()
-{
-    bool ret=false;
-    
-    if (value.size()>0) {
-        ret=(value[0]!='/');
-    }
-    
-    return ret;
-}
-
-Path Path::home()
-{
-
-    struct passwd *pw = getpwuid(getuid());
-
-    return Path(pw->pw_dir);
-}
-
-Path Path::operator + (Path& right)
-{
-    string path;
-    
-    path = this->value + '/' + right.value;
-    
-    return Path(path);
-}
-
-Path Path::operator + (string& right)
-{
-    string path;
-    
-    path = this->value + '/' + right;
-    
-    return Path(path);
-}
-
-Path Path::operator + (const char* right)
-{
-    return Path(this->value + '/' + string(right));
-}
-
-Path& Path::operator += (Path& right)
-{
-    this->value=this->value + '/' + right.value;
-    this->sanitize();
-    
-    return *this;
-}
-
-Path& Path::operator += (const char* right)
-{
-    this->value=this->value + '/' + right;
-    this->sanitize();
-    
-    return *this;
-}
-
-Path& Path::operator += (string& right)
-{
-    this->value=this->value + '/' + right;
-    this->sanitize();
-    
-    return *this;
-}
-
-bool Path::operator == (Path& right)
-{
-    return (value==right.value);
-}
-
-bool Path::operator != (Path& right)
-{
-    return (value!=right.value);
+    return tmp;
 }
 

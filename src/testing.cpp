@@ -24,6 +24,7 @@
  
 #include <system.hpp>
 #include <network.hpp>
+#include <filesystem.hpp>
 #include <cmd.hpp>
 #include <process.hpp>
 #include <workqueue.hpp>
@@ -164,6 +165,19 @@ bool test_threading()
     return true;
 }
 
+bool test_filesystem()
+{
+    auto files=filesystem::glob("/dev/tty*");
+    
+    clog<<"* filesystem: "<<endl;
+    
+    for (auto file : files) {
+        clog<<"- "<<file<<endl;
+    }
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -210,6 +224,10 @@ int main (int argc,char* argv[])
         
         if (s=="threading") {
             test_threading();
+        }
+        
+        if (s=="filesystem") {
+            test_filesystem();
         }
     }
     
