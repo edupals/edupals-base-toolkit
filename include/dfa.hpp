@@ -20,44 +20,36 @@
  * Lesser General Public License for more details.
  *
  */
+ 
+#ifndef EDUPALS_DFA
+#define EDUPALS_DFA
 
-#ifndef EDUPALS_CONFIGFILE
-#define EDUPALS_CONFIGFILE
+#define EDUPALS_DFA_MAX_STACK   128
 
+#include <cstdint>
 #include <string>
-#include <map>
 
 namespace edupals
 {
-    namespace configfile
+    namespace parser
     {
-    
-        class Section
+        class DFA
         {
+            private:
+            
+            uint8_t stack[EDUPALS_DFA_MAX_STACK];
+            size_t cursor;
+            size_t last;
+            bool _accept;
+                
             public:
             
-            std::string name;
-            
-            std::map<std::string key,std::string value> values;
-            
-            Section();
-            Section(std::string name);
-            
-            void clear();
-            
-            std::string& operator [] (std::string key);
-        };
-    
-        class Config
-        {
-            public:
-            
-            std::map<std::string,Section> sections;
-            
-            ConfigFile();
-            ConfigFile(std::string filename);
-            
-            Section& operator [] (std::string name);
+            void push(uint8_t c);
+            void reset();
+            bool accept();
+            virtual void step();
+            std::string value();
+            size_t size();
         };
     }
 }

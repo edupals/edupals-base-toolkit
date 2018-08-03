@@ -20,45 +20,33 @@
  * Lesser General Public License for more details.
  *
  */
+ 
+#ifndef EDUPALS_TOKEN
+#define EDUPALS_TOKEN
 
-#ifndef EDUPALS_CONFIGFILE
-#define EDUPALS_CONFIGFILE
+#include <dfa.hpp>
 
 #include <string>
-#include <map>
 
 namespace edupals
 {
-    namespace configfile
+    namespace parser
     {
-    
-        class Section
+        namespace token
         {
-            public:
-            
-            std::string name;
-            
-            std::map<std::string key,std::string value> values;
-            
-            Section();
-            Section(std::string name);
-            
-            void clear();
-            
-            std::string& operator [] (std::string key);
-        };
-    
-        class Config
-        {
-            public:
-            
-            std::map<std::string,Section> sections;
-            
-            ConfigFile();
-            ConfigFile(std::string filename);
-            
-            Section& operator [] (std::string name);
-        };
+            class Word: DFA
+            {
+                private:
+                
+                std::string match;
+                
+                public:
+                
+                Word(std::string match);
+                
+                override void step();
+            };
+        }
     }
 }
 
