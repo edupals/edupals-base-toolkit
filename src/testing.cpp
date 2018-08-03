@@ -29,6 +29,7 @@
 #include <process.hpp>
 #include <workqueue.hpp>
 #include <token.hpp>
+#include <lexer.hpp>
 
 #include <iostream>
 #include <thread>

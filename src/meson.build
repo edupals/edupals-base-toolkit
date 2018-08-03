@@ -1,6 +1,6 @@
 
 
-libedupals_base=shared_library('edupals-base', ['system.cpp','network.cpp','cmd.cpp','process.cpp','filesystem.cpp','dfa.cpp','token.cpp'],
+libedupals_base=shared_library('edupals-base', ['system.cpp','network.cpp','cmd.cpp','process.cpp','filesystem.cpp','dfa.cpp','token.cpp','lexer.cpp'],
     cpp_args:['-std=c++1z'],
     include_directories: headers,
     link_args:['-lstdc++fs']
