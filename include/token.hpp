@@ -34,7 +34,7 @@ namespace edupals
     {
         namespace token
         {
-            class Word: DFA
+            class Word: public DFA
             {
                 private:
                 
@@ -44,7 +44,7 @@ namespace edupals
                 
                 Word(std::string match);
                 
-                override void step();
+                void step() override;
             };
         }
     }

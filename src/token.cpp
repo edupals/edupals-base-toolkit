@@ -24,6 +24,7 @@
 #include <token.hpp>
 
 using namespace edupals::parser::token;
+using namespace std;
 
 Word::Word(string match)
 {
@@ -32,19 +33,19 @@ Word::Word(string match)
 
 void Word::step()
 {
-    if (cursor>match.size()) {
+    if (cursor==match.size()) {
         _accept=false;
     }
     else {
-        if (cursor==1) {
-            _accept = (match[]==stack[cursor]);
+        if (cursor==0) {
+            _accept = (match[cursor]==stack[cursor]);
         }
         else {
-            _accept = _accept and (match[]==stack[cursor]);
+            _accept = _accept and (match[cursor]==stack[cursor]);
         }
     }
     
-    if (accept) {
+    if (_accept) {
         last=cursor;
     }
 }

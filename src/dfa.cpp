@@ -29,14 +29,19 @@
 using namespace edupals::parser;
 using namespace std;
 
-void DFA::push(uint8_t c)
+DFA::~DFA()
+{
+}
+
+void DFA::push(int8_t c)
 {
     if (cursor==EDUPALS_DFA_MAX_STACK) {
         throw runtime_error("DFA overflow");
     }
     
-    stack[cursor]=c;
     cursor++;
+    stack[cursor]=c;
+
     
     step();
 }
@@ -44,7 +49,7 @@ void DFA::push(uint8_t c)
 void DFA::reset()
 {
     last=0;
-    cursor=0;
+    cursor=-1;
     _accept=false;
 }
 
@@ -59,10 +64,10 @@ void DFA::step()
 
 string DFA::value()
 {
-    return string(stack,last);
+    return string((const char*)stack,last+1);
 }
 
 size_t DFA::size()
 {
-    return cursor;
+    return cursor+1;
 }

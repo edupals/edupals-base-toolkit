@@ -35,16 +35,18 @@ namespace edupals
     {
         class DFA
         {
-            private:
+            protected:
             
-            uint8_t stack[EDUPALS_DFA_MAX_STACK];
+            int8_t stack[EDUPALS_DFA_MAX_STACK];
             size_t cursor;
             size_t last;
             bool _accept;
                 
             public:
             
-            void push(uint8_t c);
+            virtual ~DFA();
+            
+            void push(int8_t c);
             void reset();
             bool accept();
             virtual void step();

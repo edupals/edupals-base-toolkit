@@ -28,6 +28,7 @@
 #include <cmd.hpp>
 #include <process.hpp>
 #include <workqueue.hpp>
+#include <token.hpp>
 
 #include <iostream>
 #include <thread>
@@ -178,6 +179,70 @@ bool test_filesystem()
     return true;
 }
 
+bool test_parser()
+{
+    string buffer="( ALFA (  ALFABETA ) )(ALFA)ALFA () ";
+    
+    parser::token::Word ws(" ");
+    parser::token::Word left("(");
+    parser::token::Word right(")");
+    parser::token::Word alfa("ALFA");
+    parser::token::Word alfa_beta("ALFABETA");
+    
+    vector<parser::DFA*> dfas;
+    
+    dfas.push_back(&ws);
+    dfas.push_back(&left);
+    dfas.push_back(&right);
+    dfas.push_back(&alfa);
+    dfas.push_back(&alfa_beta);
+    
+    for (parser::DFA* dfa : dfas) {
+        dfa->reset();
+    }
+    
+    parser::DFA* last=nullptr;
+    
+    size_t n=0;
+    
+    while (n<buffer.size()) {
+        char c=buffer[n];
+        
+        int count=0;
+        
+        for (auto d:dfas) {
+            d->push(c);
+            if (d->accept()) {
+                count++;
+                last=d;
+            }
+        }
+        
+        if (count==0) {
+            if (last==nullptr) {
+                clog<<"failed to parse expression"<<endl;
+                return false;
+            }
+            else {
+                clog<<"* "<<last->value()<<endl;
+                last=nullptr;
+                for (auto d:dfas) {
+                    d->reset();
+                }
+            }
+        }
+        else {
+            n++;
+        }
+        
+        
+    }
+    if (last) {
+        clog<<"* "<<last->value()<<endl;
+    }
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -228,6 +293,10 @@ int main (int argc,char* argv[])
         
         if (s=="filesystem") {
             test_filesystem();
+        }
+        
+        if (s=="parser") {
+            test_parser();
         }
     }
     
