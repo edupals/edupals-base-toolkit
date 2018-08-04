@@ -47,5 +47,6 @@ void Word::step()
     
     if (_accept) {
         last=cursor;
+        _end = cursor==match.size()-1;
     }
 }

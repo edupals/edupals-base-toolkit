@@ -39,12 +39,12 @@ namespace edupals
         {
             private:
             
-            std::vector<DFA> tokens;
-            std::map<std::string,DFA*> names;
+            std::vector<DFA*> tokens;
+            std::map<DFA*,std::string> names;
             
             public:
             
-            void add_token(std::string name,DFA dfa);
+            void add_token(std::string name,DFA* dfa);
             
             void parse(std::istream& input);
         };

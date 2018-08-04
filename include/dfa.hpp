@@ -41,6 +41,7 @@ namespace edupals
             size_t cursor;
             size_t last;
             bool _accept;
+            bool _end;
                 
             public:
             
@@ -49,6 +50,7 @@ namespace edupals
             void push(int8_t c);
             void reset();
             bool accept();
+            bool end();
             virtual void step();
             std::string value();
             size_t size();

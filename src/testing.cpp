@@ -34,6 +34,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <sstream>
 
 
 using namespace edupals;
@@ -182,65 +183,24 @@ bool test_filesystem()
 
 bool test_parser()
 {
-    string buffer="( ALFA (  ALFABETA ) )(ALFA)ALFA () ";
+
+    stringstream ss;
     
-    parser::token::Word ws(" ");
-    parser::token::Word left("(");
-    parser::token::Word right(")");
-    parser::token::Word alfa("ALFA");
-    parser::token::Word alfa_beta("ALFABETA");
+    ss<<"( ALFA (  ALFABETA ) )(ALFA)ALFA () BET ALFA";
     
-    vector<parser::DFA*> dfas;
+    parser::Lexer lexer;
     
-    dfas.push_back(&ws);
-    dfas.push_back(&left);
-    dfas.push_back(&right);
-    dfas.push_back(&alfa);
-    dfas.push_back(&alfa_beta);
+    lexer.add_token("WS",new parser::token::Word(" "));
+    lexer.add_token("LEFT",new parser::token::Word("("));
+    lexer.add_token("RIGHT",new parser::token::Word(")"));
+    lexer.add_token("ALFABETA",new parser::token::Word("ALFABETA"));
+    lexer.add_token("ALFA",new parser::token::Word("ALFA"));
+    lexer.add_token("BETA",new parser::token::Word("BETA"));
     
-    for (parser::DFA* dfa : dfas) {
-        dfa->reset();
-    }
     
-    parser::DFA* last=nullptr;
     
-    size_t n=0;
+    lexer.parse(ss);
     
-    while (n<buffer.size()) {
-        char c=buffer[n];
-        
-        int count=0;
-        
-        for (auto d:dfas) {
-            d->push(c);
-            if (d->accept()) {
-                count++;
-                last=d;
-            }
-        }
-        
-        if (count==0) {
-            if (last==nullptr) {
-                clog<<"failed to parse expression"<<endl;
-                return false;
-            }
-            else {
-                clog<<"* "<<last->value()<<endl;
-                last=nullptr;
-                for (auto d:dfas) {
-                    d->reset();
-                }
-            }
-        }
-        else {
-            n++;
-        }
-        
-        
-    }
-    if (last) {
-        clog<<"* "<<last->value()<<endl;
-    }
     return true;
 }
 

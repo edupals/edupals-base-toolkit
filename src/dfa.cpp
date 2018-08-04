@@ -43,7 +43,7 @@ void DFA::push(int8_t c)
     stack[cursor]=c;
 
     
-    step();
+    //step();
 }
 
 void DFA::reset()
@@ -51,11 +51,17 @@ void DFA::reset()
     last=0;
     cursor=-1;
     _accept=false;
+    _end=false;
 }
 
 bool DFA::accept()
 {
     return _accept;
+}
+
+bool DFA::end()
+{
+    return _end;
 }
 
 void DFA::step()
