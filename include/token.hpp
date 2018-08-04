@@ -46,6 +46,17 @@ namespace edupals
                 
                 void step() override;
             };
+            
+            class Bool: public DFA
+            {
+                private:
+                
+                bool path;
+                
+                public:
+                
+                void step() override;
+            };
         }
     }
 }

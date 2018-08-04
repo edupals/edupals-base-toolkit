@@ -186,7 +186,7 @@ bool test_parser()
 
     stringstream ss;
     
-    ss<<"( ALFA (  ALFABETA ) )(ALFA)ALFA () BET ALFA";
+    ss<<"( ALFA (  ALFABETA ) (false) )(ALFA)ALFA (true) BET ALFA";
     
     parser::Lexer lexer;
     
@@ -196,6 +196,7 @@ bool test_parser()
     lexer.add_token("ALFABETA",new parser::token::Word("ALFABETA"));
     lexer.add_token("ALFA",new parser::token::Word("ALFA"));
     lexer.add_token("BETA",new parser::token::Word("BETA"));
+    lexer.add_token("BOOL",new parser::token::Bool());
     
     
     
