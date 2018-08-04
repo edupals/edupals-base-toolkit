@@ -47,6 +47,19 @@ namespace edupals
                 void step() override;
             };
             
+            class Char: public DFA
+            {
+                private:
+                
+                char match;
+                
+                public:
+                
+                Char(char match);
+                
+                void step() override;
+            };
+            
             class Bool: public DFA
             {
                 private:

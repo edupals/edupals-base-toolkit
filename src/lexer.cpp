@@ -81,7 +81,7 @@ void Lexer::parse(istream& input)
             }
             else {
                 if (last->end()) {
-                    clog<<"* "<<names[last]<<endl;
+                    clog<<"* "<<names[last]<<":"<<last->value()<<endl;
                     last=nullptr;
                     count=0;
                     for (DFA* t:tokens) {

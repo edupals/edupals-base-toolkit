@@ -51,6 +51,25 @@ void Word::step()
     }
 }
 
+Char::Char(char match)
+{
+    this->match=match;
+}
+
+void Char::step()
+{
+    if (cursor==0) {
+        if (stack[0]==match) {
+            _accept=true;
+            _end=true;
+            last=0;
+        }
+    }
+    else {
+        _accept=false;
+    }
+}
+
 void Bool::step()
 {
     if (cursor==0) {
@@ -63,9 +82,17 @@ void Bool::step()
                 path=false;
                 _accept=true;
             }
+            else {
+                _accept=false;
+            }
         }
     }
     else {
+    
+        if (!_accept) {
+            return;
+        }
+        
         if (path) {
             if (cursor>3) {
                 _accept=false;
@@ -84,6 +111,7 @@ void Bool::step()
                 case 3:
                     _accept=stack[3]=='e';
                     _end=true;
+                    last=3;
                 break;
                 
             }
@@ -110,6 +138,7 @@ void Bool::step()
                 case 4:
                     _accept=stack[4]=='e';
                     _end=true;
+                    last=4;
                 break;
                 
             }

@@ -186,18 +186,29 @@ bool test_parser()
 
     stringstream ss;
     
-    ss<<"( ALFA (  ALFABETA ) (false) )(ALFA)ALFA (true) BET ALFA";
+    ss<<"( alfa (alfabeta=false) )(alfa)alfa=true) bet alfa";
     
     parser::Lexer lexer;
     
-    lexer.add_token("WS",new parser::token::Word(" "));
-    lexer.add_token("LEFT",new parser::token::Word("("));
-    lexer.add_token("RIGHT",new parser::token::Word(")"));
-    lexer.add_token("ALFABETA",new parser::token::Word("ALFABETA"));
-    lexer.add_token("ALFA",new parser::token::Word("ALFA"));
-    lexer.add_token("BETA",new parser::token::Word("BETA"));
-    lexer.add_token("BOOL",new parser::token::Bool());
+    parser::token::Char ws(' ');
+    parser::token::Char left('(');
+    parser::token::Char right(')');
+    parser::token::Char equal('=');
+    parser::token::Char cr('\n');
+    parser::token::Bool boolean;
+    parser::token::Word alfa("alfa");
+    parser::token::Word beta("beta");
+    parser::token::Word alfabeta("alfabeta");
     
+    lexer.add_token("WS",&ws);
+    lexer.add_token("LEFT",&left);
+    lexer.add_token("RIGHT",&right);
+    lexer.add_token("EQUAL",&equal);
+    lexer.add_token("CR",&cr);
+    lexer.add_token("BOOL",&boolean);
+    lexer.add_token("ALFABETA",&alfabeta);
+    lexer.add_token("ALFA",&alfa);
+    lexer.add_token("BETA",&beta);
     
     
     lexer.parse(ss);
