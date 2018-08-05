@@ -23,11 +23,36 @@
  
 
 #include <configfile.hpp>
+#include <lexer.hpp>
 
 using namespace edupals::configfile;
 using namespace std;
 
 
 Section::Section()
+{
+}
+
+Section::Section(string name)
+{
+}
+
+void Section::clear()
+{
+}
+
+string& Section::operator [] (string name)
+{
+}
+
+Config::Config()
+{
+}
+
+Config::Config(string name)
+{
+}
+
+Section& Config::operator [] (string name)
 {
 }

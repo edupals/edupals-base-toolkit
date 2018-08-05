@@ -54,8 +54,8 @@ namespace edupals
             
             std::map<std::string,Section> sections;
             
-            ConfigFile();
-            ConfigFile(std::string filename);
+            Config();
+            Config(std::string filename);
             
             Section& operator [] (std::string name);
         };
