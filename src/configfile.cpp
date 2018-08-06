@@ -24,10 +24,38 @@
 
 #include <configfile.hpp>
 #include <lexer.hpp>
+#include <token.hpp>
 
+#include <fstream>
+
+using namespace edupals;
 using namespace edupals::configfile;
 using namespace std;
 
+class Comment : public parser::DFA
+{
+    public:
+    
+    void step() override 
+    {
+    
+        if (_end) {
+            _accept=false;
+        }
+    
+        if (cursor==0) {
+            if (stack[0]=='#') {
+                _accept=true;
+            }
+        }
+        else {
+            if (_accept and stack[cursor]=='\n') {
+                _end=true;
+                last=cursor;
+            }
+        }
+    }
+};
 
 Section::Section()
 {
@@ -51,6 +79,29 @@ Config::Config()
 
 Config::Config(string name)
 {
+    parser::token::Char ws(' ');
+    parser::token::Char cr('\n');
+    parser::token::Char left('[');
+    parser::token::Char right(']');
+    parser::token::Char equal('=');
+    Comment comment;
+    
+    parser::Lexer ini_lexer;
+    
+    ini_lexer.add_token("WS",&ws);
+    ini_lexer.add_token("CR",&cr);
+    ini_lexer.add_token("LEFT",&left);
+    ini_lexer.add_token("RIGHT",&right);
+    ini_lexer.add_token("COMMENT",&comment);
+
+    ifstream file;
+    
+    file.open(name);
+    
+    ini_lexer.parse(file);
+    
+    file.close();
+
 }
 
 Section& Config::operator [] (string name)

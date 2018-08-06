@@ -30,6 +30,7 @@
 #include <workqueue.hpp>
 #include <token.hpp>
 #include <lexer.hpp>
+#include <configfile.hpp>
 
 #include <iostream>
 #include <thread>
@@ -216,6 +217,14 @@ bool test_parser()
     return true;
 }
 
+bool test_config()
+{
+
+    configfile::Config ini("crap.ini");
+
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -270,6 +279,10 @@ int main (int argc,char* argv[])
         
         if (s=="parser") {
             test_parser();
+        }
+        
+        if (s=="config") {
+            test_config();
         }
     }
     

@@ -38,7 +38,7 @@ namespace edupals
             
             std::string name;
             
-            std::map<std::string key,std::string value> values;
+            std::map<std::string,std::string> values;
             
             Section();
             Section(std::string name);
