@@ -57,6 +57,42 @@ class Comment : public parser::DFA
     }
 };
 
+class Name : public parser::DFA
+{
+    public:
+    
+    void step() override
+    {
+        int8_t c = stack[cursor];
+        
+        if (cursor==0) {
+            
+            if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
+                _accept=true;
+                _end=true;
+                last=cursor;
+            }
+        }
+        else {
+            if (_accept) {
+                bool valid=false;
+                
+                if (c==' ' or c=='_' or c=='-') {
+                    _end=false;
+                    valid=true;
+                }
+                if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
+                    _end=true;
+                    last=cursor;
+                    valid=true;
+                }
+                
+                _accept=valid;
+            }
+        }
+    }
+};
+
 Section::Section()
 {
 }
@@ -85,6 +121,7 @@ Config::Config(string name)
     parser::token::Char right(']');
     parser::token::Char equal('=');
     Comment comment;
+    Name sname;
     
     parser::Lexer ini_lexer;
     
@@ -93,6 +130,7 @@ Config::Config(string name)
     ini_lexer.add_token("LEFT",&left);
     ini_lexer.add_token("RIGHT",&right);
     ini_lexer.add_token("COMMENT",&comment);
+    ini_lexer.add_token("NAME",&sname);
 
     ifstream file;
     
