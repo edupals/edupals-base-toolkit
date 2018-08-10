@@ -38,6 +38,7 @@ void Lexer::add_token(string name,DFA* dfa)
 void Lexer::parse(istream& input)
 {
     list<char> chars;
+    list<char> lookahead;
     
     parser::DFA* last=nullptr;
     int count=0;
@@ -63,13 +64,18 @@ void Lexer::parse(istream& input)
         clog<<"["<<c<<"]"<<endl;
         count=0;
         
+        lookahead.push_back(c);
+        
         for (DFA* t:tokens) {
             t->push(c);
             t->step();
             if (t->accept()) {
                 //clog<<c<<" accepted by "<<names[t]<<endl;
                 count++;
-                last=t;
+                if (t->end()) {
+                    last=t;
+                    lookahead.clear();
+                }
             }
         }
         //clog<<"count " <<count<<endl;
@@ -89,8 +95,29 @@ void Lexer::parse(istream& input)
                     }
                 }
                 else {
-                    clog<<"syntax error: "<<last->value()<<endl;
-                    break;
+                
+                    if (lookahead.size()==0) {
+                        clog<<"syntax error: "<<last->value()<<endl;
+                        break;
+                    }
+                    else {
+                    
+                        chars.pop_front();
+                        while (lookahead.size()>0) {
+                            chars.push_front(lookahead.back());
+                            clog<<"repushing "<<lookahead.back()<<endl;
+                            lookahead.pop_back();
+                        }
+                        
+                        clog<<"* "<<names[last]<<":"<<last->value()<<endl;
+                        last=nullptr;
+                        count=0;
+                        for (DFA* t:tokens) {
+                            t->reset();
+                        }
+                        
+                        
+                    }
                 }
             }
         }

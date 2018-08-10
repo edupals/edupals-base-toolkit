@@ -129,6 +129,7 @@ Config::Config(string name)
     ini_lexer.add_token("CR",&cr);
     ini_lexer.add_token("LEFT",&left);
     ini_lexer.add_token("RIGHT",&right);
+    ini_lexer.add_token("EQUAL",&equal);
     ini_lexer.add_token("COMMENT",&comment);
     ini_lexer.add_token("NAME",&sname);
 
