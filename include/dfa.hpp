@@ -38,8 +38,8 @@ namespace edupals
             protected:
             
             int8_t stack[EDUPALS_DFA_MAX_STACK];
-            size_t cursor;
-            size_t last;
+            int cursor;
+            int last;
             bool _accept;
             bool _end;
                 
@@ -47,12 +47,45 @@ namespace edupals
             
             virtual ~DFA();
             
+            /*!
+                Push a character into dfa
+                this will trigger either start or step methods
+            */
             void push(int8_t c);
-            void reset();
+            
+            /*!
+                Resets dfa state
+            */
+            virtual void reset();
+            
+            /*!
+                Whenever dfa is accepting current pushed string
+            */
             bool accept();
+            
+            /*!
+                Whenever dfa is ready to end
+            */
             bool end();
+            
+            /*!
+                Triggered with first character pushed
+            */
+            virtual void start();
+            
+            /*!
+                Triggered after a character been pushed
+            */
             virtual void step();
+            
+            /*!
+                Returns accepted string
+            */
             std::string value();
+            
+            /*!
+                size of current stack
+            */
             size_t size();
         };
     }
