@@ -93,6 +93,32 @@ class Name : public parser::DFA
     }
 };
 
+class Value : public parser::DFA
+{
+    public:
+    
+    void step() override
+    {
+        if (cursor==0) {
+            if (stack[0]=='=') {
+                _accept=true;
+            }
+        }
+        else {
+            if (_end) {
+                _end=false;
+                _accept=false;
+            }
+            else {
+                if (stack[cursor]=='\n') {
+                    _end=true;
+                    last=cursor;
+                }
+            }
+        }
+    }
+};
+
 Section::Section()
 {
 }
@@ -122,6 +148,7 @@ Config::Config(string name)
     parser::token::Char equal('=');
     Comment comment;
     Name sname;
+    Value value;
     
     parser::Lexer ini_lexer;
     
@@ -132,6 +159,7 @@ Config::Config(string name)
     ini_lexer.add_token("EQUAL",&equal);
     ini_lexer.add_token("COMMENT",&comment);
     ini_lexer.add_token("NAME",&sname);
+    ini_lexer.add_token("VALUE",&value);
 
     ifstream file;
     
