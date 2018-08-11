@@ -48,6 +48,10 @@ void DFA::push(int8_t c)
     else {
         step();
     }
+    
+    if (_end) {
+        last=cursor;
+    }
 }
 
 void DFA::reset()

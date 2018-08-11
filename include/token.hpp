@@ -44,6 +44,7 @@ namespace edupals
                 
                 Word(std::string match);
                 
+                void start() override;
                 void step() override;
             };
             
@@ -57,6 +58,7 @@ namespace edupals
                 
                 Char(char match);
                 
+                void start() override;
                 void step() override;
             };
             
@@ -68,6 +70,23 @@ namespace edupals
                 
                 public:
                 
+                void start() override;
+                void step() override;
+            };
+            
+            class Integer: public DFA
+            {
+                public:
+                
+                void start() override;
+                void step() override;
+            };
+            
+            class Float: public DFA
+            {
+                public:
+                
+                void start() override;
                 void step() override;
             };
         }

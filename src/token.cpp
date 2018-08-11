@@ -31,23 +31,27 @@ Word::Word(string match)
     this->match=match;
 }
 
+void Word::start()
+{
+    _accept = (match[0]==stack[0]);
+    
+    if (match.size()==1) {
+        _end=_accept;
+    }
+}
+
 void Word::step()
 {
     if (cursor==match.size()) {
         _accept=false;
+        _end=false;
     }
     else {
-        if (cursor==0) {
-            _accept = (match[cursor]==stack[cursor]);
+        _accept = _accept and (match[cursor]==stack[cursor]);
+        
+        if (cursor==match.size()-1) {
+            _end=_accept;
         }
-        else {
-            _accept = _accept and (match[cursor]==stack[cursor]);
-        }
-    }
-    
-    if (_accept) {
-        last=cursor;
-        _end = cursor==match.size()-1;
     }
 }
 
@@ -56,93 +60,129 @@ Char::Char(char match)
     this->match=match;
 }
 
+void Char::start()
+{
+    _accept = (stack[0]==match);
+    _end=_accept;
+}
+
 void Char::step()
 {
-    if (cursor==0) {
-        if (stack[0]==match) {
-            _accept=true;
-            _end=true;
-            last=0;
-        }
+    _accept=false;
+    _end=false;
+}
+
+void Bool::start()
+{
+    if (stack[0]=='t') {
+        path=true;
+        _accept=true;
     }
     else {
-        _accept=false;
+        if (stack[0]=='f') {
+            path=false;
+            _accept=true;
+        }
     }
 }
 
 void Bool::step()
 {
-    if (cursor==0) {
-        if (stack[0]=='t') {
-            path=true;
-            _accept=true;
-        }
-        else {
-            if (stack[0]=='f') {
-                path=false;
-                _accept=true;
-            }
-            else {
-                _accept=false;
-            }
-        }
-    }
-    else {
     
-        if (!_accept) {
+    if (!_accept) {
+        return;
+    }
+        
+    if (path) {
+        if (cursor>3) {
+            _accept=false;
+            _end=false;
             return;
         }
         
-        if (path) {
-            if (cursor>3) {
-                _accept=false;
-                return;
-            }
+        switch (cursor) {
+            case 1:
+                _accept=stack[1]=='r';
+            break;
             
-            switch (cursor) {
-                case 1:
-                    _accept=stack[1]=='r';
-                break;
-                
-                case 2:
-                    _accept=stack[2]=='u';
-                break;
-                
-                case 3:
-                    _accept=stack[3]=='e';
-                    _end=true;
-                    last=3;
-                break;
-                
-            }
-        }
-        else {
-            if (cursor>4) {
-                _accept=false;
-                return;
-            }
+            case 2:
+                _accept=stack[2]=='u';
+            break;
             
-            switch (cursor) {
-                case 1:
-                    _accept=stack[1]=='a';
-                break;
-                
-                case 2:
-                    _accept=stack[2]=='l';
-                break;
-                
-                case 3:
-                    _accept=stack[3]=='s';
-                break;
-                
-                case 4:
-                    _accept=stack[4]=='e';
-                    _end=true;
-                    last=4;
-                break;
-                
-            }
-
+            case 3:
+                _accept=stack[3]=='e';
+                _end=true;
+            break;
+            
         }
     }
+    else {
+        if (cursor>4) {
+            _accept=false;
+            _end=false;
+            return;
+        }
+        
+        switch (cursor) {
+            case 1:
+                _accept=stack[1]=='a';
+            break;
+            
+            case 2:
+                _accept=stack[2]=='l';
+            break;
+            
+            case 3:
+                _accept=stack[3]=='s';
+            break;
+            
+            case 4:
+                _accept=stack[4]=='e';
+                _end=true;
+            break;
+            
+        }
+    }
+}
+
+void Integer::start()
+{
+    char c = stack[0];
+    
+    if (c=='+' or c=='-') {
+        _accept=true;
+    }
+    
+    if (c>='0' and c<='9') {
+        _accept=true;
+        _end=true;
+    }
+}
+
+void Integer::step()
+{
+    if (!_accept) {
+        return;
+    }
+    
+    if (stack[cursor]>='0' and stack[cursor]<='9') {
+        _accept=true;
+    }
+    else {
+        _accept=false;
+    }
+    
+    _end=_accept;
+}
+
+void Float::start()
+{
+    char c = stack[0];
+    
+
+}
+
+void Float::step()
+{
+    
 }
