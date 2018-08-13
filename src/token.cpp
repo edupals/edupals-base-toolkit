@@ -178,11 +178,52 @@ void Integer::step()
 void Float::start()
 {
     char c = stack[0];
+    dot=false;
     
+    if (c=='+' or c=='-') {
+        _accept=true;
+    }
+    
+    if (c>='0' or c<='9') {
+        _accept=true;
+    }
+    
+    if (c=='.') {
+        _accept=true;
+        dot=true;
+    }
 
 }
 
 void Float::step()
 {
+    if (!_accept) {
+        return;
+    }
     
+    char c = stack[cursor];
+    
+    if (dot) {
+        if (c>='0' or c<='9') {
+            _accept=true;
+            _end=true;
+        }
+        else {
+            _accept=false;
+            _end=false;
+        }
+    }
+    else {
+        if (c=='.') {
+            dot=true;
+        }
+        else {
+            if (c>='0' or c<='9') {
+                _accept=true;
+            }
+            else {
+                _accept=false;
+            }
+        }
+    }
 }

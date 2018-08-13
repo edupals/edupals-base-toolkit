@@ -84,6 +84,10 @@ namespace edupals
             
             class Float: public DFA
             {
+                private:
+                
+                bool dot;
+                
                 public:
                 
                 void start() override;

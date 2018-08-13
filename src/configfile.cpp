@@ -36,22 +36,26 @@ class Comment : public parser::DFA
 {
     public:
     
+    void start() override
+    {
+        if (stack[0]=='#') {
+            _accept=true;
+        }
+    }
+    
     void step() override 
     {
-    
+        if (!_accept) {
+            return;
+        }
+        
         if (_end) {
             _accept=false;
-        }
-    
-        if (cursor==0) {
-            if (stack[0]=='#') {
-                _accept=true;
-            }
+            _end=false;
         }
         else {
-            if (_accept and stack[cursor]=='\n') {
+            if (stack[cursor]=='\n') {
                 _end=true;
-                last=cursor;
             }
         }
     }
@@ -61,35 +65,36 @@ class Name : public parser::DFA
 {
     public:
     
+    void start() override
+    {
+        char c = stack[cursor];
+        
+        if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
+            _accept=true;
+            _end=true;
+        }
+    }
+    
     void step() override
     {
-        int8_t c = stack[cursor];
+        if (!_accept) {
+            return;
+        }
         
-        if (cursor==0) {
-            
-            if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
-                _accept=true;
-                _end=true;
-                last=cursor;
-            }
-        }
-        else {
-            if (_accept) {
-                bool valid=false;
+        char c = stack[cursor];
+        
+        bool valid=false;
                 
-                if (c==' ' or c=='_' or c=='-') {
-                    _end=false;
-                    valid=true;
-                }
-                if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
-                    _end=true;
-                    last=cursor;
-                    valid=true;
-                }
-                
-                _accept=valid;
-            }
+        if (c==' ' or c=='_' or c=='-') {
+            _end=false;
+            valid=true;
         }
+        if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
+            _end=true;
+            valid=true;
+        }
+        
+        _accept=valid;
     }
 };
 
@@ -97,23 +102,27 @@ class Value : public parser::DFA
 {
     public:
     
+    void start() override
+    {
+        if (stack[0]=='=') {
+            _accept=true;
+        }
+    }
+    
     void step() override
     {
-        if (cursor==0) {
-            if (stack[0]=='=') {
-                _accept=true;
-            }
+        if (!_accept) {
+            return;
+        }
+        
+        
+        if (_end) {
+            _end=false;
+            _accept=false;
         }
         else {
-            if (_end) {
-                _end=false;
-                _accept=false;
-            }
-            else {
-                if (stack[cursor]=='\n') {
-                    _end=true;
-                    last=cursor;
-                }
+            if (stack[cursor]=='\n') {
+                _end=true;
             }
         }
     }
