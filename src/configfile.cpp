@@ -95,6 +95,7 @@ class Name : public parser::DFA
         }
         
         _accept=valid;
+        _end = _end and valid;
     }
 };
 

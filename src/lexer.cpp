@@ -29,6 +29,13 @@
 using namespace edupals::parser;
 using namespace std;
 
+void Lexer::reset_tokens()
+{
+    for (DFA* t:tokens) {
+        t->reset();
+    }
+}
+
 void Lexer::add_token(string name,DFA* dfa)
 {
     tokens.push_back(dfa);
@@ -43,9 +50,7 @@ void Lexer::parse(istream& input)
     parser::DFA* last=nullptr;
     int count=0;
     
-    for (DFA* t:tokens) {
-        t->reset();
-    }
+    reset_tokens();
     
     while (true) {
         char c;
@@ -68,7 +73,6 @@ void Lexer::parse(istream& input)
         
         for (DFA* t:tokens) {
             t->push(c);
-            t->step();
             if (t->accept()) {
                 //clog<<c<<" accepted by "<<names[t]<<endl;
                 count++;
@@ -90,9 +94,7 @@ void Lexer::parse(istream& input)
                     clog<<"* "<<names[last]<<":"<<last->value()<<endl;
                     last=nullptr;
                     count=0;
-                    for (DFA* t:tokens) {
-                        t->reset();
-                    }
+                    reset_tokens();
                 }
                 else {
                 
@@ -105,16 +107,14 @@ void Lexer::parse(istream& input)
                         chars.pop_front();
                         while (lookahead.size()>0) {
                             chars.push_front(lookahead.back());
-                            clog<<"repushing "<<lookahead.back()<<endl;
+                            clog<<"repushing ["<<lookahead.back()<<"]"<<endl;
                             lookahead.pop_back();
                         }
                         
                         clog<<"* "<<names[last]<<":"<<last->value()<<endl;
                         last=nullptr;
                         count=0;
-                        for (DFA* t:tokens) {
-                            t->reset();
-                        }
+                        reset_tokens();
                         
                         
                     }

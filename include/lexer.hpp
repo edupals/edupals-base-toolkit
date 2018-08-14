@@ -42,6 +42,8 @@ namespace edupals
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
             
+            void reset_tokens();
+            
             public:
             
             void add_token(std::string name,DFA* dfa);
