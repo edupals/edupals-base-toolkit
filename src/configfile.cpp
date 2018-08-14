@@ -25,6 +25,7 @@
 #include <configfile.hpp>
 #include <lexer.hpp>
 #include <token.hpp>
+#include <grammar.hpp>
 
 #include <fstream>
 
@@ -170,6 +171,18 @@ Config::Config(string name)
     ini_lexer.add_token("COMMENT",&comment);
     ini_lexer.add_token("NAME",&sname);
     ini_lexer.add_token("VALUE",&value);
+    
+    parser::Grammar grammar;
+    
+    grammar.add("body",{"section","lines","body"});
+    grammar.add("body",{"$"});
+    
+    grammar.add("section",{"$LEFT","$NAME","$RIGHT"});
+
+    grammar.add("lines",{"line","lines"});
+    grammar.add("lines",{"$"});
+    
+    grammar.add("line",{"KEY","VALUE"});
 
     ifstream file;
     
@@ -178,6 +191,8 @@ Config::Config(string name)
     ini_lexer.parse(file);
     
     file.close();
+    
+    grammar.test({"$LEFT","$NAME","$RIGHT","$KEY","$VALUE","$KEY","$VALUE"});
 
 }
 
