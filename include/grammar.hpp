@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 
 namespace edupals
 {
@@ -49,8 +50,8 @@ namespace edupals
             
             void add(std::string name,std::vector<std::string> value);
             
-            Production& search(std::string name);
-            void R(Production& p,int n, std::vector<std::string>& tokens);
+            std::vector<Production> search(std::string name);
+            int R(Production& p,std::list<std::string>& tokens);
             void test(std::vector<std::string> tokens);
         };
     }

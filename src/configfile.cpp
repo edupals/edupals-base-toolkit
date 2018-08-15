@@ -182,7 +182,7 @@ Config::Config(string name)
     grammar.add("lines",{"line","lines"});
     grammar.add("lines",{"$"});
     
-    grammar.add("line",{"KEY","VALUE"});
+    grammar.add("line",{"$KEY","$VALUE"});
 
     ifstream file;
     
@@ -192,7 +192,7 @@ Config::Config(string name)
     
     file.close();
     
-    grammar.test({"$LEFT","$NAME","$RIGHT","$KEY","$VALUE","$KEY","$VALUE"});
+    grammar.test({"$LEFT","$NAME","$RIGHT","$KEY","$VALUE","$NAME"});
 
 }
 

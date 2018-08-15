@@ -22,8 +22,9 @@
  */
  
 #include <grammar.hpp>
-
+#include <unistd.h>
 #include <iostream>
+#include <list>
 
 using namespace edupals::parser;
 using namespace std;
@@ -48,43 +49,79 @@ bool is_epsilon(string& token)
     return (is_terminal(token) and token.size()==1);
 }
 
-Production& Grammar::search(string name)
+vector<Production> Grammar::search(string name)
 {
-
+    vector<Production> tmp;
+    
+    for (Production p:productions) {
+        if (p.name==name) {
+            tmp.push_back(p);
+        }
+    }
+    
+    return tmp;
 }
 
-void Grammar::R(Production& p,int n,vector<string>& tokens);
+int Grammar::R(Production& p,list<string>& tokens)
 {
-    int m=n;
-    string token = tokens[m];
+    string token = tokens.front();
+    sleep(1);
+    clog<<"-token "<<token<<endl;
     
     for (string& t:p.value) {
         if (is_terminal(t)) {
             if (t==token) {
-                m++;
-                if (m==tokens.size()) {
+                clog<<"match "<<t<<endl;
+                tokens.pop_front();
+                
+                if (tokens.size()==0) {
                     clog<<"end"<<endl;
-                    return;
+                    return 1;
                 }
                 
-                token = tokens[m];
+                token = tokens.front();
+                clog<<"next token "<<token<<endl;
             }
             else {
                 if (is_epsilon(t)) {
+                    clog<<"epsilon"<<endl;
+                    return 1;
                 }
                 else {
                     cerr<<"unexpected "<<token<<endl;
-                    return;
+                    return -1;
                 }
             }
         }
         else {
+            clog<<"non terminal "<<t<<endl;
+            vector<Production> prods = search(t);
+            int ret;
+            
+            for (Production& q:prods) {
+                clog<<"exploring "<<q.name<<endl;
+                ret=R(q,tokens);
+                
+                if (ret>0) {
+                    break;
+                }
+            }
+            
+            if (ret<0) {
+                return -1;
+            }
         }
     }
+    
+    return 1;
 }
 
 void Grammar::test(vector<string> tokens)
 {
-    R(productions[0],0);
+    list<string> buffer;
+    for (string s:tokens) {
+        buffer.push_back(s);
+    }
+    R(productions[0],buffer);
     
 }
