@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <istream>
+#include <functional>
 
 namespace edupals
 {
@@ -38,6 +39,8 @@ namespace edupals
         class Lexer
         {
             private:
+            
+            std::function<void(DFA*,std::string)> callback;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
@@ -49,6 +52,8 @@ namespace edupals
             void add_token(std::string name,DFA* dfa);
             
             void parse(std::istream& input);
+            
+            void set_callback(std::function<void(DFA*,std::string)> callback);
         };
     }
 }

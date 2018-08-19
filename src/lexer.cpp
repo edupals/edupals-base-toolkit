@@ -128,3 +128,8 @@ void Lexer::parse(istream& input)
         
     }
 }
+
+void Lexer::set_callback(function<void(DFA*,string)> callback)
+{
+    this->callback=callback;
+}
