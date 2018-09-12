@@ -211,6 +211,11 @@ bool test_parser()
     lexer.add_token("ALFA",&alfa);
     lexer.add_token("BETA",&beta);
     
+    lexer.set_callback(
+        [](parser::DFA* dfa,string name) {
+            clog<<"-- token: "<<name<<endl;
+        }
+    );
     
     lexer.parse(ss);
     

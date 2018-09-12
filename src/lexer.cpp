@@ -101,6 +101,7 @@ void Lexer::parse(istream& input)
             else {
                 if (last->end()) {
                     clog<<"* "<<names[last]<<":"<<last->value()<<endl;
+                    callback(last,names[last]);
                     last=nullptr;
                     count=0;
                     reset_tokens();
@@ -121,6 +122,7 @@ void Lexer::parse(istream& input)
                         }
                         
                         clog<<"* "<<names[last]<<":"<<last->value()<<endl;
+                        callback(last,names[last]);
                         last=nullptr;
                         count=0;
                         reset_tokens();
