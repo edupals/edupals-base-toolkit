@@ -45,13 +45,28 @@ namespace edupals
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
             
+            bool stop_requested;
+            
             void reset_tokens();
             
             public:
             
+            /*!
+                Adds a token DFA to the list
+                \param name 
+            */
             void add_token(std::string name,DFA* dfa);
             
+            /*!
+                Parse input stream
+                \param input input stream
+            */
             void parse(std::istream& input);
+            
+            /*!
+                Stop parsing, usually called from a callback
+            */
+            void stop();
             
             void set_callback(std::function<void(DFA*,std::string)> callback);
         };

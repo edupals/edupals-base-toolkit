@@ -44,23 +44,32 @@ void Lexer::add_token(string name,DFA* dfa)
 
 void Lexer::parse(istream& input)
 {
+
+    /*
+        [input stream] ---> [chars] ---> [lookahead] <---
+    */
+
     list<char> chars;
     list<char> lookahead;
     
     parser::DFA* last=nullptr;
     int count=0;
     
+    stop_requested=false;
+    
     reset_tokens();
     
     while (true) {
         char c;
         
+        // eat char from input stream and push it to intermediate queue
         if (!input.eof()) {
             
             input.get(c);
             chars.push_back(c);
         }
         
+        // there are no more characters to process
         if (chars.size()==0) {
             break;
         }
@@ -127,6 +136,10 @@ void Lexer::parse(istream& input)
         
         
     }
+}
+
+void Lexer::stop()
+{
 }
 
 void Lexer::set_callback(function<void(DFA*,string)> callback)
