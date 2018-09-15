@@ -41,20 +41,55 @@ namespace edupals
             public:
             
             Process();
+            
+            /*!
+                Create a process object with given pid
+                No check is done for a valid PID
+            */
             Process(int32_t pid);
             
+            /*!
+                Gets current Process
+            */
             static Process me();
+            
+            /*!
+                Gets current parent Process
+            */
             static Process parent();
             
+            /*!
+                Get full proc path
+            */
             std::string get_proc();
+            
+            /*!
+                Get process name
+            */
             std::string get_name();
             
+            /*!
+                Get complete process cmd line
+            */
             std::string get_cmdline();
             std::string get_comm();
             
             char get_state();
+            
+            /*!
+                Get process pid
+            */
             int32_t get_pid();
+            
+            /*!
+                Get parent process pid
+            */
             int32_t get_ppid();
+            
+            /*!
+                Check if the process exists
+            */
+            bool exists();
         };
     }
 }

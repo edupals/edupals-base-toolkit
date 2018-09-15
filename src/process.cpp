@@ -25,6 +25,8 @@
 #include <process.hpp>
 
 #include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
 
 #include <fstream>
 #include <string>
@@ -153,4 +155,11 @@ int32_t Process::get_ppid()
     string tmp = dest.substr(p,q-p);
     
     return stoi(tmp);
+}
+
+bool Process::exists()
+{
+    int ret=kill(pid,0);
+    
+    return (ret==0);
 }
