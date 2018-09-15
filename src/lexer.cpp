@@ -59,7 +59,7 @@ void Lexer::parse(istream& input)
     
     reset_tokens();
     
-    while (true) {
+    while (!stop_requested) {
         char c;
         
         // eat char from input stream and push it to intermediate queue
@@ -75,7 +75,6 @@ void Lexer::parse(istream& input)
         }
         
         c = chars.front();
-        clog<<"["<<c<<"]"<<endl;
         count=0;
         
         lookahead.push_back(c);
@@ -83,7 +82,6 @@ void Lexer::parse(istream& input)
         for (DFA* t:tokens) {
             t->push(c);
             if (t->accept()) {
-                //clog<<c<<" accepted by "<<names[t]<<endl;
                 count++;
                 if (t->end()) {
                     last=t;
@@ -91,7 +89,6 @@ void Lexer::parse(istream& input)
                 }
             }
         }
-        //clog<<"count " <<count<<endl;
         
         if (count==0) {
             if (last==nullptr) {
@@ -100,8 +97,7 @@ void Lexer::parse(istream& input)
             }
             else {
                 if (last->end()) {
-                    clog<<"* "<<names[last]<<":"<<last->value()<<endl;
-                    callback(last,names[last]);
+                    accepted_cb(last,names[last]);
                     last=nullptr;
                     count=0;
                     reset_tokens();
@@ -114,15 +110,14 @@ void Lexer::parse(istream& input)
                     }
                     else {
                     
+                        // repushing characters
                         chars.pop_front();
                         while (lookahead.size()>0) {
                             chars.push_front(lookahead.back());
-                            clog<<"repushing ["<<lookahead.back()<<"]"<<endl;
                             lookahead.pop_back();
                         }
                         
-                        clog<<"* "<<names[last]<<":"<<last->value()<<endl;
-                        callback(last,names[last]);
+                        accepted_cb(last,names[last]);
                         last=nullptr;
                         count=0;
                         reset_tokens();
@@ -142,9 +137,15 @@ void Lexer::parse(istream& input)
 
 void Lexer::stop()
 {
+    stop_requested=true;
 }
 
-void Lexer::set_callback(function<void(DFA*,string)> callback)
+void Lexer::signal_accepted(function<void(DFA*,string)> callback)
 {
-    this->callback=callback;
+    this->accepted_cb=callback;
+}
+
+void Lexer::signal_rejected(function<void(DFA*,string)> callback)
+{
+    this->rejected_cb=callback;
 }

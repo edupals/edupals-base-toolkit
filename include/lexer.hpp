@@ -40,7 +40,8 @@ namespace edupals
         {
             private:
             
-            std::function<void(DFA*,std::string)> callback;
+            std::function<void(DFA*,std::string)> accepted_cb;
+            std::function<void(DFA*,std::string)> rejected_cb;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
@@ -68,7 +69,15 @@ namespace edupals
             */
             void stop();
             
-            void set_callback(std::function<void(DFA*,std::string)> callback);
+            /*!
+                Sets the accepted callback
+            */
+            void signal_accepted(std::function<void(DFA*,std::string)> callback);
+            
+            /*!
+                Sets the rejected callback
+            */
+            void signal_rejected(std::function<void(DFA*,std::string)> callback);
         };
     }
 }
