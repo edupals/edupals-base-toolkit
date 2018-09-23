@@ -41,7 +41,7 @@ namespace edupals
             private:
             
             std::function<void(DFA*,std::string)> accepted_cb;
-            std::function<void(DFA*,std::string)> rejected_cb;
+            std::function<void(std::string)> rejected_cb;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
@@ -77,7 +77,7 @@ namespace edupals
             /*!
                 Sets the rejected callback
             */
-            void signal_rejected(std::function<void(DFA*,std::string)> callback);
+            void signal_rejected(std::function<void(std::string)> callback);
         };
     }
 }

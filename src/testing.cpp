@@ -218,14 +218,24 @@ bool test_parser()
     );
     
     lexer.signal_rejected(
-        [](parser::DFA* dfa,string name) {
-            clog<<"-- syntax error: "<<dfa->value()<<endl;
+        [](string expression) {
+            clog<<"-- syntax error: "<<expression<<endl;
         }
     );
     
     
     lexer.parse(ss);
     
+    ss.clear();
+    ss<<"( ) z";
+    
+    lexer.parse(ss);
+    
+    ss.clear();
+    ss<<"alfabetaalfabetabeta";
+    
+    lexer.parse(ss);
+
     return true;
 }
 

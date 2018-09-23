@@ -78,7 +78,7 @@ void Lexer::parse(istream& input)
         count=0;
         
         lookahead.push_back(c);
-        
+        clog<<c<<endl;
         for (DFA* t:tokens) {
             t->push(c);
             if (t->accept()) {
@@ -92,7 +92,14 @@ void Lexer::parse(istream& input)
         
         if (count==0) {
             if (last==nullptr) {
-                clog<<"Failed to parse expression"<<endl;
+                string errmsg;
+                while (lookahead.size()>0) {
+                    errmsg+=lookahead.front();
+                    lookahead.pop_front();
+                }
+                
+                //clog<<"Failed to parse expression:"<<errmsg<<endl;
+                rejected_cb(errmsg);
                 break;
             }
             else {
@@ -103,7 +110,8 @@ void Lexer::parse(istream& input)
                     reset_tokens();
                 }
                 else {
-                
+                    
+                    // TODO: May this ever happen?
                     if (lookahead.size()==0) {
                         clog<<"syntax error: "<<last->value()<<endl;
                         break;
@@ -145,7 +153,7 @@ void Lexer::signal_accepted(function<void(DFA*,string)> callback)
     this->accepted_cb=callback;
 }
 
-void Lexer::signal_rejected(function<void(DFA*,string)> callback)
+void Lexer::signal_rejected(function<void(string)> callback)
 {
     this->rejected_cb=callback;
 }
