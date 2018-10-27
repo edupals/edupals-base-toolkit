@@ -250,12 +250,11 @@ bool test_config()
 
 bool test_log()
 {
-    edupals::log::SyncBuf sb(string(console::style::bold)+"[info] ");
-    std::ostream info(&sb);
-    
-    info<<"this is an info "<<" test "<<3.14<<"\n";
-    
-    cerr<<console::fg::blue<<"Hello world"<<console::reset::all<<endl;
+    log::debug<<"testing debug"<<endl;
+    log::info<<"testing info"<<endl;
+    log::notice<<"testing notice"<<endl;
+    log::warning<<"testing warning"<<endl;
+    log::error<<"testing error"<<endl;
     
     return true;
 }

@@ -29,7 +29,32 @@ using namespace edupals;
 using namespace edupals::log;
 using namespace std;
 
-atomic_flag lock = ATOMIC_FLAG_INIT;
+atomic_flag lck = ATOMIC_FLAG_INIT;
+
+static void lock()
+{
+    while (lck.test_and_set()) {
+    }
+}
+
+static void unlock()
+{
+    lck.clear();
+}
+
+SyncBuf dbg_buf(string(console::style::dim)+"[debug] ");
+SyncBuf info_buf("");
+SyncBuf notice_buf(string(console::fg::blue)+
+                    string(console::style::bold));
+                    
+SyncBuf warning_buf(string(console::fg::yellow)+"[warning] ");
+SyncBuf error_buf(string(console::fg::red)+"[error] ");
+
+ostream edupals::log::dbg(&dbg_buf);
+ostream edupals::log::info(&info_buf);
+ostream edupals::log::notice(&notice_buf);
+ostream edupals::log::warning(&warning_buf);
+ostream edupals::log::error(&error_buf);
 
 SyncBuf::SyncBuf(string header)
 {
@@ -39,24 +64,24 @@ SyncBuf::SyncBuf(string header)
     start=true;
 }
 
-streamsize SyncBuf::xsputn(const char* s,streamsize n)
+int SyncBuf::overflow (int c)
 {
-/*
+
     if (start) {
+        lock();
         cerr<<header;
         start=false;
-        n+=header.size();
     }
-    */
-    cerr<<s;
-    cout<<"-size:"<<n<<endl;
-    /*
-    if (s[n-2]=='\n') {
-        cerr<<back;
-        n+=back.size();
+    
+    cerr<<(char)c;
+    
+    if (c=='\n') {
         start=true;
-        lock.clear();
+        cerr<<back;
+        unlock();
     }
-    */
-    return n;
+    
+    return c;
 }
+
+

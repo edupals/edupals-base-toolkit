@@ -29,10 +29,19 @@
 #include <iostream>
 #include <string>
 
+#define debug dbg<<__FUNCTION__<<":"
+
 namespace edupals
 {
     namespace log
     {
+        /*!
+            Custom std::streambuf with folowing features:
+            - Thread safe, output is granted from start to first
+            end line character
+            - outputs to stderr (unoptimized now)
+            - custom header
+        */
         class SyncBuf : public std::streambuf
         {
             public:
@@ -46,8 +55,14 @@ namespace edupals
             std::string header;
             std::string back;
             
-            std::streamsize xsputn (const char* s,std::streamsize n) override;
+            int overflow (int c = EOF) override;
         };
+        
+        extern std::ostream dbg;
+        extern std::ostream info;
+        extern std::ostream notice;
+        extern std::ostream warning;
+        extern std::ostream error;
     }
 }
 
