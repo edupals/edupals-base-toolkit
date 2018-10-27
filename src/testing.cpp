@@ -31,6 +31,7 @@
 #include <token.hpp>
 #include <lexer.hpp>
 #include <configfile.hpp>
+#include <log.hpp>
 
 #include <iostream>
 #include <thread>
@@ -247,6 +248,18 @@ bool test_config()
     return true;
 }
 
+bool test_log()
+{
+    edupals::log::SyncBuf sb(string(console::style::bold)+"[info] ");
+    std::ostream info(&sb);
+    
+    info<<"this is an info "<<" test "<<3.14<<"\n";
+    
+    cerr<<console::fg::blue<<"Hello world"<<console::reset::all<<endl;
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -305,6 +318,10 @@ int main (int argc,char* argv[])
         
         if (s=="config") {
             test_config();
+        }
+        
+        if (s=="log") {
+            test_log();
         }
     }
     
