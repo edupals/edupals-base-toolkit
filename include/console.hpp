@@ -30,7 +30,7 @@ namespace edupals
 {
     namespace console
     {
-        namespace format
+        namespace style
         {
             const char* bold ="\e[1m";
             const char* dim = "\e[2m";
@@ -42,7 +42,10 @@ namespace edupals
         
         namespace reset
         {
-            const char* all="\e[0m\e[39m";
+            const char* all="\e[0m\e[39m\e[49m";
+            const char* style="\e[0m";
+            const char* fg="\e[39m";
+            const char* bg="\e[49m";
             const char* bold ="\e[21m";
             const char* dim = "\e[22m";
             const char* underlined = "\e[24m";
@@ -55,10 +58,43 @@ namespace edupals
         {
             const char* black="\e[30m";
             const char* red="\e[31m";
+            const char* green="\e[32m";
+            const char* yellow="\e[33m";
+            const char* blue="\e[34m";
+            const char* magenta="\e[35m";
+            const char* cyan="\e[36m";
+            const char* light_grey="\e[37m";
+            const char* dark_grey="\e[90m";
+            
+            const char* light_red="\e[91m";
+            const char* light_green="\e[92m";
+            const char* light_yellow="\e[93m";
+            const char* light_blue="\e[94m";
+            const char* light_magenta="\e[95m";
+            const char* light_cyan="\e[96m";
+            const char* white="\e[97m";
         }
         
         namespace bg
         {
+            const char* black="\e[40m";
+            const char* red="\e[41m";
+            const char* green="\e[42m";
+            const char* yellow="\e[43m";
+            const char* blue="\e[44m";
+            const char* magenta="\e[45m";
+            const char* cyan="\e[46m";
+            const char* light_grey="\e[47m";
+            const char* dark_grey="\e[100m";
+            
+            const char* light_red="\e[101m";
+            const char* light_green="\e[102m";
+            const char* light_yellow="\e[103m";
+            const char* light_blue="\e[104m";
+            const char* light_magenta="\e[105m";
+            const char* light_cyan="\e[106m";
+            const char* white="\e[107m";
+
         }
     }
 }
