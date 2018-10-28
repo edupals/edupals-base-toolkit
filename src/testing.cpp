@@ -250,11 +250,36 @@ bool test_config()
 
 bool test_log()
 {
+    log::info<<"Testing colors:"<<endl<<endl;
+    
     log::debug<<"testing debug"<<endl;
     log::info<<"testing info"<<endl;
     log::notice<<"testing notice"<<endl;
     log::warning<<"testing warning"<<endl;
     log::error<<"testing error"<<endl;
+    
+    log::info<<endl<<"Testing locks:"<<endl<<endl;
+
+    std::thread workers[4];
+    
+    
+    for (int n=0;n<4;n++) {
+        workers[n]=std::thread([]() {
+            log::notice<<"Created thread"<<endl;
+            
+            for (int m=0;m<10;m++) {
+                log::debug<<"* "<<m<<endl;
+            }
+            
+            log::warning<<"bye"<<endl;
+        }
+        );
+        
+    }
+    
+    for (int n=0;n<4;n++) {
+        workers[n].join();
+    }
     
     return true;
 }

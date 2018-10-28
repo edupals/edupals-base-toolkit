@@ -29,18 +29,9 @@ using namespace edupals;
 using namespace edupals::log;
 using namespace std;
 
-atomic_flag lck = ATOMIC_FLAG_INIT;
+atomic<thread::id> current;
+atomic_flag lock = ATOMIC_FLAG_INIT;
 
-static void lock()
-{
-    while (lck.test_and_set()) {
-    }
-}
-
-static void unlock()
-{
-    lck.clear();
-}
 
 SyncBuf dbg_buf(string(console::style::dim)+"[debug] ");
 SyncBuf info_buf("");
@@ -61,24 +52,27 @@ SyncBuf::SyncBuf(string header)
     this->header=header;
     back=console::reset::all;
     
-    start=true;
 }
 
 int SyncBuf::overflow (int c)
 {
-
-    if (start) {
-        lock();
-        cerr<<header;
-        start=false;
+    thread::id tid = this_thread::get_id();
+    
+    // spinlock
+    while (tid!=current) {
+        if (!lock.test_and_set()) {
+            current=tid;
+            cerr<<header;
+        }
     }
     
     cerr<<(char)c;
     
     if (c=='\n') {
-        start=true;
         cerr<<back;
-        unlock();
+        // reset current thread id
+        current=thread::id();
+        lock.clear();
     }
     
     return c;

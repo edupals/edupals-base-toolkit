@@ -28,6 +28,8 @@
 
 #include <iostream>
 #include <string>
+#include <atomic>
+#include <thread>
 
 #define debug dbg<<__FUNCTION__<<":"
 
@@ -47,8 +49,6 @@ namespace edupals
             public:
             
             SyncBuf(std::string header);
-            
-            bool start;
             
             protected:
             
