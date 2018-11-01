@@ -66,7 +66,7 @@ int SyncBuf::overflow (int c)
         }
     }
     
-    cerr<<(char)c;
+    cerr.put(c);
     
     if (c=='\n') {
         cerr<<back;

@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace edupals 
+namespace edupals
 {
     namespace system
     {

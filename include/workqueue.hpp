@@ -33,10 +33,15 @@ namespace edupals
 {
     namespace threading
     {
+        /*!
+            Thread safe queue with limited size. Threads are locked 
+            when trying to push an already full queue or poping from 
+            an empty one.
+        */
         template <typename T>
         class WorkQueue
         {
-            public:
+            protected:
             
             std::queue<T> queue;
             std::mutex qmutex;
@@ -46,16 +51,19 @@ namespace edupals
             
             size_t max_size;
             
-            WorkQueue()
-            {
-                max_size=32767;
-            }
+            public:
             
-            WorkQueue(size_t max_size)
+            /*!
+                Creates workqueue with default 32767 max size
+            */
+            WorkQueue(size_t max_size=32767)
             {
                 this->max_size=max_size;
             }
             
+            /*!
+                Push an object into queue. Locks if full.
+            */
             void push(T& t)
             {
                 std::unique_lock<std::mutex> lck(qmutex);
@@ -70,6 +78,9 @@ namespace edupals
                 cond_empty.notify_one();
             }
             
+            /*!
+                Pop from queue. Lock if empty.
+            */
             T pop()
             {
                 std::unique_lock<std::mutex> lck(qmutex);
