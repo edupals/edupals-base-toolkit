@@ -33,19 +33,37 @@ namespace edupals
 {
     namespace network
     {
-    
-        class MACAddress
+        /*!
+            MAC Address class
+        */
+        class MAC
         {
             public:
-            
+            /*!
+                6 byte address array
+            */
             std::array<uint8_t,6> address;
             
-            MACAddress(){};
-            MACAddress(std::array<uint8_t,6> address);
-            MACAddress(std::string address);
+            MAC(){};
             
+            /*!
+                Create MAC from byte array
+            */
+            MAC(std::array<uint8_t,6> address);
+            
+            /*!
+                Create MAC from string representation
+            */
+            MAC(std::string address);
+            
+            /*!
+                Returns a string representation of address
+            */
             std::string to_string();
             
+            /*!
+                Access to address byte n
+            */
             uint8_t operator [] (int n);
         };
     
@@ -64,19 +82,37 @@ namespace edupals
             uint8_t operator [] (int n);
         };
         
+        /*!
+            This class represents a Linux network device (it may not be a 
+            physical device, but a virtual one)
+        */
         class Device
         {
             public:
-            
+            /*!
+                Device name
+            */
             std::string name;
             
-            MACAddress address;
+            /*!
+                Hardware MAC Address
+            */
+            MAC address;
             
+            /*!
+                Carrier status (connection )
+            */
             bool carrier;
+            
+            /*!
+                Current mtu
+            */
             uint32_t mtu;
         };
         
-        
+        /*!
+            Get a list of available network devices
+        */
         std::vector<Device> get_devices();
     }
 }

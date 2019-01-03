@@ -24,14 +24,15 @@
 #include "log.hpp"
 
 #include <atomic>
+#include <thread>
+#include <mutex>
 
 using namespace edupals;
 using namespace edupals::log;
 using namespace std;
 
-atomic<thread::id> current;
-atomic_flag lock = ATOMIC_FLAG_INIT;
-
+thread_local bool locked = false;
+mutex output;
 
 SyncBuf dbg_buf(string(console::style::dim)+"[debug] ");
 SyncBuf info_buf("");
@@ -56,23 +57,19 @@ SyncBuf::SyncBuf(string header)
 
 int SyncBuf::overflow (int c)
 {
-    thread::id tid = this_thread::get_id();
     
-    // spinlock
-    while (tid!=current) {
-        if (!lock.test_and_set()) {
-            current=tid;
-            cerr<<header;
-        }
+    if (!locked) {
+        output.lock();
+        locked=true;
+        cerr<<header;
     }
     
     cerr.put(c);
     
     if (c=='\n') {
         cerr<<back;
-        // reset current thread id
-        current=thread::id();
-        lock.clear();
+        locked=false;
+        output.unlock();
     }
     
     return c;

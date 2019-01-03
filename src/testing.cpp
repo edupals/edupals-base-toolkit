@@ -37,7 +37,7 @@
 #include <thread>
 #include <mutex>
 #include <sstream>
-
+#include <chrono>
 
 using namespace edupals;
 using namespace std;
@@ -269,6 +269,7 @@ bool test_log()
             
             for (int m=0;m<10;m++) {
                 log::debug<<"* "<<m<<endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
             
             log::warning<<"bye"<<endl;

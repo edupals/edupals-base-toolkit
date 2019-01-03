@@ -28,10 +28,8 @@
 
 #include <iostream>
 #include <string>
-#include <atomic>
-#include <thread>
 
-#define debug dbg<<__FUNCTION__<<":"
+#define debug dbg<<__FILE__<<" "<<__LINE__<<":"
 
 namespace edupals
 {
@@ -57,11 +55,20 @@ namespace edupals
             
             int overflow (int c = EOF) override;
         };
-        
+
+        /*! debug stream (better use debug macro) */
         extern std::ostream dbg;
+        
+        /*! common output messages */
         extern std::ostream info;
+        
+        /*! blue output messages */
         extern std::ostream notice;
+        
+        /*!  yellow warnings */
         extern std::ostream warning;
+        
+        /*! red errors */
         extern std::ostream error;
     }
 }

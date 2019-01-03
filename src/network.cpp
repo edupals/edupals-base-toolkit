@@ -41,11 +41,11 @@ namespace fs=std::experimental::filesystem;
 using namespace edupals::network;
 
 
-MACAddress::MACAddress(array<uint8_t,6> address) : address(address)
+MAC::MAC(array<uint8_t,6> address) : address(address)
 {
 }
 
-MACAddress::MACAddress(string address)
+MAC::MAC(string address)
 {
 
     //TODO: check for errors!
@@ -68,7 +68,7 @@ MACAddress::MACAddress(string address)
     
 }
 
-string MACAddress::to_string()
+string MAC::to_string()
 {
     stringstream s;
     
@@ -82,7 +82,7 @@ string MACAddress::to_string()
     return s.str();
 }
 
-uint8_t MACAddress::operator [] (int n)
+uint8_t MAC::operator [] (int n)
 {
     return address[n];
 }
@@ -137,7 +137,7 @@ vector<Device> edupals::network::get_devices()
         std::getline(file,tmp);
         file.close();
         
-        device.address=MACAddress(tmp);
+        device.address=MAC(tmp);
         
         //carrier
         fs::path carrier = dev.path() / "carrier";
