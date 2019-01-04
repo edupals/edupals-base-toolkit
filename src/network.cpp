@@ -87,7 +87,7 @@ uint8_t MAC::operator [] (int n)
     return address[n];
 }
 
-IP4Address::IP4Address(uint32_t address)
+IP4::IP4(uint32_t address)
 {
     this->address[0]=address & 0x000000FF;
     this->address[1]=(address & 0x0000FF00)>>8;
@@ -95,11 +95,11 @@ IP4Address::IP4Address(uint32_t address)
     this->address[3]=(address & 0xFF000000)>>24;
 }
 
-IP4Address::IP4Address(array<uint8_t,4> address) : address(address)
+IP4::IP4(array<uint8_t,4> address) : address(address)
 {
 }
 
-string IP4Address::to_string()
+string IP4::to_string()
 {
     stringstream s;
     
@@ -108,58 +108,80 @@ string IP4Address::to_string()
     return s.str();
 }
 
-uint8_t IP4Address::operator [] (int n)
+uint8_t IP4::operator [] (int n)
 {
     return address[n];
 }
 
-vector<Device> edupals::network::get_devices()
+Device::Device(string name)
 {
+    
+    this->path="/sys/class/net/"+name;
+    
+    update();
+}
 
-    vector<Device> devices;
+void Device::update()
+{
+    // ignore empty device path
+    if (this->path.size()==0) {
+        return;
+    }
+    
+    fs::path sysfs = this->path;
+    
+    // name is just final filename of path
+    this->name=sysfs.filename();
+    
+     ifstream file;
+     string tmp;
+
+    // mac address
+    fs::path address = sysfs / "address";
+    
+    file.open(address);
+    std::getline(file,tmp);
+    file.close();
+    
+    this->address=MAC(tmp);
+    
+    // carrier status
+    fs::path carrier = sysfs / "carrier";
+    
+    file.open(carrier);
+    std::getline(file,tmp);
+    file.close();
+    
+    this->carrier=(tmp=="1");
+        
+    //mtu
+    fs::path mtu = sysfs / "mtu";
+    
+    file.open(mtu);
+    std::getline(file,tmp);
+    file.close();
+    
+    this->mtu=std::stoi(tmp);
+    
+    //type
+    fs::path type = sysfs / "type";
+    
+    file.open(type);
+    std::getline(file,tmp);
+    file.close();
+    
+    this->type=std::stoi(tmp);
+}
+
+vector<string> edupals::network::get_devices()
+{
+    vector<string> devices;
     
     fs::path sysfs("/sys/class/net");
     
     for (auto& dev: fs::directory_iterator(sysfs)) {
-    
-        Device device;
-        
-        //device kernel name
-        device.name=dev.path().filename();
-
-        ifstream file;
-        string tmp;
-
-        // mac address
-        fs::path address = dev.path() / "address";
-        
-        file.open(address);
-        std::getline(file,tmp);
-        file.close();
-        
-        device.address=MAC(tmp);
-        
-        //carrier
-        fs::path carrier = dev.path() / "carrier";
-        
-        file.open(carrier);
-        std::getline(file,tmp);
-        file.close();
-        
-        device.carrier=(tmp=="1");
-        
-        //mtu
-        fs::path mtu = dev.path() / "mtu";
-        
-        file.open(mtu);
-        std::getline(file,tmp);
-        file.close();
-        
-        device.mtu=std::stoi(tmp);
-        
-        devices.push_back(device);
+        devices.push_back(dev.path().filename());
     }
     
-    
-   return devices;
+    return devices;
 }

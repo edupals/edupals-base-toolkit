@@ -32,6 +32,7 @@
 #include <lexer.hpp>
 #include <configfile.hpp>
 #include <log.hpp>
+#include <console.hpp>
 
 #include <iostream>
 #include <thread>
@@ -42,19 +43,26 @@
 using namespace edupals;
 using namespace std;
 
-bool test_network_get_devices()
+bool test_network()
 {
-    vector<network::Device> devices;
+    vector<string> devices;
     
     devices = network::get_devices();
     
     clog<<"Network devices:"<<endl;
     
-    for (auto& dev:devices) {
-        clog<<"* "<<dev.name<<endl;
+    for (string& path:devices) {
+        clog<<"* "<<console::fg::red<<path<<console::reset::all<<endl;
+        
+        network::Device dev(path);
+        
+        clog<<"\tName:"<<dev.name<<endl;
+        clog<<"\tDevice:"<<dev.path<<endl;
+        clog<<"\tType:"<<dev.type<<endl;
         clog<<"\tAddress:"<<dev.address.to_string()<<endl;
         clog<<"\tcarrier:"<<dev.carrier<<endl;
         clog<<"\tmtu:"<<dev.mtu<<endl;
+        
     }
     
     return true;
@@ -322,7 +330,7 @@ int main (int argc,char* argv[])
         }
         
         if (s=="network") {
-            test_network_get_devices();
+            test_network();
         }
         
         if (s=="process") {

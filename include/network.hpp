@@ -39,9 +39,7 @@ namespace edupals
         class MAC
         {
             public:
-            /*!
-                6 byte address array
-            */
+            /*! 6 byte address array */
             std::array<uint8_t,6> address;
             
             MAC(){};
@@ -67,18 +65,36 @@ namespace edupals
             uint8_t operator [] (int n);
         };
     
-        class IP4Address
+        /*!
+            IP 4 Address
+        */
+        class IP4
         {
             public:
             
+            /*! 4 byte address */
             std::array<uint8_t,4> address;
             
-            IP4Address(){};
-            IP4Address(uint32_t address);
-            IP4Address(std::array<uint8_t,4> address);
+            IP4(){};
             
+            /*!
+                Create address from uint32 representation
+            */
+            IP4(uint32_t address);
+            
+            /*!
+                Create address from array representation
+            */
+            IP4(std::array<uint8_t,4> address);
+            
+            /*!
+                Create a string representation
+            */
             std::string to_string();
             
+            /*!
+                Acces to address byte n
+            */
             uint8_t operator [] (int n);
         };
         
@@ -89,31 +105,45 @@ namespace edupals
         class Device
         {
             public:
-            /*!
-                Device name
-            */
+            
+            /*! Device path */
+            std::string path;
+            
+            /*! Device name */
             std::string name;
             
-            /*!
-                Hardware MAC Address
-            */
+            /*! Hardware MAC Address */
             MAC address;
             
-            /*!
-                Carrier status (connection )
-            */
+            /*! Carrier status (connection ) */
             bool carrier;
             
-            /*!
-                Current mtu
-            */
+            /*! Current mtu */
             uint32_t mtu;
+            
+            /*!
+                Hardware type, common values are 1 for Ethernet and
+                772 for loopback, see if_arp.h for details
+            */
+            uint32_t type;
+            
+            Device(){};
+            
+            /*!
+                Create device from path
+            */
+            Device(std::string name);
+            
+            /*!
+                Update properties
+            */
+            void update();
         };
         
         /*!
             Get a list of available network devices
         */
-        std::vector<Device> get_devices();
+        std::vector<std::string> get_devices();
     }
 }
 
