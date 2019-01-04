@@ -33,6 +33,23 @@ namespace edupals
 {
     namespace filesystem
     {
+        
+        class INotify
+        {
+            private:
+            
+            int ifd;
+            int wfd;
+            
+            public:
+            
+            INotify(std::string path);
+            virtual ~INotify();
+            
+            void push();
+            virtual void event();
+        };
+    
         std::vector<std::experimental::filesystem::path> glob(std::string expression);
     }
 }

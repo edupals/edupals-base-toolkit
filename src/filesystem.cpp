@@ -33,11 +33,51 @@
 #include <unistd.h>
 #include <libgen.h>
 #include <glob.h>
+#include <sys/inotify.h>
 
 #include <cstring>
+#include <stdexcept>
 
 using namespace std;
 namespace fs=std::experimental::filesystem;
+
+INotify::INotify(string path)
+{
+    ifd = inotify_init();
+    
+    if (ifd==-1) {
+        string err=std::to_string(errno);
+        
+        throw runtime_error("inotify_init: "+err);
+    }
+    
+    wfd = notify_add_watch(ifd, path.c_str(), IN_ALL_EVENTS);
+
+    if (wfd==-1) {
+        string err=std::to_string(errno);
+        
+        throw runtime_error("inotify_add_watch: "+err);
+    }
+}
+
+INotify::~INotify()
+{
+    if (wfd>-1) {
+        inotify_rm_watch( ifd, wfd );
+    }
+    
+    if (ifd>-1) {
+        close(ifd);
+    }
+}
+
+void INotify::push()
+{
+}
+
+void INotify::event()
+{
+}
 
 vector<fs::path> edupals::filesystem::glob(string expression)
 {
