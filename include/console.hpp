@@ -30,6 +30,27 @@ namespace edupals
 {
     namespace console
     {
+        /*! beep */
+        const char beep='\a';
+        
+        /*! white space */
+        const char ws=' ';
+        
+        /*! back space */
+        const char bs='\b';
+        
+        /*!  horitzontal tab */
+        const char htab='\t';
+        
+        /*! vertical tab */
+        const char vtab='\v';
+        
+        /*! line feed */
+        const char lf='\n';
+        
+        /*! carriage return */
+        const char cr='\r';
+        
         namespace style
         {
             const char* bold ="\e[1m";
