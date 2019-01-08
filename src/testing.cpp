@@ -299,13 +299,29 @@ int main (int argc,char* argv[])
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     
-    //parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
-    //parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
+    parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
+    parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
     parser.add_option(cmd::Option('h',"help",cmd::ArgumentType::None));
     parser.add_option(cmd::Option('v',"version",cmd::ArgumentType::None));
     
     result=parser.parse(argc,argv);
-    /*
+    
+    if (!result.success()) {
+        if (result.unknowns.size()>0) {
+            cout<<"Unknown options: "<<endl;
+            for (auto s: result.unknowns) {
+                clog<<"\t"<<s<<endl;
+            }
+        }
+        
+        if (result.missings.size()>0) {
+            clog<<"Missing argument for: "<<endl;
+            for (auto s:result.missings) {
+                clog<<"\t"<<s<<endl;
+            }
+        }
+    }
+    
     clog<<"options:"<<endl;
     
     for (cmd::Option& o:result.options) {
@@ -317,7 +333,7 @@ int main (int argc,char* argv[])
     for (string s:result.args) {
         clog<<"* "<<s<<endl;
     }
-    */
+    
     
     for (string s:result.args) {
         if (s=="system") {

@@ -60,11 +60,21 @@ namespace edupals
         
         class ParseResult
         {
+            
             public:
             
             std::vector<Option> options;
             std::vector<std::string> args;
             
+            std::vector<std::string> unknowns;
+            std::vector<std::string> missings;
+            
+            ParseResult();
+            
+            /*!
+                Return whenever the parse was successful or not
+            */
+            bool success();
         };
     
         class ArgumentParser

@@ -67,6 +67,16 @@ Option::Option(string long_name,ArgumentType argument_type) : Option('\0',long_n
 {
 }
 
+ParseResult::ParseResult()
+{
+    
+}
+
+bool ParseResult::success()
+{
+    return (unknowns.size()==0 and missings.size()==0);
+}
+
 void ArgumentParser::add_option(Option option)
 {
     options.push_back(option);
@@ -77,11 +87,12 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
     ParseResult result;
     bool eatr=false;
     bool eato=false;
+    string left,right;
+    string tmp;
     
     for (int n=0;n<argc;n++) {
         
-        string tmp = argv[n];
-        
+        tmp = argv[n];
         
         
         // single letter
@@ -96,9 +107,10 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                 //optional argument is not comming
                 eato=false;
                 
-                //Required argument not found!
+                //Error: missing long option required argument 
                 if (eatr) {
-                    //TODO
+                    result.missings.push_back(left);
+                    eatr=false;
                 }
                 
                 //long option
@@ -113,7 +125,7 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                         //check for equal character
                         size_t equal=tmp.find('=');
                         
-                        string left,right;
+                        
                         
                         if (equal!=string::npos) {
                             left=tmp.substr(2,equal-2);
@@ -125,9 +137,9 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                         
                         int oindex=find_long_option(options,left);
                         
-                        //option not found!
+                        //Error: unknown long option
                         if (oindex==-1) {
-                            //TODO
+                            result.unknowns.push_back(left);
                         }
                         else {
                             Option option=options[oindex];
@@ -183,9 +195,10 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                             
                             if (option.argument_type==ArgumentType::Required) {
                                 string arg = tmp.substr(sn+1);
-                                
+
+                                //Error: missing short option required argument
                                 if (arg.size()==0) {
-                                    //TODO: missing required argument
+                                    result.missings.push_back(string(1,tmp[sn]));
                                 }
                                 
                                 
@@ -203,7 +216,8 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
                             }
                         }
                         else {
-                            //TODO: short option not found
+                            //Error: unknown short option
+                            result.unknowns.push_back(string(1,tmp[sn]));
                         }
                     }
                 }
@@ -222,6 +236,11 @@ ParseResult ArgumentParser::parse(int argc,char* argv[])
             }
             
         }
+    }
+    
+    //Error: missing required long option argument
+    if (eatr) {
+        result.missings.push_back(left);
     }
     
     return result;
