@@ -299,8 +299,8 @@ int main (int argc,char* argv[])
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     
-    parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
-    parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
+    //parser.add_option(cmd::Option('a',"append",cmd::ArgumentType::Required));
+    //parser.add_option(cmd::Option('n',"level",cmd::ArgumentType::Optional));
     parser.add_option(cmd::Option('h',"help",cmd::ArgumentType::None));
     parser.add_option(cmd::Option('v',"version",cmd::ArgumentType::None));
     
@@ -320,18 +320,6 @@ int main (int argc,char* argv[])
                 clog<<"\t"<<s<<endl;
             }
         }
-    }
-    
-    clog<<"options:"<<endl;
-    
-    for (cmd::Option& o:result.options) {
-        clog<<"* ["<<o.short_name<<"]"<<o.long_name<<":"<<o.value<<endl;
-    }
-    
-    clog<<endl<<"args:"<<endl;
-    
-    for (string s:result.args) {
-        clog<<"* "<<s<<endl;
     }
     
     

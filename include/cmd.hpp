@@ -62,14 +62,18 @@ namespace edupals
         {
             
             public:
-            
+                
+            /*! Parsed options */
             std::vector<Option> options;
+            
+            /*! Parsed free arguments */
             std::vector<std::string> args;
             
+            /*! On parse fail, it may contain those unknown options */
             std::vector<std::string> unknowns;
-            std::vector<std::string> missings;
             
-            ParseResult();
+            /*! On parse fail, it may contain those options whom required arguments are missing */
+            std::vector<std::string> missings;
             
             /*!
                 Return whenever the parse was successful or not

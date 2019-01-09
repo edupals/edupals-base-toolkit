@@ -67,11 +67,6 @@ Option::Option(string long_name,ArgumentType argument_type) : Option('\0',long_n
 {
 }
 
-ParseResult::ParseResult()
-{
-    
-}
-
 bool ParseResult::success()
 {
     return (unknowns.size()==0 and missings.size()==0);
