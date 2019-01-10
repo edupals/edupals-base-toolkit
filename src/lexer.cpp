@@ -78,7 +78,7 @@ void Lexer::parse(istream& input)
         count=0;
         
         lookahead.push_back(c);
-        clog<<c<<endl;
+        //clog<<c<<endl;
         for (DFA* t:tokens) {
             t->push(c);
             if (t->accept()) {
@@ -98,7 +98,7 @@ void Lexer::parse(istream& input)
                     lookahead.pop_front();
                 }
                 
-                //clog<<"Failed to parse expression:"<<errmsg<<endl;
+                //Error: Failed to parse expression
                 rejected_cb(errmsg);
                 break;
             }

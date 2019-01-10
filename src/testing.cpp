@@ -194,9 +194,6 @@ bool test_filesystem()
 bool test_parser()
 {
 
-    stringstream ss;
-    
-    ss<<"( alfa (alfabeta=false) )(alfa)alfa=true) bet alfa";
     
     parser::Lexer lexer;
     
@@ -222,7 +219,7 @@ bool test_parser()
     
     lexer.signal_accepted(
         [](parser::DFA* dfa,string name) {
-            clog<<"-- token: "<<name<<endl;
+            clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
         }
     );
     
@@ -232,18 +229,24 @@ bool test_parser()
         }
     );
     
+    stringstream sa;
+    sa<<"( alfa (alfabeta=false) )(alfa)alfa=true) bet alfa";
+     
+    clog<<"Parsing: "<<sa.str()<<endl;
+        
+    lexer.parse(sa);
     
-    lexer.parse(ss);
     
-    ss.clear();
-    ss<<"( ) z";
+    stringstream sb;
+    sb<<"( ) z";
+    clog<<"Parsing: "<<sb.str()<<endl;
+    lexer.parse(sb);
     
-    lexer.parse(ss);
     
-    ss.clear();
-    ss<<"alfabetaalfabetabeta";
-    
-    lexer.parse(ss);
+    stringstream sc;
+    sc<<"alfabetaalfabetabeta";
+    clog<<"Parsing: "<<sc.str()<<endl;
+    lexer.parse(sc);
 
     return true;
 }
