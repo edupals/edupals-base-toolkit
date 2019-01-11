@@ -78,7 +78,7 @@ void Lexer::parse(istream& input)
         count=0;
         
         lookahead.push_back(c);
-        //clog<<c<<endl;
+
         for (DFA* t:tokens) {
             t->push(c);
             if (t->accept()) {

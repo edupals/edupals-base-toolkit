@@ -28,6 +28,7 @@
 #include <grammar.hpp>
 
 #include <fstream>
+#include <iostream>
 
 using namespace edupals;
 using namespace edupals::configfile;
@@ -90,7 +91,7 @@ class Name : public parser::DFA
             _end=false;
             valid=true;
         }
-        if ((c>='a' and c<='z') or (c>='A' and c<='Z')) {
+        if ((c>='a' and c<='z') or (c>='A' and c<='Z') or (c>='0' and c<='9')) {
             _end=true;
             valid=true;
         }
@@ -172,7 +173,18 @@ Config::Config(string name)
     ini_lexer.add_token("NAME",&sname);
     ini_lexer.add_token("VALUE",&value);
     
+    ini_lexer.signal_accepted(
+        [](parser::DFA* dfa,string name) {
+            clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
+        }
+    );
     
+    ini_lexer.signal_rejected(
+        [](string expression) {
+            clog<<"-- syntax error: "<<expression<<endl;
+        }
+    );
+        
     ifstream file;
     
     file.open(name);
