@@ -64,9 +64,9 @@ void Lexer::parse(istream& input)
         
         // eat char from input stream and push it to intermediate queue
         if (!input.eof()) {
-            
-            input.get(c);
-            chars.push_back(c);
+            if (input.get(c)) {
+                chars.push_back(c);
+            }
         }
         
         // there are no more characters to process
