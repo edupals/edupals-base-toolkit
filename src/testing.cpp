@@ -306,19 +306,19 @@ bool test_variant()
     Variant e=12.4f;
     Variant f="come get some!";
     
-    vector<Variant> data={10,20,30.0f,"40"};
+    vector<Variant> data={10,20,30.0,"40"};
     
     Variant array(data);
     
     clog<<"a: "<<a.get_int32()<<endl;
-    clog<<"b: "<<b.get_float32()<<endl;
+    clog<<"b: "<<b.get_float()<<endl;
     clog<<"c: "<<c.get_int32()<<endl;
     clog<<"d: "<<d.get_int32()<<endl;
-    clog<<"e: "<<e.get_float32()<<endl;
+    clog<<"e: "<<e.get_float()<<endl;
     clog<<"f: "<<f.get_string()<<endl;
     clog<<"0: "<<data[0].get_int32()<<endl;
     clog<<"1: "<<data[1].get_int32()<<endl;
-    clog<<"2: "<<data[2].get_float32()<<endl;
+    clog<<"2: "<<data[2].get_double()<<endl;
     clog<<"3: "<<data[3].get_string()<<endl;
     
     return true;

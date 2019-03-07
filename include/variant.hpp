@@ -40,10 +40,13 @@ namespace edupals
     enum class VariantType
     {
         None,
+        Boolean,
         Int32,
-        Float32,
+        Float,
+        Double,
         String,
-        Array
+        Array,
+        Struct
     };
     
     class VariantContainer
@@ -86,21 +89,40 @@ namespace edupals
         
     };
     
-    class VariantContainerFloat32: public VariantContainer
+    class VariantContainerFloat: public VariantContainer
     {
         
         public:
         float value;
         
-        VariantContainerFloat32(float value)
+        VariantContainerFloat(float value)
         {
-            type=VariantType::Float32;
+            type=VariantType::Float;
             this->value=value;
         }
         
         size_t size() override
         {
-            return 4;
+            return sizeof(float);
+        }
+        
+    };
+    
+    class VariantContainerDouble: public VariantContainer
+    {
+        
+        public:
+        double value;
+        
+        VariantContainerDouble(double value)
+        {
+            type=VariantType::Double;
+            this->value=value;
+        }
+        
+        size_t size() override
+        {
+            return sizeof(double);
         }
         
     };
@@ -151,6 +173,7 @@ namespace edupals
         Variant();
         Variant(int value);
         Variant(float value);
+        Variant(double value);
         Variant(std::string value);
         Variant(const char* value);
         Variant(std::vector<Variant> value);
@@ -160,15 +183,17 @@ namespace edupals
         size_t size();
         
         int32_t get_int32();
-        float get_float32();
+        float get_float();
+        double get_double();
         std::string get_string();
         
         Variant& operator=(int value);
         Variant& operator=(float value);
+        Variant& operator=(double value);
         Variant& operator=(std::string value);
         Variant& operator=(const char* value);
         
-        Variant& operator[] (const int index);
+        Variant& operator[](const int index);
         
     };
 }

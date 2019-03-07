@@ -64,7 +64,12 @@ Variant::Variant(int value)
 
 Variant::Variant(float value)
 {
-    data.reset(new VariantContainerFloat32(value));
+    data.reset(new VariantContainerFloat(value));
+}
+
+Variant::Variant(double value)
+{
+    data.reset(new VariantContainerDouble(value));
 }
 
 Variant::Variant(string value)
@@ -111,17 +116,32 @@ int32_t Variant::get_int32()
     return cast->value;
 }
 
-float Variant::get_float32()
+float Variant::get_float()
 {
     if (!data) {
         throw VariantException::Unitialized;
     }
     
-    if ((*data).type!=VariantType::Float32) {
+    if ((*data).type!=VariantType::Float) {
         throw VariantException::InvalidType;
     }
     
-    VariantContainerFloat32* cast=static_cast<VariantContainerFloat32*>(data.get());
+    VariantContainerFloat* cast=static_cast<VariantContainerFloat*>(data.get());
+    
+    return cast->value;
+}
+
+double Variant::get_double()
+{
+    if (!data) {
+        throw VariantException::Unitialized;
+    }
+    
+    if ((*data).type!=VariantType::Double) {
+        throw VariantException::InvalidType;
+    }
+    
+    VariantContainerDouble* cast=static_cast<VariantContainerDouble*>(data.get());
     
     return cast->value;
 }
@@ -149,7 +169,13 @@ Variant& Variant::operator=(int value)
 
 Variant& Variant::operator=(float value)
 {
-    data.reset(new VariantContainerFloat32(value));
+    data.reset(new VariantContainerFloat(value));
+    return *this;
+}
+
+Variant& Variant::operator=(double value)
+{
+    data.reset(new VariantContainerDouble(value));
     return *this;
 }
 
