@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <vector>
 #include <exception>
+#include <map>
 
 namespace edupals
 {
@@ -64,6 +65,14 @@ namespace edupals
                 const char * what () const throw ()
                 {
                     return "Invalid type";
+                }
+            };
+            
+            class OutOfBounds : public std::exception
+            {
+                const char * what () const throw ()
+                {
+                    return "Index out of bounds";
                 }
             };
         }
@@ -194,10 +203,22 @@ namespace edupals
                     size_t count;
                     
                     Array(std::vector<variant::Variant> value);
+                    Array(size_t count);
                     ~Array();
                     
                     size_t size() override;
                     
+                };
+                
+                class Struct: public Base
+                {
+                    
+                    public:
+                    std::map<std::string,variant::Variant> value;
+                    
+                    Struct();
+                    
+                    size_t size() override;
                 };
         }
         
@@ -220,6 +241,8 @@ namespace edupals
             Variant(std::vector<Variant> value);
             
             ~Variant();
+            
+            static Variant create_array(size_t count);
             
             size_t size();
             

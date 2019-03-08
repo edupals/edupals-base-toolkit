@@ -310,9 +310,11 @@ bool test_variant()
     vector<Variant> data={10,20,30.0,"40"};
     
     Variant array(data);
+    Variant stuff=Variant::create_array(6);
     
     array[1]=15;
     a=64;
+    stuff[0]="Amazing variant";
     
     clog<<"a: "<<a.get_int32()<<endl;
     clog<<"b: "<<b.get_float()<<endl;
@@ -324,7 +326,7 @@ bool test_variant()
     clog<<"1: "<<array[1].get_int32()<<endl;
     clog<<"2: "<<array[2].get_double()<<endl;
     clog<<"3: "<<array[3].get_string()<<endl;
-    
+    clog<<"0: "<<stuff[0].get_string()<<endl;
     return true;
 }
 

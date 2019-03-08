@@ -39,6 +39,13 @@ container::Array::Array(vector<Variant> value)
     }
 }
 
+container::Array::Array(size_t count)
+{
+    this->type=Type::Array;
+    this->count=count;
+    this->value = new Variant[count];
+}
+
 container::Array::~Array()
 {
     delete [] value;
@@ -50,6 +57,22 @@ size_t container::Array::size()
     for (int n=0;n<count;n++) {
         total+=value[n].size();
     }
+    return total;
+}
+
+container::Struct::Struct()
+{
+     this->type=Type::Struct;
+}
+
+size_t container::Struct::size()
+{
+    size_t total=0;
+    
+    for (std::pair& q:value) {
+        total+=value.second.size();
+    }
+    
     return total;
 }
 
@@ -95,6 +118,15 @@ Variant::Variant(vector<Variant> value)
 
 Variant::~Variant()
 {
+}
+
+Variant Variant::create_array(size_t count)
+{
+    Variant value;
+    
+    value.data.reset(new container::Array(count));
+    
+    return value;
 }
 
 size_t Variant::size()
@@ -220,7 +252,19 @@ Variant& Variant::operator=(const char* value)
 
 Variant& Variant::operator[](const int index)
 {
-    //ToDo: checkings
+     if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::InvalidType();
+    }
+    
     container::Array* cast = static_cast<container::Array*>(data.get());
+    
+    if (index<0 or index>=cast->count) {
+        throw variant::exception::OutOfBounds();
+    }
+    
     return cast->value[index];
 }
