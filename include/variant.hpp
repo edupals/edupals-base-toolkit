@@ -28,174 +28,218 @@
 #include <memory>
 #include <cstdint>
 #include <vector>
+#include <exception>
 
 namespace edupals
 {
-    enum class VariantException
+    namespace variant
     {
-        Unitialized,
-        InvalidType
-    };
-    
-    enum class VariantType
-    {
-        None,
-        Boolean,
-        Int32,
-        Float,
-        Double,
-        String,
-        Array,
-        Struct
-    };
-    
-    class VariantContainer
-    {
-        public:
-            
-        VariantType type;
         
-        virtual size_t size()
-        {
-            return 0;
-        }
+        class Variant;
         
-        VariantContainer()
+         enum class Type
         {
-            type = VariantType::None;
+            None,
+            Boolean,
+            Int32,
+            Float,
+            Double,
+            String,
+            Array,
+            Struct
         };
         
-        virtual ~VariantContainer()
+        namespace exception
         {
-        }
-    };
-    
-    class VariantContainerInt32: public VariantContainer
-    {
-        
-        public:
-        int32_t value;
-        
-        VariantContainerInt32(int32_t value)
-        {
-            type=VariantType::Int32;
-            this->value=value;
-        }
-        
-        size_t size() override
-        {
-            return 4;
-        }
-        
-    };
-    
-    class VariantContainerFloat: public VariantContainer
-    {
-        
-        public:
-        float value;
-        
-        VariantContainerFloat(float value)
-        {
-            type=VariantType::Float;
-            this->value=value;
-        }
-        
-        size_t size() override
-        {
-            return sizeof(float);
-        }
-        
-    };
-    
-    class VariantContainerDouble: public VariantContainer
-    {
-        
-        public:
-        double value;
-        
-        VariantContainerDouble(double value)
-        {
-            type=VariantType::Double;
-            this->value=value;
-        }
-        
-        size_t size() override
-        {
-            return sizeof(double);
-        }
-        
-    };
-    
-    class VariantContainerString: public VariantContainer
-    {
-        
-        public:
-        std::string value;
-        
-        VariantContainerString(std::string value)
-        {
-            type=VariantType::String;
-            this->value=value;
-        }
-        
-        size_t size() override
-        {
-            return value.size();
-        }
-        
-    };
-    
-    class Variant;
-    
-    class VariantContainerArray: public VariantContainer
-    {
-        
-        public:
-        Variant* value;
-        size_t count;
-        
-        VariantContainerArray(std::vector<Variant> value);
-        ~VariantContainerArray();
-        
-        size_t size() override;
-        
-    };
-    
-    class Variant
-    {
-        protected:
+            class Unitialized : public std::exception
+            {
+                const char * what () const throw ()
+                {
+                    return "Variant not initialized";
+                }
+            };
             
-        std::shared_ptr<VariantContainer> data;
+            class InvalidType : public std::exception
+            {
+                const char * what () const throw ()
+                {
+                    return "Invalid type";
+                }
+            };
+        }
+    
+        namespace container
+        {
+                class Base
+                {
+                    public:
+                        
+                    variant::Type type;
+                    
+                    virtual size_t size()
+                    {
+                        return 0;
+                    }
+                    
+                    Base()
+                    {
+                        type = variant::Type::None;
+                    }
+                    
+                    virtual ~Base()
+                    {
+                    }
+                };
+                
+                class Boolean: public Base
+                {
+                    
+                    public:
+                    bool value;
+                    
+                    Boolean(bool value)
+                    {
+                        type=variant::Type::Boolean;
+                        this->value=value;
+                    }
+                    
+                    size_t size() override
+                    {
+                        return sizeof(bool);
+                    }
+                    
+                };
+                
+                class Int32: public Base
+                {
+                    
+                    public:
+                    int32_t value;
+                    
+                    Int32(int32_t value)
+                    {
+                        type=variant::Type::Int32;
+                        this->value=value;
+                    }
+                    
+                    size_t size() override
+                    {
+                        return sizeof(int32_t);
+                    }
+                    
+                };
+                
+                class Float: public Base
+                {
+                    
+                    public:
+                    float value;
+                    
+                    Float(float value)
+                    {
+                        type=variant::Type::Float;
+                        this->value=value;
+                    }
+                    
+                    size_t size() override
+                    {
+                        return sizeof(float);
+                    }
+                    
+                };
+                
+                class Double: public Base
+                {
+                    
+                    public:
+                    double value;
+                    
+                    Double(double value)
+                    {
+                        type=variant::Type::Double;
+                        this->value=value;
+                    }
+                    
+                    size_t size() override
+                    {
+                        return sizeof(double);
+                    }
+                    
+                };
+                
+                 class String: public Base
+                {
+                    
+                    public:
+                    std::string value;
+                    
+                    String(std::string value)
+                    {
+                        type=variant::Type::String;
+                        this->value=value;
+                    }
+                    
+                    size_t size() override
+                    {
+                        return value.size();
+                    }
+                    
+                };
+                
+                class Array: public Base
+                {
+                    
+                    public:
+                    variant::Variant* value;
+                    size_t count;
+                    
+                    Array(std::vector<variant::Variant> value);
+                    ~Array();
+                    
+                    size_t size() override;
+                    
+                };
+        }
+        
+        
+        class Variant
+        {
+            protected:
+                
+            std::shared_ptr<container::Base> data;
+                
+            public:
+                
+            Variant();
+            Variant(bool value);
+            Variant(int value);
+            Variant(float value);
+            Variant(double value);
+            Variant(std::string value);
+            Variant(const char* value);
+            Variant(std::vector<Variant> value);
             
-        public:
+            ~Variant();
             
-        Variant();
-        Variant(int value);
-        Variant(float value);
-        Variant(double value);
-        Variant(std::string value);
-        Variant(const char* value);
-        Variant(std::vector<Variant> value);
-        
-        ~Variant();
-        
-        size_t size();
-        
-        int32_t get_int32();
-        float get_float();
-        double get_double();
-        std::string get_string();
-        
-        Variant& operator=(int value);
-        Variant& operator=(float value);
-        Variant& operator=(double value);
-        Variant& operator=(std::string value);
-        Variant& operator=(const char* value);
-        
-        Variant& operator[](const int index);
-        
-    };
+            size_t size();
+            
+            bool get_boolean();
+            int32_t get_int32();
+            float get_float();
+            double get_double();
+            std::string get_string();
+            
+            Variant& operator=(bool value);
+            Variant& operator=(int value);
+            Variant& operator=(float value);
+            Variant& operator=(double value);
+            Variant& operator=(std::string value);
+            Variant& operator=(const char* value);
+            
+            Variant& operator[](const int index);
+            
+        };
+    }
 }
 
 #endif

@@ -24,12 +24,13 @@
 
 #include "variant.hpp"
 
-using namespace edupals;
+
+using namespace edupals::variant;
 using namespace std;
 
-VariantContainerArray::VariantContainerArray(vector<Variant> value)
+container::Array::Array(vector<Variant> value)
 {
-    this->type=VariantType::Array;
+    this->type=Type::Array;
     this->count=value.size();
     this->value = new Variant[count];
     
@@ -38,12 +39,12 @@ VariantContainerArray::VariantContainerArray(vector<Variant> value)
     }
 }
 
-VariantContainerArray::~VariantContainerArray()
+container::Array::~Array()
 {
     delete [] value;
 }
 
-size_t VariantContainerArray::size()
+size_t container::Array::size()
 {
     size_t total=0;
     for (int n=0;n<count;n++) {
@@ -57,34 +58,39 @@ Variant::Variant()
     
 }
 
+Variant::Variant(bool value)
+{
+    data.reset(new container::Boolean(value));
+}
+
 Variant::Variant(int value)
 {
-    data.reset(new VariantContainerInt32(value));
+    data.reset(new container::Int32(value));
 }
 
 Variant::Variant(float value)
 {
-    data.reset(new VariantContainerFloat(value));
+    data.reset(new container::Float(value));
 }
 
 Variant::Variant(double value)
 {
-    data.reset(new VariantContainerDouble(value));
+    data.reset(new container::Double(value));
 }
 
 Variant::Variant(string value)
 {
-    data.reset(new VariantContainerString(value));
+    data.reset(new container::String(value));
 }
 
 Variant::Variant(const char* value)
 {
-    data.reset(new VariantContainerString(string(value)));
+    data.reset(new container::String(string(value)));
 }
 
 Variant::Variant(vector<Variant> value)
 {
-    data.reset(new VariantContainerArray(value));
+    data.reset(new container::Array(value));
 }
 
 Variant::~Variant()
@@ -101,101 +107,120 @@ size_t Variant::size()
     }
 }
 
+bool Variant::get_boolean()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Boolean) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Boolean* cast=static_cast<container::Boolean*>(data.get());
+
+    return cast->value;
+}
+
 int32_t Variant::get_int32()
 {
     if (!data) {
-        throw VariantException::Unitialized;
+        throw variant::exception::Unitialized();
     }
     
-    if ((*data).type!=VariantType::Int32) {
-        throw VariantException::InvalidType;
+    if ((*data).type!=variant::Type::Int32) {
+        throw variant::exception::InvalidType();
     }
     
-    VariantContainerInt32* cast=static_cast<VariantContainerInt32*>(data.get());
-    
+    container::Int32* cast=static_cast<container::Int32*>(data.get());
+
     return cast->value;
 }
 
 float Variant::get_float()
 {
     if (!data) {
-        throw VariantException::Unitialized;
+        throw variant::exception::Unitialized();
     }
     
-    if ((*data).type!=VariantType::Float) {
-        throw VariantException::InvalidType;
+    if ((*data).type!=variant::Type::Float) {
+        throw variant::exception::InvalidType();
     }
     
-    VariantContainerFloat* cast=static_cast<VariantContainerFloat*>(data.get());
-    
+    container::Float* cast=static_cast<container::Float*>(data.get());
+
     return cast->value;
 }
 
 double Variant::get_double()
 {
     if (!data) {
-        throw VariantException::Unitialized;
+        throw variant::exception::Unitialized();
     }
     
-    if ((*data).type!=VariantType::Double) {
-        throw VariantException::InvalidType;
+    if ((*data).type!=variant::Type::Double) {
+        throw variant::exception::InvalidType();
     }
     
-    VariantContainerDouble* cast=static_cast<VariantContainerDouble*>(data.get());
-    
+    container::Double* cast=static_cast<container::Double*>(data.get());
+
     return cast->value;
 }
 
 string Variant::get_string()
 {
     if (!data) {
-        throw VariantException::Unitialized;
+        throw variant::exception::Unitialized();
     }
     
-    if ((*data).type!=VariantType::String) {
-        throw VariantException::InvalidType;
+    if ((*data).type!=variant::Type::String) {
+        throw variant::exception::InvalidType();
     }
     
-    VariantContainerString* cast=static_cast<VariantContainerString*>(data.get());
-    
+    container::String* cast=static_cast<container::String*>(data.get());
+
     return cast->value;
+}
+
+Variant& Variant::operator=(bool value)
+{
+    data.reset(new container::Boolean(value));
+    return *this;
 }
 
 Variant& Variant::operator=(int value)
 {
-    data.reset(new VariantContainerInt32(value));
+    data.reset(new container::Int32(value));
     return *this;
 }
 
 Variant& Variant::operator=(float value)
 {
-    data.reset(new VariantContainerFloat(value));
+    data.reset(new container::Float(value));
     return *this;
 }
 
 Variant& Variant::operator=(double value)
 {
-    data.reset(new VariantContainerDouble(value));
+    data.reset(new container::Double(value));
     return *this;
 }
 
 Variant& Variant::operator=(string value)
 {
-    data.reset(new VariantContainerString(value));
+    data.reset(new container::String(value));
     return *this;
 }
 
 Variant& Variant::operator=(const char* value)
 {
-    data.reset(new VariantContainerString(string(value)));
+    data.reset(new container::String(string(value)));
     return *this;
 }
 
 Variant& Variant::operator[](const int index)
 {
     //ToDo: checkings
-    
-    VariantContainerArray* cast = static_cast<VariantContainerArray*>(data.get());
-    
+    container::Array* cast = static_cast<container::Array*>(data.get());
     return cast->value[index];
 }

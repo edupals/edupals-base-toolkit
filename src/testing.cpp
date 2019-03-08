@@ -42,6 +42,7 @@
 #include <chrono>
 
 using namespace edupals;
+using namespace edupals::variant;
 using namespace std;
 
 bool test_network()
@@ -310,16 +311,19 @@ bool test_variant()
     
     Variant array(data);
     
+    array[1]=15;
+    a=64;
+    
     clog<<"a: "<<a.get_int32()<<endl;
     clog<<"b: "<<b.get_float()<<endl;
     clog<<"c: "<<c.get_int32()<<endl;
     clog<<"d: "<<d.get_int32()<<endl;
     clog<<"e: "<<e.get_float()<<endl;
     clog<<"f: "<<f.get_string()<<endl;
-    clog<<"0: "<<data[0].get_int32()<<endl;
-    clog<<"1: "<<data[1].get_int32()<<endl;
-    clog<<"2: "<<data[2].get_double()<<endl;
-    clog<<"3: "<<data[3].get_string()<<endl;
+    clog<<"0: "<<array[0].get_int32()<<endl;
+    clog<<"1: "<<array[1].get_int32()<<endl;
+    clog<<"2: "<<array[2].get_double()<<endl;
+    clog<<"3: "<<array[3].get_string()<<endl;
     
     return true;
 }
