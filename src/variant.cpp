@@ -28,36 +28,39 @@
 using namespace edupals::variant;
 using namespace std;
 
-container::Array::Array(vector<Variant> value)
+container::Array::Array(vector<Variant>& value)
 {
     this->type=Type::Array;
-    this->count=value.size();
-    this->value = new Variant[count];
-    
-    for (int n=0;n<value.size();n++) {
-        this->value[n]=value[n];
-    }
+    this->value=value;
 }
 
 container::Array::Array(size_t count)
 {
     this->type=Type::Array;
-    this->count=count;
-    this->value = new Variant[count];
+    this->value.reserve(count);
+    
+    for (int n=0;n<count;n++) {
+        this->value.push_back(Variant());
+    }
 }
 
 container::Array::~Array()
 {
-    delete [] value;
+    
 }
 
 size_t container::Array::size()
 {
     size_t total=0;
-    for (int n=0;n<count;n++) {
+    for (int n=0;n<value.size();n++) {
         total+=value[n].size();
     }
     return total;
+}
+
+size_t container::Array::count()
+{
+    return value.size();
 }
 
 container::Struct::Struct()
@@ -69,8 +72,8 @@ size_t container::Struct::size()
 {
     size_t total=0;
     
-    for (std::pair& q:value) {
-        total+=value.second.size();
+    for (std::pair<string,Variant>q:value) {
+        total+=q.second.size();
     }
     
     return total;
@@ -111,7 +114,7 @@ Variant::Variant(const char* value)
     data.reset(new container::String(string(value)));
 }
 
-Variant::Variant(vector<Variant> value)
+Variant::Variant(vector<Variant>& value)
 {
     data.reset(new container::Array(value));
 }
@@ -129,6 +132,30 @@ Variant Variant::create_array(size_t count)
     return value;
 }
 
+Variant Variant::create_struct()
+{
+    Variant value;
+    
+    value.data.reset(new container::Struct());
+    
+    return value;
+}
+
+void Variant::append()
+{
+     if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Array* cast = static_cast<container::Array*>(data.get());
+    
+    cast->value.push_back(Variant());
+}
+
 size_t Variant::size()
 {
     if (data) {
@@ -137,6 +164,15 @@ size_t Variant::size()
     else {
         return 0;
     }
+}
+
+Type Variant::type()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    return data.get()->type;
 }
 
 bool Variant::get_boolean()
@@ -252,7 +288,7 @@ Variant& Variant::operator=(const char* value)
 
 Variant& Variant::operator[](const int index)
 {
-     if (!data) {
+    if (!data) {
         throw variant::exception::Unitialized();
     }
     
@@ -261,10 +297,30 @@ Variant& Variant::operator[](const int index)
     }
     
     container::Array* cast = static_cast<container::Array*>(data.get());
-    
-    if (index<0 or index>=cast->count) {
+
+    if (index<0 or index>=cast->count()) {
         throw variant::exception::OutOfBounds();
     }
     
     return cast->value[index];
+}
+
+Variant& Variant::operator[](const char* key)
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Struct) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Struct* cast = static_cast<container::Struct*>(data.get());
+    
+    map<string ,Variant>::iterator it = cast->value.find(string(key));
+    if (it==cast->value.end()) {
+        cast->value[string(key)]=Variant();
+    }
+    
+    return cast->value[string(key)];
 }

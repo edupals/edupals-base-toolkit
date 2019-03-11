@@ -199,14 +199,14 @@ namespace edupals
                 {
                     
                     public:
-                    variant::Variant* value;
-                    size_t count;
+                    std::vector<variant::Variant> value;
                     
-                    Array(std::vector<variant::Variant> value);
+                    Array(std::vector<variant::Variant>& value);
                     Array(size_t count);
                     ~Array();
                     
                     size_t size() override;
+                    size_t count();
                     
                 };
                 
@@ -230,26 +230,75 @@ namespace edupals
             std::shared_ptr<container::Base> data;
                 
             public:
-                
+            
+            /*!
+                Create an empty Variant
+            */
             Variant();
+            
             Variant(bool value);
             Variant(int value);
             Variant(float value);
             Variant(double value);
             Variant(std::string value);
             Variant(const char* value);
-            Variant(std::vector<Variant> value);
+            Variant(std::vector<Variant>& value);
             
             ~Variant();
             
+            /*!
+                Create an array variant with 'count' empty values
+            */
             static Variant create_array(size_t count);
             
+            /*!
+                Grow array variants by one, adding and empty value
+            */
+            void append();
+            
+            /*!
+                Create a struct (aka map) Variant
+            */
+            static Variant create_struct();
+            
+            /*!
+                Compute size (in bytes) of Variant container, included children
+            */
             size_t size();
             
+            /*!
+                Get type of Variant
+            */
+            Type type();
+            
+            /*!
+                get Variant as boolean
+                throws InvalidType exception in case of type missmatch
+            */
             bool get_boolean();
+            
+            /*!
+                get Variant as a 32 bit signed integer
+                throws InvalidType exception in case of type missmatch
+            */
             int32_t get_int32();
+            
+            /*!
+                get Variant as single precission float
+                throws InvalidType exception in case of type missmatch
+            */
             float get_float();
+            
+            /*!
+                get Variant as double precission float
+                throws InvalidType exception in case of type missmatch
+            */
             double get_double();
+            
+            /*!
+                get Variant as string
+                throws InvalidType exception in case of type missmatch
+            */
             std::string get_string();
             
             Variant& operator=(bool value);
@@ -259,7 +308,17 @@ namespace edupals
             Variant& operator=(std::string value);
             Variant& operator=(const char* value);
             
+            /*!
+                get Variant from an array Variant using index
+                throws InvalidType exception in case of type missmatch
+            */
             Variant& operator[](const int index);
+            
+            /*!
+                get Variant from a struct Variant using key
+                throws InvalidType exception in case of type missmatch
+            */
+            Variant& operator[](const char* key);
             
         };
     }

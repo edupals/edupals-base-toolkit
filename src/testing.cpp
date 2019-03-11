@@ -311,10 +311,19 @@ bool test_variant()
     
     Variant array(data);
     Variant stuff=Variant::create_array(6);
+    stuff.append();
     
     array[1]=15;
     a=64;
-    stuff[0]="Amazing variant";
+    stuff[6]="Amazing variant";
+    
+    Variant message=Variant::create_struct();
+    
+    message["alfa"]="A";
+    message["beta"]=1;
+    message["gamma"]=2.0f;
+    message["delta"]=Variant::create_struct();
+    message["delta"]["k1"]=32767;
     
     clog<<"a: "<<a.get_int32()<<endl;
     clog<<"b: "<<b.get_float()<<endl;
@@ -326,7 +335,13 @@ bool test_variant()
     clog<<"1: "<<array[1].get_int32()<<endl;
     clog<<"2: "<<array[2].get_double()<<endl;
     clog<<"3: "<<array[3].get_string()<<endl;
-    clog<<"0: "<<stuff[0].get_string()<<endl;
+    clog<<"6: "<<stuff[6].get_string()<<endl;
+    
+    clog<<"alfa: "<<message["alfa"].get_string()<<endl;
+    clog<<"beta: "<<message["beta"].get_int32()<<endl;
+    clog<<"gamma: "<<message["gamma"].get_float()<<endl;
+    clog<<"delta: "<<message["delta"]["k1"].get_int32()<<endl;
+    
     return true;
 }
 
