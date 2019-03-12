@@ -28,6 +28,22 @@
 using namespace edupals::variant;
 using namespace std;
 
+container::Bytes::Bytes(vector<uint8_t>& value)
+{
+    this->type=Type::Bytes;
+    
+    this->value=value;
+}
+
+container::Bytes::Bytes(uint8_t* values,size_t size)
+{
+    this->type=Type::Bytes;
+    
+    for (int n=0;n<size;n++) {
+        this->value.push_back(value[n]);
+    }
+}
+
 container::Array::Array(vector<Variant>& value)
 {
     this->type=Type::Array;
@@ -117,6 +133,16 @@ Variant::Variant(const char* value)
 Variant::Variant(vector<Variant>& value)
 {
     data.reset(new container::Array(value));
+}
+
+Variant::Variant(vector<uint8_t>& value)
+{
+    data.reset(new container::Bytes(value));
+}
+
+Variant::Variant(uint8_t* value,size_t size)
+{
+    data.reset(new container::Bytes(value,size));
 }
 
 Variant::~Variant()
@@ -250,6 +276,21 @@ string Variant::get_string()
     return cast->value;
 }
 
+vector<uint8_t>& Variant::get_bytes()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Bytes) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Bytes* cast=static_cast<container::Bytes*>(data.get());
+
+    return cast->value;
+}
+
 Variant& Variant::operator=(bool value)
 {
     data.reset(new container::Boolean(value));
@@ -283,6 +324,12 @@ Variant& Variant::operator=(string value)
 Variant& Variant::operator=(const char* value)
 {
     data.reset(new container::String(string(value)));
+    return *this;
+}
+
+Variant& Variant::operator=(vector<uint8_t>& value)
+{
+    data.reset(new container::Bytes(value));
     return *this;
 }
 

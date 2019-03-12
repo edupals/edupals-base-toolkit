@@ -308,6 +308,9 @@ bool test_variant()
     Variant f="come get some!";
     
     vector<Variant> data={10,20,30.0,"40"};
+    vector<uint8_t> bytes={0xde,0xad,0xbe,0xef};
+    
+    Variant g=bytes;
     
     Variant array(data);
     Variant stuff=Variant::create_array(6);
@@ -341,6 +344,9 @@ bool test_variant()
     clog<<"beta: "<<message["beta"].get_int32()<<endl;
     clog<<"gamma: "<<message["gamma"].get_float()<<endl;
     clog<<"delta: "<<message["delta"]["k1"].get_int32()<<endl;
+    
+    auto tmp = g.get_bytes();
+    clog<<"0x"<<hex<<(int)tmp[0]<<(int)tmp[1]<<(int)tmp[2]<<(int)tmp[3]<<endl;
     
     return true;
 }

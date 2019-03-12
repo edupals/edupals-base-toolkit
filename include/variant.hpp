@@ -46,6 +46,7 @@ namespace edupals
             Float,
             Double,
             String,
+            Bytes,
             Array,
             Struct
         };
@@ -195,6 +196,21 @@ namespace edupals
                     
                 };
                 
+                class Bytes: public Base
+                {
+                    public:
+                    std::vector<uint8_t> value;
+                    
+                    Bytes(std::vector<uint8_t>& value);
+                    Bytes(uint8_t* value,size_t size);
+                    
+                    size_t size() override
+                    {
+                        return value.size();
+                    }
+                    
+                };
+                
                 class Array: public Base
                 {
                     
@@ -243,6 +259,8 @@ namespace edupals
             Variant(std::string value);
             Variant(const char* value);
             Variant(std::vector<Variant>& value);
+            Variant(std::vector<uint8_t>& value);
+            Variant(uint8_t* value,size_t size);
             
             ~Variant();
             
@@ -301,12 +319,19 @@ namespace edupals
             */
             std::string get_string();
             
+            /*!
+                get Variant as a vector of bytes
+                throws InvalidType exception in case of type missmatch
+            */
+            std::vector<uint8_t>& get_bytes();
+            
             Variant& operator=(bool value);
             Variant& operator=(int value);
             Variant& operator=(float value);
             Variant& operator=(double value);
             Variant& operator=(std::string value);
             Variant& operator=(const char* value);
+            Variant& operator=(std::vector<uint8_t>& value);
             
             /*!
                 get Variant from an array Variant using index
