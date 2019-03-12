@@ -34,6 +34,7 @@
 #include <log.hpp>
 #include <console.hpp>
 #include <variant.hpp>
+#include <json.hpp>
 
 #include <iostream>
 #include <thread>
@@ -351,6 +352,24 @@ bool test_variant()
     return true;
 }
 
+bool test_json()
+{
+    
+    Variant msg=Variant::create_struct();
+    
+    msg["status"]=true;
+    msg["value"]=Variant::create_struct();
+    msg["value"]["name"]="edupals";
+    msg["value"]["uid"]=1000;
+    
+    vector<Variant> groups={100,200,201,202,203};;
+    msg["value"]["groups"]=groups;
+    
+    json::dump(msg,cout);
+    cout<<endl;
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -421,6 +440,10 @@ int main (int argc,char* argv[])
         
         if (s=="variant") {
             test_variant();
+        }
+        
+        if (s=="json") {
+            test_json();
         }
     }
     

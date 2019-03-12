@@ -158,6 +158,21 @@ Variant Variant::create_array(size_t count)
     return value;
 }
 
+size_t Variant::count()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Array* cast = static_cast<container::Array*>(data.get());
+    
+    return cast->value.size();
+}
+
 Variant Variant::create_struct()
 {
     Variant value;
@@ -167,9 +182,30 @@ Variant Variant::create_struct()
     return value;
 }
 
+vector<string> Variant::keys()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Struct) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Struct* cast = static_cast<container::Struct*>(data.get());
+    
+    vector<string> ks;
+    
+    for (auto k:cast->value) {
+        ks.push_back(k.first);
+    }
+    
+    return ks;
+}
+
 void Variant::append()
 {
-     if (!data) {
+    if (!data) {
         throw variant::exception::Unitialized();
     }
     
@@ -352,7 +388,7 @@ Variant& Variant::operator[](const int index)
     return cast->value[index];
 }
 
-Variant& Variant::operator[](const char* key)
+Variant& Variant::get_value_from_key(string key)
 {
     if (!data) {
         throw variant::exception::Unitialized();
@@ -369,5 +405,15 @@ Variant& Variant::operator[](const char* key)
         cast->value[string(key)]=Variant();
     }
     
-    return cast->value[string(key)];
+    return cast->value[key];
+}
+
+Variant& Variant::operator[](const char* key)
+{
+    return get_value_from_key(string(key));
+}
+
+Variant& Variant::operator[](string key)
+{
+    return get_value_from_key(key);
 }

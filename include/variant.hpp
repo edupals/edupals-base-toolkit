@@ -244,7 +244,11 @@ namespace edupals
             protected:
                 
             std::shared_ptr<container::Base> data;
+            
+            private:
                 
+            Variant& get_value_from_key(std::string key);
+            
             public:
             
             /*!
@@ -270,6 +274,12 @@ namespace edupals
             static Variant create_array(size_t count);
             
             /*!
+                Get number of array elements
+                throws InvalidType exception in case of type missmatch
+            */
+            size_t count();
+            
+            /*!
                 Grow array variants by one, adding and empty value
             */
             void append();
@@ -278,6 +288,12 @@ namespace edupals
                 Create a struct (aka map) Variant
             */
             static Variant create_struct();
+            
+            /*!
+                Get a vector with struct keys
+                throws InvalidType exception in case of type missmatch
+            */
+            std::vector<std::string> keys();
             
             /*!
                 Compute size (in bytes) of Variant container, included children
@@ -344,6 +360,7 @@ namespace edupals
                 throws InvalidType exception in case of type missmatch
             */
             Variant& operator[](const char* key);
+            Variant& operator[](std::string key);
             
         };
     }
