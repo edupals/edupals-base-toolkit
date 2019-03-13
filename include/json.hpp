@@ -33,6 +33,7 @@ namespace edupals
     namespace json
     {
         void dump(variant::Variant& value,std::ostream& stream);
+        variant::Variant load(std::istream& stream);
     }
 }
 

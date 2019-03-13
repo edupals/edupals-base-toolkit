@@ -184,7 +184,7 @@ void Float::start()
         _accept=true;
     }
     
-    if (c>='0' or c<='9') {
+    if (c>='0' and c<='9') {
         _accept=true;
     }
     
@@ -204,7 +204,7 @@ void Float::step()
     char c = stack[cursor];
     
     if (dot) {
-        if (c>='0' or c<='9') {
+        if (c>='0' and c<='9') {
             _accept=true;
             _end=true;
         }
@@ -218,12 +218,43 @@ void Float::step()
             dot=true;
         }
         else {
-            if (c>='0' or c<='9') {
+            if (c>='0' and c<='9') {
                 _accept=true;
             }
             else {
                 _accept=false;
             }
+        }
+    }
+    
+}
+
+void String::start()
+{
+    char c = stack[0];
+    
+    if (c=='"') {
+        _accept=true;
+    }
+}
+
+void String::step()
+{
+    if (!_accept) {
+        return;
+    }
+    
+    // we are no longer accepting  chars
+    if (_end) {
+        _accept=false;
+        return;
+    }
+    
+    char c = stack[cursor];
+    
+    if (c=='"') {
+        if (stack[cursor-1]!='\\') {
+            _end=true;
         }
     }
 }

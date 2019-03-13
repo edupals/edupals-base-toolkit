@@ -230,11 +230,11 @@ size_t Variant::size()
 
 Type Variant::type()
 {
-    if (!data) {
-        throw variant::exception::Unitialized();
+    if (data) {
+        return data.get()->type;
     }
     
-    return data.get()->type;
+    return Type::None;
 }
 
 bool Variant::get_boolean()

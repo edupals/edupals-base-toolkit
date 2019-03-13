@@ -93,6 +93,14 @@ namespace edupals
                 void start() override;
                 void step() override;
             };
+            
+            class String: public DFA
+            {
+                public:
+                    
+                void start() override;
+                void step() override;
+            };
         }
     }
 }

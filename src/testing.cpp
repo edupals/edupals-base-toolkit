@@ -367,6 +367,15 @@ bool test_json()
     
     json::dump(msg,cout);
     cout<<endl;
+    
+    stringstream input;
+    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9],\"status\":false}  ";
+    //input<<" { :99,:6.0 , :[.2 ,34 ,true ,false,{:null}] } ";
+    Variant parsed=json::load(input);
+    
+    //json::dump(parsed,cout);
+    cout<<endl;
+    
     return true;
 }
 
