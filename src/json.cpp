@@ -99,15 +99,133 @@ void edupals::json::dump(Variant& value,ostream& stream)
     }
 }
 
-static void on_accepted(DFA* dfa,string name)
+struct Production{
+    string name;
+    int step;
+    
+    Production(string name,int step=0)
+    {
+        this->name=name;
+        this->step=step;
+    }
+};
+
+vector<Production> stack;
+map<string,vector<string> > follow;
+
+static bool check(string prod,string token)
+{
+    bool ret=false;
+    
+    for (auto& s:follow[prod]) {
+        if(s==token) {
+            ret=true;
+            break;
+        }
+    }
+    
+    return ret;
+}
+
+static void on_accepted(DFA* dfa,string token)
 {
     
-    if (name=="WS") {
+    if (token=="WS") {
         //nothing to do
         return;
     }
     
-    clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
+    //clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
+    
+    Production& top = stack.back();
+    
+    clog<<"production: "<<top.name<<" step "<<top.step<<" token "<<token<<endl;
+    
+    if (top.name=="value") {
+        
+        if (token=="INTEGER") {
+            clog<<"value: "<<dfa->value()<<endl;
+            stack.pop_back();
+        }
+        
+        if (token=="FLOAT") {
+            clog<<"value: "<<dfa->value()<<endl;
+            stack.pop_back();
+        }
+        
+        if (token=="STRING") {
+            clog<<"value: "<<dfa->value()<<endl;
+            stack.pop_back();
+        }
+        
+        if (token=="BOOLEAN") {
+            clog<<"value: "<<dfa->value()<<endl;
+            stack.pop_back();
+        }
+        
+        if (token=="LEFT_CURLY") {
+            stack.push_back(Production("struct"));
+        }
+        
+        if (token=="LEFT_BRACKET") {
+            stack.push_back(Production("array"));
+            clog<<"array"<<endl;
+            stack.push_back(Production("value"));
+            
+        }
+
+    }
+    
+    if (top.name=="array") {
+        
+        if (top.step==0) {
+            if (token=="COMMA") {
+                stack.push_back(Production("value"));
+            }
+            if (token=="RIGHT_BRACKET") {
+                clog<<"end"<<endl;
+                stack.pop_back();
+                stack.pop_back();
+            }
+        }
+    }
+    
+    if (top.name=="struct") {
+        
+        if (top.step==0 ) {
+            clog<<"struct"<<endl;
+            top.step=1;
+        }
+        
+        if (top.step==1 and token=="STRING") {
+            clog<<"key: "<<dfa->value()<<endl;
+            top.step++;
+            return;
+        }
+        
+        if (top.step==2 and token=="COLON") {
+            top.step++;
+            stack.push_back(Production("value"));
+            return;
+        }
+        
+        if (top.step==3) {
+            if (token=="COMMA") {
+                top.step=1;
+                return;
+            }
+            if (token=="RIGHT_CURLY") {
+                clog<<"end"<<endl;
+                stack.pop_back();
+                stack.pop_back();
+            }
+        }
+        
+        
+    }
+    
+    
+
 }
 
 static void on_rejected(string expression)
@@ -153,6 +271,8 @@ Variant edupals::json::load(istream& stream)
     std::function<void(string expression)> cb_rejected = on_rejected;
     lexer.signal_accepted(cb_accepted);
     lexer.signal_rejected(cb_rejected);
+    
+    stack.push_back(Production("value"));
     
     
     /*

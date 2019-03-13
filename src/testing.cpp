@@ -369,8 +369,9 @@ bool test_json()
     cout<<endl;
     
     stringstream input;
-    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9],\"status\":false}  ";
+    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false}  ";
     //input<<" { :99,:6.0 , :[.2 ,34 ,true ,false,{:null}] } ";
+    //input<<" { \"alfa\" : 33 , \"beta\": 40.0, \"gamma\":{\"status\":32767},\"valid\":false}  ";
     Variant parsed=json::load(input);
     
     //json::dump(parsed,cout);
