@@ -174,13 +174,13 @@ Config::Config(string name)
     ini_lexer.add_token("VALUE",&value);
     
     ini_lexer.signal_accepted(
-        [](parser::DFA* dfa,string name) {
+        [](parser::DFA* dfa,string name,void* data) {
             clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
         }
     );
     
     ini_lexer.signal_rejected(
-        [](string expression) {
+        [](string expression,void* data) {
             clog<<"-- syntax error: "<<expression<<endl;
         }
     );

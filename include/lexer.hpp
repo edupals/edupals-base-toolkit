@@ -39,9 +39,9 @@ namespace edupals
         class Lexer
         {
             private:
-            
-            std::function<void(DFA*,std::string)> accepted_cb;
-            std::function<void(std::string)> rejected_cb;
+                
+            std::function<void(DFA*,std::string,void* )> accepted_cb;
+            std::function<void(std::string,void* )> rejected_cb;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
@@ -62,7 +62,7 @@ namespace edupals
                 Parse input stream
                 \param input input stream
             */
-            void parse(std::istream& input);
+            void parse(std::istream& input,void* data=nullptr);
             
             /*!
                 Stop parsing, usually called from a callback
@@ -72,12 +72,12 @@ namespace edupals
             /*!
                 Sets the accepted callback
             */
-            void signal_accepted(std::function<void(DFA*,std::string)> callback);
+            void signal_accepted(std::function<void(DFA*,std::string,void*)> callback);
             
             /*!
                 Sets the rejected callback
             */
-            void signal_rejected(std::function<void(std::string)> callback);
+            void signal_rejected(std::function<void(std::string,void*)> callback);
         };
     }
 }

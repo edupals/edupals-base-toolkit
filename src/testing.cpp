@@ -221,13 +221,13 @@ bool test_parser()
     lexer.add_token("BETA",&beta);
     
     lexer.signal_accepted(
-        [](parser::DFA* dfa,string name) {
+        [](parser::DFA* dfa,string name,void* data) {
             clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
         }
     );
     
     lexer.signal_rejected(
-        [](string expression) {
+        [](string expression,void* data) {
             clog<<"-- syntax error: "<<expression<<endl;
         }
     );
@@ -362,19 +362,19 @@ bool test_json()
     msg["value"]["name"]="edupals";
     msg["value"]["uid"]=1000;
     
-    vector<Variant> groups={100,200,201,202,203};;
+    vector<Variant> groups={100,200,201,202,203};
     msg["value"]["groups"]=groups;
     
     json::dump(msg,cout);
     cout<<endl;
     
     stringstream input;
-    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false}  ";
-    //input<<" { :99,:6.0 , :[.2 ,34 ,true ,false,{:null}] } ";
+    input<<" [33,22,11] ";
+    //input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false}  ";
     //input<<" { \"alfa\" : 33 , \"beta\": 40.0, \"gamma\":{\"status\":32767},\"valid\":false}  ";
     Variant parsed=json::load(input);
     
-    //json::dump(parsed,cout);
+    json::dump(parsed,cout);
     cout<<endl;
     
     return true;

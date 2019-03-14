@@ -42,7 +42,7 @@ void Lexer::add_token(string name,DFA* dfa)
     names[dfa]=name;
 }
 
-void Lexer::parse(istream& input)
+void Lexer::parse(istream& input,void* data)
 {
 
     /*
@@ -99,12 +99,12 @@ void Lexer::parse(istream& input)
                 }
                 
                 //Error: Failed to parse expression
-                rejected_cb(errmsg);
+                rejected_cb(errmsg,data);
                 break;
             }
             else {
                 if (last->end()) {
-                    accepted_cb(last,names[last]);
+                    accepted_cb(last,names[last],data);
                     last=nullptr;
                     count=0;
                     reset_tokens();
@@ -125,7 +125,7 @@ void Lexer::parse(istream& input)
                             lookahead.pop_back();
                         }
                         
-                        accepted_cb(last,names[last]);
+                        accepted_cb(last,names[last],data);
                         last=nullptr;
                         count=0;
                         reset_tokens();
@@ -148,12 +148,12 @@ void Lexer::stop()
     stop_requested=true;
 }
 
-void Lexer::signal_accepted(function<void(DFA*,string)> callback)
+void Lexer::signal_accepted(function<void(DFA*,string,void*)> callback)
 {
     this->accepted_cb=callback;
 }
 
-void Lexer::signal_rejected(function<void(string)> callback)
+void Lexer::signal_rejected(function<void(string,void*)> callback)
 {
     this->rejected_cb=callback;
 }

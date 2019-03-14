@@ -28,9 +28,10 @@
 
 #include <iostream>
 
-using namespace std;
 using namespace edupals::variant;
 using namespace edupals::parser;
+using namespace std;
+using namespace std::placeholders;
 
 void edupals::json::dump(Variant& value,ostream& stream)
 {
@@ -102,6 +103,7 @@ void edupals::json::dump(Variant& value,ostream& stream)
 struct Production{
     string name;
     int step;
+    Variant value;
     
     Production(string name,int step=0)
     {
@@ -110,24 +112,13 @@ struct Production{
     }
 };
 
-vector<Production> stack;
-map<string,vector<string> > follow;
-
-static bool check(string prod,string token)
+struct Grammar
 {
-    bool ret=false;
-    
-    for (auto& s:follow[prod]) {
-        if(s==token) {
-            ret=true;
-            break;
-        }
-    }
-    
-    return ret;
-}
+    vector<Production> stack;
+    Variant value;
+};
 
-static void on_accepted(DFA* dfa,string token)
+static void on_accepted(DFA* dfa,string token,void* data)
 {
     
     if (token=="WS") {
@@ -135,42 +126,51 @@ static void on_accepted(DFA* dfa,string token)
         return;
     }
     
-    //clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
-    
-    Production& top = stack.back();
+    Grammar* grammar = static_cast<Grammar*>(data);
+    Production& top = grammar->stack.back();
     
     clog<<"production: "<<top.name<<" step "<<top.step<<" token "<<token<<endl;
     
     if (top.name=="value") {
         
         if (token=="INTEGER") {
-            clog<<"value: "<<dfa->value()<<endl;
-            stack.pop_back();
+            clog<<"integer: "<<dfa->value()<<endl;
+            grammar->value=std::stoi(dfa->value());
+            grammar->stack.pop_back();
         }
         
         if (token=="FLOAT") {
-            clog<<"value: "<<dfa->value()<<endl;
-            stack.pop_back();
+            clog<<"float: "<<dfa->value()<<endl;
+            grammar->value=std::stof(dfa->value());
+            grammar->stack.pop_back();
         }
         
         if (token=="STRING") {
-            clog<<"value: "<<dfa->value()<<endl;
-            stack.pop_back();
+            clog<<"string: "<<dfa->value()<<endl;
+            grammar->value=dfa->value();
+           grammar->stack.pop_back();
         }
         
         if (token=="BOOLEAN") {
             clog<<"value: "<<dfa->value()<<endl;
-            stack.pop_back();
+            if (dfa->value()=="true") {
+                grammar->value=true;
+            }
+            else {
+                grammar->value=false;
+            }
+            grammar->stack.pop_back();
         }
         
         if (token=="LEFT_CURLY") {
-            stack.push_back(Production("struct"));
+            grammar->stack.push_back(Production("struct"));
         }
         
         if (token=="LEFT_BRACKET") {
-            stack.push_back(Production("array"));
+            grammar->stack.push_back(Production("array"));
+            grammar->stack.back()->value=Grammar::create_array();
             clog<<"array"<<endl;
-            stack.push_back(Production("value"));
+            grammar->stack.push_back(Production("value"));
             
         }
 
@@ -180,12 +180,12 @@ static void on_accepted(DFA* dfa,string token)
         
         if (top.step==0) {
             if (token=="COMMA") {
-                stack.push_back(Production("value"));
+                grammar->stack.push_back(Production("value"));
             }
             if (token=="RIGHT_BRACKET") {
                 clog<<"end"<<endl;
-                stack.pop_back();
-                stack.pop_back();
+                grammar->stack.pop_back();
+                grammar->stack.pop_back();
             }
         }
     }
@@ -205,7 +205,7 @@ static void on_accepted(DFA* dfa,string token)
         
         if (top.step==2 and token=="COLON") {
             top.step++;
-            stack.push_back(Production("value"));
+            grammar->stack.push_back(Production("value"));
             return;
         }
         
@@ -216,26 +216,22 @@ static void on_accepted(DFA* dfa,string token)
             }
             if (token=="RIGHT_CURLY") {
                 clog<<"end"<<endl;
-                stack.pop_back();
-                stack.pop_back();
+                grammar->stack.pop_back();
+                grammar->stack.pop_back();
             }
         }
         
-        
     }
-    
-    
 
 }
 
-static void on_rejected(string expression)
+static void on_rejected(string expression,void* data)
 {
     clog<<"-- syntax error: "<<expression<<endl;
 }
 
 Variant edupals::json::load(istream& stream)
 {
-    Variant result;
     
     token::Char ws(' ');
     token::Char lb('[');
@@ -267,28 +263,17 @@ Variant edupals::json::load(istream& stream)
     lexer.add_token("NULL",&null);
     lexer.add_token("STRING",&str);
     
-    std::function<void(parser::DFA* dfa,string name)> cb_accepted = on_accepted;
-    std::function<void(string expression)> cb_rejected = on_rejected;
+    Grammar grammar;
+    grammar.stack.push_back(Production("value"));
+    
+    std::function<void(parser::DFA*,string,void*)> cb_accepted = on_accepted;
+    std::function<void(string,void*)> cb_rejected = on_rejected;
     lexer.signal_accepted(cb_accepted);
     lexer.signal_rejected(cb_rejected);
+
+    lexer.parse(stream,&grammar);
     
-    stack.push_back(Production("value"));
+    clog<<"result "<<grammar.value.get_int32()<<endl;
     
-    
-    /*
-    lexer.signal_accepted(
-        [](parser::DFA* dfa,string name) {
-            clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
-        }
-    );
-    
-    lexer.signal_rejected(
-        [](string expression) {
-            clog<<"-- syntax error: "<<expression<<endl;
-        }
-    );
-    */
-    lexer.parse(stream);
-        
-    return result;
+    return grammar.value;
 }
