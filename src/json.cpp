@@ -104,7 +104,7 @@ struct Production{
     string name;
     Variant value;
     string key;
-    int index;
+    bool down;
 };
 
 struct Grammar
@@ -126,12 +126,14 @@ struct Grammar
         prod.name=name;
         pos++;
         stack[pos]=prod;
+        stack[pos].down=false;
         
     }
     
     void pop()
     {
         pos--;
+        stack[pos].down=true;
     }
     
     Production& top()
@@ -218,7 +220,7 @@ static void on_accepted(DFA* dfa,string token,void* data)
     }
     
 
-    /*
+    
     if (top.name=="s0") {
         
         top.value=Variant::create_struct();
@@ -228,8 +230,7 @@ static void on_accepted(DFA* dfa,string token,void* data)
         }
         
         if (token=="STRING") {
-           
-            top.key=dfa->value();
+            top.key=static_cast<token::String*>(dfa)->get_string();;
             top.name="s1";
         }
         
@@ -239,13 +240,19 @@ static void on_accepted(DFA* dfa,string token,void* data)
     if (top.name=="s1") {
         if (token=="COLON") {
             top.name="s2";
-            grammar->push("value");
         }
         
         return;
     }
     
     if (top.name=="s2") {
+        
+        if (top.down) {
+            Variant tmp=grammar->last().value;
+            top.value[top.key]=tmp;
+            top.down=false;
+        }
+        
         if (token=="COMMA") {
             top.name="s3";
         }
@@ -259,11 +266,13 @@ static void on_accepted(DFA* dfa,string token,void* data)
     
     if (top.name=="s3") {
         if (token=="STRING") {
-            top.key=dfa->value();
+            top.key=static_cast<token::String*>(dfa)->get_string();;
             top.name="s1";
         }
+        
+        return;
     }
-    */
+    
     if (top.name=="a0") {
         top.value=Variant::create_array(0);
         top.name="a1";
@@ -271,20 +280,11 @@ static void on_accepted(DFA* dfa,string token,void* data)
     
     if (top.name=="a1") {
         
-        if (token=="RIGHT_BRACKET") {
-            grammar->pop();
-            return;
+        if (top.down) {
+            top.value.append();
+            top.value[top.value.count()-1]=grammar->last().value;
+            top.down=false;
         }
-        
-        
-        top.value.append();
-        top.value[top.value.count()-1]=grammar->last().value;
-        top.name="a2";
-
-        return;
-    }
-    
-    if (top.name=="a2") {
         
         if (token=="RIGHT_BRACKET") {
             grammar->pop();
@@ -292,10 +292,11 @@ static void on_accepted(DFA* dfa,string token,void* data)
         }
         
         if (token=="COMMA") {
-            top.name="a1";
             return;
         }
+        
     }
+    
 
 }
 

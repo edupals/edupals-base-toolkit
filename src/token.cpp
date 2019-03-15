@@ -267,6 +267,7 @@ void String::step()
     // we are no longer accepting  chars
     if (_end) {
         _accept=false;
+        _end=false;
         return;
     }
     
@@ -286,5 +287,5 @@ string String::get_string()
     //TODO: check for size
     tmp=value();
     
-    return tmp.substr(1,tmp.size()-1);
+    return tmp.substr(1,tmp.size()-2);
 }
