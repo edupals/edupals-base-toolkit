@@ -62,7 +62,7 @@ namespace edupals
                 void step() override;
             };
             
-            class Bool: public DFA
+            class Boolean: public DFA
             {
                 private:
                 
@@ -72,6 +72,8 @@ namespace edupals
                 
                 void start() override;
                 void step() override;
+                
+                bool get_bool();
             };
             
             class Integer: public DFA
@@ -80,6 +82,8 @@ namespace edupals
                 
                 void start() override;
                 void step() override;
+                
+                int get_int();
             };
             
             class Float: public DFA
@@ -92,6 +96,8 @@ namespace edupals
                 
                 void start() override;
                 void step() override;
+                
+                float get_float();
             };
             
             class String: public DFA
@@ -100,6 +106,8 @@ namespace edupals
                     
                 void start() override;
                 void step() override;
+                
+                std::string get_string();
             };
         }
     }

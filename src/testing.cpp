@@ -205,7 +205,7 @@ bool test_parser()
     parser::token::Char right(')');
     parser::token::Char equal('=');
     parser::token::Char cr('\n');
-    parser::token::Bool boolean;
+    parser::token::Boolean boolean;
     parser::token::Word alfa("alfa");
     parser::token::Word beta("beta");
     parser::token::Word alfabeta("alfabeta");
@@ -369,7 +369,7 @@ bool test_json()
     cout<<endl;
     
     stringstream input;
-    input<<" [33,22,11] ";
+    input<<" [33,22,11,[6,7,8]] ";
     //input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false}  ";
     //input<<" { \"alfa\" : 33 , \"beta\": 40.0, \"gamma\":{\"status\":32767},\"valid\":false}  ";
     Variant parsed=json::load(input);

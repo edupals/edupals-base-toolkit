@@ -72,7 +72,7 @@ void Char::step()
     _end=false;
 }
 
-void Bool::start()
+void Boolean::start()
 {
     if (stack[0]=='t') {
         path=true;
@@ -86,7 +86,7 @@ void Bool::start()
     }
 }
 
-void Bool::step()
+void Boolean::step()
 {
     
     if (!_accept) {
@@ -145,6 +145,16 @@ void Bool::step()
     }
 }
 
+bool Boolean::get_bool()
+{
+    if (value()=="true") {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 void Integer::start()
 {
     char c = stack[0];
@@ -173,6 +183,11 @@ void Integer::step()
     }
     
     _end=_accept;
+}
+
+int Integer::get_int()
+{
+    return std::stoi(value());
 }
 
 void Float::start()
@@ -229,6 +244,11 @@ void Float::step()
     
 }
 
+float Float::get_float()
+{
+    return std::stof(value());
+}
+
 void String::start()
 {
     char c = stack[0];
@@ -257,4 +277,14 @@ void String::step()
             _end=true;
         }
     }
+}
+
+string String::get_string()
+{
+    string tmp;
+    
+    //TODO: check for size
+    tmp=value();
+    
+    return tmp.substr(1,tmp.size()-1);
 }

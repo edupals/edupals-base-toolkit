@@ -102,125 +102,199 @@ void edupals::json::dump(Variant& value,ostream& stream)
 
 struct Production{
     string name;
-    int step;
     Variant value;
-    
-    Production(string name,int step=0)
-    {
-        this->name=name;
-        this->step=step;
-    }
+    string key;
+    int index;
 };
 
 struct Grammar
 {
-    vector<Production> stack;
-    Variant value;
+    
+    size_t pos;
+    Production* stack;
+    
+    Grammar()
+    {
+        pos=-1;
+        stack=new Production[64];
+    }
+    
+    void push(string name)
+    {
+        Production prod;
+        
+        prod.name=name;
+        pos++;
+        stack[pos]=prod;
+        
+    }
+    
+    void pop()
+    {
+        pos--;
+    }
+    
+    Production& top()
+    {
+        return stack[pos];
+    }
+    
+    Production& last()
+    {
+        return stack[pos+1];
+    }
+    
 };
+
+static bool is_value(string token)
+{
+    if (token=="INTEGER" or
+        token=="FLOAT" or
+        token=="STRING" or
+        token=="BOOLEAN"
+    ) {
+        return true;
+    }
+    
+    return false;
+}
+
+static Variant get_value(DFA* dfa,string token)
+{
+    Variant tmp;
+    
+    if (token=="INTEGER") {
+        tmp=static_cast<token::Integer*>(dfa)->get_int();
+    }
+    
+    if (token=="FLOAT") {
+        tmp=static_cast<token::Float*>(dfa)->get_float();
+    }
+    
+    if (token=="STRING") {
+        tmp=static_cast<token::String*>(dfa)->get_string();
+    }
+    
+    if (token=="BOOLEAN") {
+        tmp=static_cast<token::Boolean*>(dfa)->get_bool();
+    }
+    
+    return tmp;
+}
 
 static void on_accepted(DFA* dfa,string token,void* data)
 {
     
+    /* ignoring whitespaces */
     if (token=="WS") {
-        //nothing to do
         return;
     }
     
     Grammar* grammar = static_cast<Grammar*>(data);
-    Production& top = grammar->stack.back();
     
-    clog<<"production: "<<top.name<<" step "<<top.step<<" token "<<token<<endl;
+    Production& top = grammar->top();
     
-    if (top.name=="value") {
+    clog<<"production "<<top.name<<" token "<<token<<endl;
+    
+    bool value_ready=false;
+    
+    if (is_value(token)) {
+        grammar->push("value");
+        Production& p=grammar->top();
+        p.value=get_value(dfa,token);
+        grammar->pop();
+        value_ready=true;
+    }
+    
+    
+    if (token=="LEFT_CURLY") {
+        grammar->push("s0");
+        return;
+    }
+
+    if (token=="LEFT_BRACKET") {
+        grammar->push("a0");
+        return;
+    }
+    
+
+    /*
+    if (top.name=="s0") {
         
-        if (token=="INTEGER") {
-            clog<<"integer: "<<dfa->value()<<endl;
-            grammar->value=std::stoi(dfa->value());
-            grammar->stack.pop_back();
-        }
+        top.value=Variant::create_struct();
         
-        if (token=="FLOAT") {
-            clog<<"float: "<<dfa->value()<<endl;
-            grammar->value=std::stof(dfa->value());
-            grammar->stack.pop_back();
+        if (token=="RIGHT_CURLY") {
+            grammar->pop();
         }
         
         if (token=="STRING") {
-            clog<<"string: "<<dfa->value()<<endl;
-            grammar->value=dfa->value();
-           grammar->stack.pop_back();
+           
+            top.key=dfa->value();
+            top.name="s1";
         }
         
-        if (token=="BOOLEAN") {
-            clog<<"value: "<<dfa->value()<<endl;
-            if (dfa->value()=="true") {
-                grammar->value=true;
-            }
-            else {
-                grammar->value=false;
-            }
-            grammar->stack.pop_back();
+        return;
+    }
+    
+    if (top.name=="s1") {
+        if (token=="COLON") {
+            top.name="s2";
+            grammar->push("value");
         }
         
-        if (token=="LEFT_CURLY") {
-            grammar->stack.push_back(Production("struct"));
+        return;
+    }
+    
+    if (top.name=="s2") {
+        if (token=="COMMA") {
+            top.name="s3";
         }
         
-        if (token=="LEFT_BRACKET") {
-            grammar->stack.push_back(Production("array"));
-            grammar->stack.back()->value=Grammar::create_array();
-            clog<<"array"<<endl;
-            grammar->stack.push_back(Production("value"));
-            
+        if (token=="RIGHT_CURLY") {
+            grammar->pop();
         }
+        
+        return;
+    }
+    
+    if (top.name=="s3") {
+        if (token=="STRING") {
+            top.key=dfa->value();
+            top.name="s1";
+        }
+    }
+    */
+    if (top.name=="a0") {
+        top.value=Variant::create_array(0);
+        top.name="a1";
+    }
+    
+    if (top.name=="a1") {
+        
+        if (token=="RIGHT_BRACKET") {
+            grammar->pop();
+            return;
+        }
+        
+        
+        top.value.append();
+        top.value[top.value.count()-1]=grammar->last().value;
+        top.name="a2";
 
+        return;
     }
     
-    if (top.name=="array") {
+    if (top.name=="a2") {
         
-        if (top.step==0) {
-            if (token=="COMMA") {
-                grammar->stack.push_back(Production("value"));
-            }
-            if (token=="RIGHT_BRACKET") {
-                clog<<"end"<<endl;
-                grammar->stack.pop_back();
-                grammar->stack.pop_back();
-            }
-        }
-    }
-    
-    if (top.name=="struct") {
-        
-        if (top.step==0 ) {
-            clog<<"struct"<<endl;
-            top.step=1;
-        }
-        
-        if (top.step==1 and token=="STRING") {
-            clog<<"key: "<<dfa->value()<<endl;
-            top.step++;
+        if (token=="RIGHT_BRACKET") {
+            grammar->pop();
             return;
         }
         
-        if (top.step==2 and token=="COLON") {
-            top.step++;
-            grammar->stack.push_back(Production("value"));
+        if (token=="COMMA") {
+            top.name="a1";
             return;
         }
-        
-        if (top.step==3) {
-            if (token=="COMMA") {
-                top.step=1;
-                return;
-            }
-            if (token=="RIGHT_CURLY") {
-                clog<<"end"<<endl;
-                grammar->stack.pop_back();
-                grammar->stack.pop_back();
-            }
-        }
-        
     }
 
 }
@@ -244,7 +318,7 @@ Variant edupals::json::load(istream& stream)
     token::Integer int_num;
     token::Word null("null");
     token::String str;
-    token::Bool boolean;
+    token::Boolean boolean;
     
     Lexer lexer;
     
@@ -264,7 +338,7 @@ Variant edupals::json::load(istream& stream)
     lexer.add_token("STRING",&str);
     
     Grammar grammar;
-    grammar.stack.push_back(Production("value"));
+    grammar.push("value");
     
     std::function<void(parser::DFA*,string,void*)> cb_accepted = on_accepted;
     std::function<void(string,void*)> cb_rejected = on_rejected;
@@ -273,7 +347,7 @@ Variant edupals::json::load(istream& stream)
 
     lexer.parse(stream,&grammar);
     
-    clog<<"result "<<grammar.value.get_int32()<<endl;
+    Production& p=grammar.stack[1];
     
-    return grammar.value;
+    return p.value;
 }
