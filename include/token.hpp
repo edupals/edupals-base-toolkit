@@ -27,6 +27,7 @@
 #include <dfa.hpp>
 
 #include <string>
+#include <vector>
 
 namespace edupals
 {
@@ -57,6 +58,20 @@ namespace edupals
                 public:
                 
                 Char(char match);
+                
+                void start() override;
+                void step() override;
+            };
+            
+            class Group: public DFA
+            {
+                private:
+                
+                std::vector<char> chars;
+                
+                public:
+                
+                Group(std::vector<char> chars);
                 
                 void start() override;
                 void step() override;

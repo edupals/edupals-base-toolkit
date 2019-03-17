@@ -72,6 +72,33 @@ void Char::step()
     _end=false;
 }
 
+Group::Group(vector<char> chars)
+{
+    this->chars=chars;
+}
+
+void Group::start()
+{
+    char c=stack[0];
+    
+    _accept=false;
+    _end=false;
+    
+    for (char match:chars) {
+        if (match==c) {
+            _accept=true;
+            _end=true;
+            break;
+        }
+    }
+}
+
+void Group::step()
+{
+    _accept=false;
+    _end=false;
+}
+
 void Boolean::start()
 {
     if (stack[0]=='t') {
