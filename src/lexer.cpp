@@ -71,8 +71,24 @@ void Lexer::parse(istream& input,void* data)
         
         // there are no more characters to process
         if (chars.size()==0) {
-            break;
+            
+            if (count==1 and last!=nullptr) {
+                accepted_cb(last,names[last],data);
+                break;
+            }
+            else {
+                string errmsg;
+                while (lookahead.size()>0) {
+                    errmsg+=lookahead.front();
+                    lookahead.pop_front();
+                }
+                
+                //Error: Failed to parse expression
+                rejected_cb(errmsg,data);
+                break;
+            }
         }
+        
         
         c = chars.front();
         count=0;
