@@ -171,7 +171,7 @@ Config::Config(string name)
     ini_lexer.add_token("EQUAL",&equal);
     ini_lexer.add_token("COMMENT",&comment);
     ini_lexer.add_token("NAME",&sname);
-    ini_lexer.add_token("VALUE",&value);
+    //ini_lexer.add_token("VALUE",&value);
     
     ini_lexer.signal_accepted(
         [](parser::DFA* dfa,string name,void* data) {
