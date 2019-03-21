@@ -30,7 +30,6 @@
 #include <workqueue.hpp>
 #include <token.hpp>
 #include <lexer.hpp>
-#include <configfile.hpp>
 #include <log.hpp>
 #include <console.hpp>
 #include <variant.hpp>
@@ -254,14 +253,6 @@ bool test_parser()
     return true;
 }
 
-bool test_config()
-{
-
-    configfile::Config ini("crap.ini");
-
-    return true;
-}
-
 bool test_log()
 {
     log::info<<"Testing colors:"<<endl<<endl;
@@ -437,10 +428,6 @@ int main (int argc,char* argv[])
         
         if (s=="parser") {
             test_parser();
-        }
-        
-        if (s=="config") {
-            test_config();
         }
         
         if (s=="log") {
