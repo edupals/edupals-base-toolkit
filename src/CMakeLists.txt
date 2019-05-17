@@ -16,7 +16,7 @@ install(TARGETS edupals-base
 )
 
 install(EXPORT EdupalsBaseTargets
-    FILE EdupalsBaseTargets.cmake
+    FILE EdupalsBaseConfig.cmake
     DESTINATION "lib/cmake/EdupalsBase"
 )
 
