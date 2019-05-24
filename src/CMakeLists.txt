@@ -11,12 +11,10 @@ target_link_libraries(edupals-base stdc++fs pthread)
 set_target_properties(edupals-base PROPERTIES SOVERSION 1)
 
 install(TARGETS edupals-base
-    EXPORT EdupalsBaseTargets
     LIBRARY DESTINATION "lib"
 )
 
-install(EXPORT EdupalsBaseTargets
-    FILE EdupalsBaseConfig.cmake
+install(FILES "${PROJECT_SOURCE_DIR}/EdupalsBaseConfig.cmake"
     DESTINATION "lib/cmake/EdupalsBase"
 )
 
