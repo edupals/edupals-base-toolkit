@@ -35,6 +35,10 @@ static size_t dump_name(string& name,ostream& stream);
 static size_t dump_element(string& key,Variant& value,ostream& stream);
 static size_t dump_document(Variant& value,ostream& stream);
 
+static string load_name(istream& stream);
+static Variant load_element(Variant& parent,istream& stream);
+static Variant load_document(istream& stream);
+
 static size_t dump_name(string& name,ostream& stream)
 {
     for (char c:name) {
@@ -173,9 +177,58 @@ void edupals::bson::dump(Variant& value,ostream& stream)
     dump_document(value,stream);
 }
 
+static string load_name(istream& stream)
+{
+    string ret;
+    char c;
+    
+    while(stream.get(c)) {
+        if (c==0x00) {
+            break;
+        }
+        
+        ret+=c;
+    }
+    
+    return ret;
+}
+
+static Variant load_element(Variant& parent,istream& stream)
+{
+    uint8_t u8;
+    string name;
+    double f64;
+    
+    stream.read(&u8,1);
+    
+    switch (u8) {
+        case 0x01:
+            name=load_name(stream);
+            stream.read((char*)&f64,8);
+            parent[name]=f64;
+        break;
+    }
+}
+
+static Variant load_document(istream& stream)
+{
+    int32_t i32;
+    uint8_t u8;
+    
+    
+    Variant document=Variant::create_struct();
+    
+    stream.read((char*)&i32,4);
+    //ToDo: check for empty document
+    
+    stream.read(&u8,1);
+}
+
 Variant edupals::bson::load(istream& stream)
 {
     Variant ret;
+    
+    ret = load_document(stream);
     
     return ret;
 }
