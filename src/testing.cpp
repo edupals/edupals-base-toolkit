@@ -34,12 +34,14 @@
 #include <console.hpp>
 #include <variant.hpp>
 #include <json.hpp>
+#include <bson.hpp>
 
 #include <iostream>
 #include <thread>
 #include <mutex>
 #include <sstream>
 #include <chrono>
+#include <fstream>
 
 using namespace edupals;
 using namespace edupals::variant;
@@ -370,6 +372,27 @@ bool test_json()
     return true;
 }
 
+bool test_bson()
+{
+    Variant msg=Variant::create_struct();
+    
+    msg["status"]=true;
+    msg["value"]=Variant::create_struct();
+    msg["value"]["name"]="edupals";
+    msg["value"]["uid"]=1000;
+    
+    vector<Variant> groups={100,200,201,202,203};
+    msg["value"]["groups"]=groups;
+    
+    ofstream file("/tmp/edupals.bson");
+    
+    bson::dump(msg,file);
+    
+    file.close();
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -440,6 +463,10 @@ int main (int argc,char* argv[])
         
         if (s=="json") {
             test_json();
+        }
+        
+        if (s=="bson") {
+            test_bson();
         }
     }
     

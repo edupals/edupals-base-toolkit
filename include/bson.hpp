@@ -27,11 +27,36 @@
 #include "variant.hpp"
 
 #include <ostream>
+#include <exception>
+#include <sstream>
 
 namespace edupals
 {
     namespace bson
     {
+        namespace exception
+        {
+            class UnsupportedExport : public std::exception
+            {
+                private:
+                    variant::Type type;
+                    
+                public:
+                    
+                UnsupportedExport(variant::Type type)
+                {
+                    this->type=type;
+                }
+                const char * what () const throw ()
+                {
+                    std::stringstream ss;
+                    ss<<"Unsupported export to BSON:"<<static_cast<int>(type);
+                    
+                    return ss.str().c_str();
+                }
+            };
+        }
+        
         void dump(variant::Variant& value,std::ostream& stream);
         variant::Variant load(std::istream& stream);
     }
