@@ -36,6 +36,16 @@ namespace edupals
     {
         namespace exception
         {
+            class UnexpectedEOF : public std::exception
+            {
+                public:
+                
+                const char * what () const throw ()
+                {
+                    return "Unexpected end of file";
+                }
+            };
+            
             class UnsupportedExport : public std::exception
             {
                 private:
@@ -57,7 +67,7 @@ namespace edupals
             };
         }
         
-        void dump(variant::Variant& value,std::ostream& stream);
+        void dump(std::ostream& stream,variant::Variant& value);
         variant::Variant load(std::istream& stream);
     }
 }

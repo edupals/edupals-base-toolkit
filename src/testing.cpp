@@ -384,11 +384,27 @@ bool test_bson()
     vector<Variant> groups={100,200,201,202,203};
     msg["value"]["groups"]=groups;
     
-    ofstream file("/tmp/edupals.bson");
+    /*
+    msg["A"]=1;
+    msg["B"]=2;
+    msg["value"]=Variant::create_struct();
+    msg["value"]["name"]="edupals";
+    vector<Variant> groups={100,200,201,202,203};
+    msg["value"]["groups"]=groups;
+    */
+    ofstream ofile("/tmp/edupals.bson");
     
-    bson::dump(msg,file);
+    bson::dump(ofile,msg);
     
-    file.close();
+    ofile.close();
+    
+    ifstream ifile("/tmp/edupals.bson");
+    
+    msg = bson::load(ifile);
+    
+    ifile.close();
+    
+    json::dump(msg,cout);
     
     return true;
 }
