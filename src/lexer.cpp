@@ -42,7 +42,24 @@ void Lexer::add_token(string name,DFA* dfa)
     names[dfa]=name;
 }
 
-void Lexer::parse(istream& input,void* data)
+Lexer::Lexer(istream* input)
+{
+    this->input=input;
+}
+
+bool Lexer::step()
+{
+}
+
+string Lexer::get_token()
+{
+}
+
+DFA* Lexer::get_dfa()
+{
+}
+
+void old(istream& input,void* data)
 {
 
     /*
@@ -159,17 +176,3 @@ void Lexer::parse(istream& input,void* data)
     }
 }
 
-void Lexer::stop()
-{
-    stop_requested=true;
-}
-
-void Lexer::signal_accepted(function<void(DFA*,string,void*)> callback)
-{
-    this->accepted_cb=callback;
-}
-
-void Lexer::signal_rejected(function<void(string,void*)> callback)
-{
-    this->rejected_cb=callback;
-}

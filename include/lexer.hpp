@@ -30,12 +30,40 @@
 #include <map>
 #include <string>
 #include <istream>
-#include <functional>
+#include <sstream>
 
 namespace edupals
 {
     namespace parser
     {
+        class Lexer
+        {
+            private:
+            
+            std::istream* input;
+            std::stringstream buffer;
+            
+            std::vector<DFA*> tokens;
+            std::map<DFA*,std::string> names;
+            
+            void reset_tokens();
+            
+            public:
+            
+            Lexer(std::istream* input);
+            
+            /*!
+                Adds a token DFA to the list
+                \param name 
+            */
+            void add_token(std::string name,DFA* dfa);
+            
+            bool step();
+            
+            std::string get_token();
+            DFA* get_dfa();
+        };
+        
         class Lexer
         {
             private:
