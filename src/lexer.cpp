@@ -36,27 +36,48 @@ void Lexer::reset_tokens()
     }
 }
 
+Lexer::Lexer()
+{
+    input=nullptr;
+}
+
+void Lexer::set_input(istream* input)
+{
+    this->input=input;
+    _eof=false;
+}
+
 void Lexer::add_token(string name,DFA* dfa)
 {
     tokens.push_back(dfa);
     names[dfa]=name;
 }
 
-Lexer::Lexer(istream* input)
-{
-    this->input=input;
-}
-
 bool Lexer::step()
 {
+    accepted=nullptr;
+    
+    return true;
 }
 
 string Lexer::get_token()
 {
+    return names[accepted];
 }
 
 DFA* Lexer::get_dfa()
 {
+    return accepted;
+}
+
+bool Lexer::eof()
+{
+    return _eof;
+}
+
+string Lexer::what()
+{
+    return "";
 }
 
 void old(istream& input,void* data)

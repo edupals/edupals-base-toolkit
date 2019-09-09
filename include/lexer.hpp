@@ -48,9 +48,14 @@ namespace edupals
             
             void reset_tokens();
             
+            bool _eof;
+            DFA* accepted;
+            
             public:
             
-            Lexer(std::istream* input);
+            Lexer();
+            
+            void set_input(std::istream* input)
             
             /*!
                 Adds a token DFA to the list
@@ -61,51 +66,12 @@ namespace edupals
             bool step();
             
             std::string get_token();
+            
             DFA* get_dfa();
-        };
-        
-        class Lexer
-        {
-            private:
-                
-            std::function<void(DFA*,std::string,void* )> accepted_cb;
-            std::function<void(std::string,void* )> rejected_cb;
             
-            std::vector<DFA*> tokens;
-            std::map<DFA*,std::string> names;
+            bool eof();
             
-            bool stop_requested;
-            
-            void reset_tokens();
-            
-            public:
-            
-            /*!
-                Adds a token DFA to the list
-                \param name 
-            */
-            void add_token(std::string name,DFA* dfa);
-            
-            /*!
-                Parse input stream
-                \param input input stream
-            */
-            void parse(std::istream& input,void* data=nullptr);
-            
-            /*!
-                Stop parsing, usually called from a callback
-            */
-            void stop();
-            
-            /*!
-                Sets the accepted callback
-            */
-            void signal_accepted(std::function<void(DFA*,std::string,void*)> callback);
-            
-            /*!
-                Sets the rejected callback
-            */
-            void signal_rejected(std::function<void(std::string,void*)> callback);
+            std::string what();
         };
     }
 }

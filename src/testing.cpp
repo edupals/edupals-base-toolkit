@@ -197,7 +197,6 @@ bool test_filesystem()
 
 bool test_parser()
 {
-
     
     parser::Lexer lexer;
     
@@ -221,26 +220,25 @@ bool test_parser()
     lexer.add_token("ALFA",&alfa);
     lexer.add_token("BETA",&beta);
     
-    lexer.signal_accepted(
-        [](parser::DFA* dfa,string name,void* data) {
-            clog<<"-- token: "<<name<<"="<<dfa->value()<<endl;
-        }
-    );
-    
-    lexer.signal_rejected(
-        [](string expression,void* data) {
-            clog<<"-- syntax error: "<<expression<<endl;
-        }
-    );
-    
     stringstream sa;
     sa<<"( alfa (alfabeta=false) )(alfa)alfa=true) bet alfa";
-     
+    
     clog<<"Parsing: "<<sa.str()<<endl;
-        
-    lexer.parse(sa);
     
+    lexer.set_input(&sa);
     
+    while (lexer.step()) {
+        clog<<"["<<lexer.get_token()<<"]"<<endl;
+    }
+    
+    if (!lexer.eof()) {
+        clog<<"Unknown token: "<<lexer.what()<<endl;
+    }
+    else {
+        clog<<"Ok"<<endl;
+    }
+    
+    /*
     stringstream sb;
     sb<<"( ) z";
     clog<<"Parsing: "<<sb.str()<<endl;
@@ -251,7 +249,7 @@ bool test_parser()
     sc<<"alfabetaalfabetabetabe";
     clog<<"Parsing: "<<sc.str()<<endl;
     lexer.parse(sc);
-
+    */
     return true;
 }
 
