@@ -41,12 +41,13 @@ namespace edupals
             private:
             
             std::istream* input;
-            std::stringstream buffer;
+            char buffer;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
             
             void reset_tokens();
+            bool get_char(char& c);
             
             bool _eof;
             DFA* accepted;
@@ -55,7 +56,7 @@ namespace edupals
             
             Lexer();
             
-            void set_input(std::istream* input)
+            void set_input(std::istream* input);
             
             /*!
                 Adds a token DFA to the list
@@ -70,6 +71,8 @@ namespace edupals
             DFA* get_dfa();
             
             bool eof();
+            
+            bool missing();
             
             std::string what();
         };

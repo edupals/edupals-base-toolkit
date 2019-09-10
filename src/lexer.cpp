@@ -36,14 +36,33 @@ void Lexer::reset_tokens()
     }
 }
 
+bool Lexer::get_char(char& c)
+{
+    
+    if (buffer==0) {
+        if (!input->get(c)) {
+            _eof=true;
+            return false;
+        }
+    }
+    else {
+        c=buffer;
+        buffer=0;
+    }
+    
+    return true;
+}
+
 Lexer::Lexer()
 {
     input=nullptr;
+    buffer=0;
 }
 
 void Lexer::set_input(istream* input)
 {
     this->input=input;
+    buffer=0;
     _eof=false;
 }
 
@@ -56,6 +75,46 @@ void Lexer::add_token(string name,DFA* dfa)
 bool Lexer::step()
 {
     accepted=nullptr;
+    char c;
+    int count;
+
+    reset_tokens();
+    
+    eat:
+    
+    if (!get_char(c)) {
+        if (!accepted) {
+            return false;
+        }
+    }
+    
+    //clog<<c<<endl;
+    
+    count=0;
+    
+    for (DFA* t:tokens) {
+        t->push(c);
+        
+        if (t->accept()) {
+            count++;
+            
+            if (t->end()) {
+                accepted=t;
+            }
+        }
+    }
+    
+    if (count==0) {
+        if (accepted) {
+            buffer=c;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    
+    goto eat;
     
     return true;
 }
@@ -75,17 +134,22 @@ bool Lexer::eof()
     return _eof;
 }
 
+bool Lexer::missing()
+{
+    return (tokens.size()>0);
+}
+
 string Lexer::what()
 {
     return "";
 }
-
+/*
 void old(istream& input,void* data)
 {
 
-    /*
-        [input stream] ---> [chars] ---> [lookahead] <---
-    */
+    
+    //    [input stream] ---> [chars] ---> [lookahead] <---
+    
 
     list<char> chars;
     list<char> lookahead;
@@ -196,4 +260,4 @@ void old(istream& input,void* data)
         
     }
 }
-
+*/
