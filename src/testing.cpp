@@ -33,7 +33,7 @@
 #include <log.hpp>
 #include <console.hpp>
 #include <variant.hpp>
-//#include <json.hpp>
+#include <json.hpp>
 #include <bson.hpp>
 
 #include <iostream>
@@ -235,11 +235,11 @@ bool test_parser()
         clog<<"Unknown token"<<endl;
     }
     
-    stringstream sc;
-    sc<<"alfabetaalfabetabetabe";
-    clog<<"Parsing: "<<sc.str()<<endl;
+    stringstream sb;
+    sb<<"alfabetaalfabetabetabe";
+    clog<<"Parsing: "<<sb.str()<<endl;
     
-    lexer.set_input(&sc);
+    lexer.set_input(&sb);
     
     while (lexer.step()) {
         clog<<"["<<lexer.get_token()<<"]:["<<lexer.get_dfa()->value()<<"]"<<endl;
@@ -252,6 +252,20 @@ bool test_parser()
         if (lexer.missing()) {
             clog<<"Reached EOF"<<endl;
         }
+    }
+    
+    stringstream sc;
+    sc<<"alfabeta alfa beta alfa";
+    clog<<"Parsing: "<<sc.str()<<endl;
+    
+    lexer.set_input(&sc);
+    
+    while (lexer.step()) {
+        clog<<"["<<lexer.get_token()<<"]:["<<lexer.get_dfa()->value()<<"]"<<endl;
+    }
+    
+    if (!lexer.missing()) {
+        clog<<"Parsed succesfully"<<endl;
     }
     
     return true;
@@ -346,7 +360,7 @@ bool test_variant()
     
     return true;
 }
-/*
+
 bool test_json()
 {
     
@@ -373,7 +387,7 @@ bool test_json()
     
     return true;
 }
-*/
+
 bool test_bson()
 {
     Variant msg=Variant::create_struct();
@@ -406,7 +420,7 @@ bool test_bson()
     
     ifile.close();
     
-    //json::dump(msg,cout);
+    json::dump(msg,cout);
     
     return true;
 }
@@ -480,7 +494,7 @@ int main (int argc,char* argv[])
         }
         
         if (s=="json") {
-            //test_json();
+            test_json();
         }
         
         if (s=="bson") {

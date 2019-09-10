@@ -31,7 +31,6 @@
 using namespace edupals::variant;
 using namespace edupals::parser;
 using namespace std;
-using namespace std::placeholders;
 
 void edupals::json::dump(Variant& value,ostream& stream)
 {
@@ -338,16 +337,33 @@ Variant edupals::json::load(istream& stream)
     lexer.add_token("NULL",&null);
     lexer.add_token("STRING",&str);
     
+    lexer.set_input(&stream);
+    
     Grammar grammar;
     grammar.push("value");
     
+    while (lexer.step()) {
+        DFA* accepted = lexer.get_dfa();
+        clog<<"* "<<lexer.get_token()<<endl;
+    }
+    
+    if (!lexer.eof()) {
+        clog<<"Unknown token"<<endl;
+    }
+    else {
+        if (lexer.missing()) {
+            clog<<"Reached EOF"<<endl;
+        }
+    }
+    
+    /*
     std::function<void(parser::DFA*,string,void*)> cb_accepted = on_accepted;
     std::function<void(string,void*)> cb_rejected = on_rejected;
     lexer.signal_accepted(cb_accepted);
     lexer.signal_rejected(cb_rejected);
 
     lexer.parse(stream,&grammar);
-    
+    */
     Production& p=grammar.stack[1];
     
     return p.value;

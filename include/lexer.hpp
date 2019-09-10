@@ -42,6 +42,7 @@ namespace edupals
             
             std::istream* input;
             char buffer;
+            int ate;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
