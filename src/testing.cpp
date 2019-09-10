@@ -235,6 +235,8 @@ bool test_parser()
         clog<<"Unknown token"<<endl;
     }
     
+    clog<<endl;
+    
     stringstream sb;
     sb<<"alfabetaalfabetabetabe";
     clog<<"Parsing: "<<sb.str()<<endl;
@@ -245,14 +247,11 @@ bool test_parser()
         clog<<"["<<lexer.get_token()<<"]:["<<lexer.get_dfa()->value()<<"]"<<endl;
     }
     
-    if (!lexer.eof()) {
-        clog<<"Unknown token"<<endl;
+    if (lexer.eof() and lexer.pending()) {
+        clog<<"Unexpected EOF"<<endl;
     }
-    else {
-        if (lexer.missing()) {
-            clog<<"Reached EOF"<<endl;
-        }
-    }
+    
+    clog<<endl;
     
     stringstream sc;
     sc<<"alfabeta alfa beta alfa";
@@ -264,7 +263,7 @@ bool test_parser()
         clog<<"["<<lexer.get_token()<<"]:["<<lexer.get_dfa()->value()<<"]"<<endl;
     }
     
-    if (!lexer.missing()) {
+    if (lexer.eof() and !lexer.pending()) {
         clog<<"Parsed succesfully"<<endl;
     }
     

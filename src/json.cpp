@@ -183,15 +183,13 @@ static Variant get_value(DFA* dfa,string token)
     return tmp;
 }
 
-static void on_accepted(DFA* dfa,string token,void* data)
+static void on_step(DFA* dfa,string token,Grammar* grammar)
 {
     
     /* ignoring whitespaces */
     if (token=="WS") {
         return;
     }
-    
-    Grammar* grammar = static_cast<Grammar*>(data);
     
     Production& top = grammar->top();
     
@@ -296,12 +294,6 @@ static void on_accepted(DFA* dfa,string token,void* data)
         
     }
     
-
-}
-
-static void on_rejected(string expression,void* data)
-{
-    clog<<"-- syntax error: "<<expression<<endl;
 }
 
 Variant edupals::json::load(istream& stream)
@@ -343,15 +335,19 @@ Variant edupals::json::load(istream& stream)
     grammar.push("value");
     
     while (lexer.step()) {
-        DFA* accepted = lexer.get_dfa();
-        clog<<"* "<<lexer.get_token()<<endl;
+        DFA* dfa = lexer.get_dfa();
+        string token = lexer.get_token();
+        
+        on_step(dfa,token,&grammar);
+        
+        //clog<<"* "<<lexer.get_token()<<endl;
     }
     
     if (!lexer.eof()) {
         clog<<"Unknown token"<<endl;
     }
     else {
-        if (lexer.missing()) {
+        if (lexer.pending()) {
             clog<<"Reached EOF"<<endl;
         }
     }

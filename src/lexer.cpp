@@ -64,7 +64,6 @@ void Lexer::set_input(istream* input)
     this->input=input;
     buffer=0;
     _eof=false;
-    ate=0;
 }
 
 void Lexer::add_token(string name,DFA* dfa)
@@ -76,12 +75,12 @@ void Lexer::add_token(string name,DFA* dfa)
 bool Lexer::step()
 {
     accepted=nullptr;
+    last=nullptr;
     
     char c;
     int count;
 
     reset_tokens();
-    
     
     eat:
     
@@ -89,9 +88,10 @@ bool Lexer::step()
         if (!accepted) {
             return false;
         }
+        else {
+            return true;
+        }
     }
-    
-    ate++;
     
     count=0;
     
@@ -100,6 +100,7 @@ bool Lexer::step()
         
         if (t->accept()) {
             count++;
+            last=t;
             
             if (t->end()) {
                 accepted=t;
@@ -110,7 +111,6 @@ bool Lexer::step()
     if (count==0) {
         if (accepted) {
             buffer=c;
-            ate=0;
             return true;
         }
         else {
@@ -138,10 +138,9 @@ bool Lexer::eof()
     return _eof;
 }
 
-bool Lexer::missing()
+bool Lexer::pending()
 {
-    clog<<"ate: "<<ate<<endl;
-    return (ate>0);
+    return (last!=nullptr);
 }
 
 string Lexer::what()

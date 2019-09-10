@@ -42,7 +42,6 @@ namespace edupals
             
             std::istream* input;
             char buffer;
-            int ate;
             
             std::vector<DFA*> tokens;
             std::map<DFA*,std::string> names;
@@ -52,6 +51,7 @@ namespace edupals
             
             bool _eof;
             DFA* accepted;
+            DFA* last;
             
             public:
             
@@ -73,7 +73,7 @@ namespace edupals
             
             bool eof();
             
-            bool missing();
+            bool pending();
             
             std::string what();
         };
