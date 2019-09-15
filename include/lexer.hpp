@@ -55,24 +55,53 @@ namespace edupals
             
             public:
             
+            /*!
+                Constructor
+            */
             Lexer();
             
+            /*!
+                Destructor
+            */
+            virtual ~Lexer();
+            
+            /*!
+                Sets input stream
+                \param input std stream
+            */
             void set_input(std::istream* input);
             
             /*!
                 Adds a token DFA to the list
-                \param name 
+                \param name token name
+                \param dfa pointer to DFA matching the token
             */
             void add_token(std::string name,DFA* dfa);
             
+            /*!
+                Tries to parse a token
+                It returns false either it reaches eof or can match any token
+            */
             bool step();
             
+            /*!
+                gets matched token
+            */
             std::string get_token();
             
+            /*!
+                gets matched DFA
+            */
             DFA* get_dfa();
             
+            /*!
+                Return whenever eof has been reached
+            */
             bool eof();
             
+            /*!
+                
+            */
             bool pending();
             
             std::string what();

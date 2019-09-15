@@ -59,6 +59,10 @@ Lexer::Lexer()
     buffer=0;
 }
 
+Lexer::~Lexer()
+{
+}
+
 void Lexer::set_input(istream* input)
 {
     this->input=input;
