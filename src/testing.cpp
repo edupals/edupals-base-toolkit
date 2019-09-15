@@ -267,6 +267,22 @@ bool test_parser()
         clog<<"Parsed succesfully"<<endl;
     }
     
+    clog<<endl;
+    
+    stringstream sd;
+    sd<<"alfa gamma";
+    clog<<"Parsing: "<<sd.str()<<endl;
+    
+    lexer.set_input(&sd);
+    
+    while (lexer.step()) {
+        clog<<"["<<lexer.get_token()<<"]:["<<lexer.get_dfa()->value()<<"]"<<endl;
+    }
+    
+    if (!lexer.eof() and !lexer.pending()) {
+        clog<<"No match"<<endl;
+    }
+    
     return true;
 }
 
