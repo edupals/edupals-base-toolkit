@@ -100,11 +100,10 @@ namespace edupals
             bool eof();
             
             /*!
-                
+                Whenever eof reached but some tokens were still being matched
             */
             bool pending();
             
-            std::string what();
         };
     }
 }
