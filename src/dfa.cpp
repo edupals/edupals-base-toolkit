@@ -24,7 +24,6 @@
 
 #include <dfa.hpp>
 
-#include <stdexcept>
 #include <cstring>
 
 using namespace edupals::parser;

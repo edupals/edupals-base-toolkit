@@ -27,6 +27,7 @@
 #include "token.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 using namespace edupals::variant;
 using namespace edupals::parser;
@@ -193,7 +194,7 @@ static void on_step(DFA* dfa,string token,Grammar* grammar)
     
     Production& top = grammar->top();
     
-    clog<<"production "<<top.name<<" token "<<token<<endl;
+    //clog<<"production "<<top.name<<" token "<<token<<endl;
     
     bool value_ready=false;
     
@@ -205,7 +206,6 @@ static void on_step(DFA* dfa,string token,Grammar* grammar)
         value_ready=true;
     }
     
-    
     if (token=="LEFT_CURLY") {
         grammar->push("s0");
         return;
@@ -215,8 +215,6 @@ static void on_step(DFA* dfa,string token,Grammar* grammar)
         grammar->push("a0");
         return;
     }
-    
-
     
     if (top.name=="s0") {
         
@@ -340,26 +338,17 @@ Variant edupals::json::load(istream& stream)
         
         on_step(dfa,token,&grammar);
         
-        //clog<<"* "<<lexer.get_token()<<endl;
     }
     
     if (!lexer.eof()) {
-        clog<<"Unknown token"<<endl;
+        throw runtime_error("Unknown token");
     }
     else {
         if (lexer.pending()) {
-            clog<<"Reached EOF"<<endl;
+            throw runtime_error("Unexpected EOF");
         }
     }
     
-    /*
-    std::function<void(parser::DFA*,string,void*)> cb_accepted = on_accepted;
-    std::function<void(string,void*)> cb_rejected = on_rejected;
-    lexer.signal_accepted(cb_accepted);
-    lexer.signal_rejected(cb_rejected);
-
-    lexer.parse(stream,&grammar);
-    */
     Production& p=grammar.stack[1];
     
     return p.value;
