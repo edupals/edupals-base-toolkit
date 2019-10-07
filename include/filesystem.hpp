@@ -28,7 +28,6 @@
 #include <vector>
 #include <experimental/filesystem>
 
-
 namespace edupals
 {
     namespace filesystem
