@@ -24,8 +24,6 @@
 #ifndef EDUPALS_DFA
 #define EDUPALS_DFA
 
-#define EDUPALS_DFA_MAX_STACK   128
-
 #include <cstdint>
 #include <string>
 
@@ -37,13 +35,16 @@ namespace edupals
         {
             protected:
             
-            int8_t stack[EDUPALS_DFA_MAX_STACK];
+            int8_t* stack;
+            size_t capacity;
             int cursor;
             int last;
             bool _accept;
             bool _end;
                 
             public:
+            
+            DFA();
             
             virtual ~DFA();
             

@@ -25,18 +25,33 @@
 #include <dfa.hpp>
 
 #include <stdexcept>
+#include <cstring>
 
 using namespace edupals::parser;
 using namespace std;
 
+DFA::DFA()
+{
+    capacity = 128;
+    stack = new int8_t[capacity];
+}
+
 DFA::~DFA()
 {
+    delete [] stack;
 }
 
 void DFA::push(int8_t c)
 {
-    if (cursor==EDUPALS_DFA_MAX_STACK) {
-        throw runtime_error("DFA overflow");
+    if (cursor==capacity) {
+        size_t new_capacity=capacity*1.5f;
+        int8_t* tmp = new int8_t[new_capacity];
+        
+        std::memcpy(tmp,stack,capacity);
+        
+        delete [] stack;
+        stack=tmp;
+        capacity=new_capacity;
     }
     
     cursor++;
