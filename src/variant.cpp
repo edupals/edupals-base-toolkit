@@ -417,3 +417,33 @@ Variant& Variant::operator[](string key)
 {
     return get_value_from_key(key);
 }
+
+std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
+{
+    switch(v.type()) {
+        case variant::Type::Boolean:
+            os<<v.get_boolean();
+        break;
+        
+        case variant::Type::Int32:
+            os<<v.get_int32();
+        break;
+        
+        case variant::Type::Float:
+            os<<v.get_float();
+        break;
+        
+        case variant::Type::Double:
+            os<<v.get_double();
+        break;
+        
+        case variant::Type::String:
+            os<<v.get_string();
+        break;
+        
+        //TODO: Structs and Arrays
+        
+    }
+    
+    return os;
+}

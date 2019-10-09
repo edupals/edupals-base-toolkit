@@ -353,12 +353,12 @@ bool test_variant()
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
     
-    clog<<"a: "<<a.get_int32()<<endl;
-    clog<<"b: "<<b.get_float()<<endl;
-    clog<<"c: "<<c.get_int32()<<endl;
-    clog<<"d: "<<d.get_int32()<<endl;
-    clog<<"e: "<<e.get_float()<<endl;
-    clog<<"f: "<<f.get_string()<<endl;
+    clog<<"a: "<<a<<endl;
+    clog<<"b: "<<b<<endl;
+    clog<<"c: "<<c<<endl;
+    clog<<"d: "<<d<<endl;
+    clog<<"e: "<<e<<endl;
+    clog<<"f: "<<f<<endl;
     clog<<"0: "<<array[0].get_int32()<<endl;
     clog<<"1: "<<array[1].get_int32()<<endl;
     clog<<"2: "<<array[2].get_double()<<endl;
