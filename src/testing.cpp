@@ -353,6 +353,7 @@ bool test_variant()
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
     
+    clog<<array<<endl;
     clog<<"a: "<<a<<endl;
     clog<<"b: "<<b<<endl;
     clog<<"c: "<<c<<endl;

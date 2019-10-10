@@ -21,7 +21,6 @@
  *
  */
 
-
 #include "variant.hpp"
 
 
@@ -441,7 +440,26 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
             os<<v.get_string();
         break;
         
-        //TODO: Structs and Arrays
+        case variant::Type::Array:
+            os<<'[';
+            for (size_t n=0;n<v.count();n++) {
+                operator<<(os,v[n]);
+                if (n!=v.count()-1) {
+                    os<<',';
+                }
+            }
+            os<<']';
+        break;
+        
+        case variant::Type::Struct:
+            os<<'{';
+            const vector<string> keys = v.keys();
+            for (size_t n=0;n<keys.size();n++) {
+                //TODO
+                
+            }
+            os<<'}';
+        break;
         
     }
     
