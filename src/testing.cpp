@@ -354,12 +354,14 @@ bool test_variant()
     message["delta"]["k1"]=32767;
     
     clog<<array<<endl;
+    clog<<message<<endl;
     clog<<"a: "<<a<<endl;
     clog<<"b: "<<b<<endl;
     clog<<"c: "<<c<<endl;
     clog<<"d: "<<d<<endl;
     clog<<"e: "<<e<<endl;
     clog<<"f: "<<f<<endl;
+    clog<<"g: "<<g<<endl;
     clog<<"0: "<<array[0].get_int32()<<endl;
     clog<<"1: "<<array[1].get_int32()<<endl;
     clog<<"2: "<<array[2].get_double()<<endl;

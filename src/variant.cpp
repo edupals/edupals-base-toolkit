@@ -436,6 +436,10 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
             os<<v.get_double();
         break;
         
+        case variant::Type::Bytes:
+            os<<"bytes (size "<<v.get_bytes().size()<<")";
+        break;
+        
         case variant::Type::String:
             os<<v.get_string();
         break;
@@ -443,7 +447,7 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
         case variant::Type::Array:
             os<<'[';
             for (size_t n=0;n<v.count();n++) {
-                operator<<(os,v[n]);
+                os<<v[n];
                 if (n!=v.count()-1) {
                     os<<',';
                 }
@@ -454,9 +458,14 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
         case variant::Type::Struct:
             os<<'{';
             const vector<string> keys = v.keys();
+            int last=keys.size()-1;
             for (size_t n=0;n<keys.size();n++) {
-                //TODO
-                
+                os<<keys[n];
+                os<<':';
+                os<<v[keys[n]];
+                if (n!=last) {
+                    os<<',';
+                }
             }
             os<<'}';
         break;
