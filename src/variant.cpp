@@ -144,6 +144,15 @@ Variant::Variant(uint8_t* value,size_t size)
     data.reset(new container::Bytes(value,size));
 }
 
+Variant::Variant(std::initializer_list<Variant> list)
+{
+    data.reset(new container::Array(0));
+    
+    for (Variant v:list) {
+        append(v);
+    }
+}
+
 Variant::~Variant()
 {
 }
@@ -204,6 +213,11 @@ vector<string> Variant::keys()
 
 void Variant::append()
 {
+    append(Variant());
+}
+
+void Variant::append(Variant value)
+{
     if (!data) {
         throw variant::exception::Unitialized();
     }
@@ -214,7 +228,7 @@ void Variant::append()
     
     container::Array* cast = static_cast<container::Array*>(data.get());
     
-    cast->value.push_back(Variant());
+    cast->value.push_back(value);
 }
 
 size_t Variant::size()

@@ -332,6 +332,9 @@ bool test_variant()
     Variant e=12.4f;
     Variant f="come get some!";
     
+    Variant args={1,{"two","three"},5,7.0,"9"};
+    clog<<"list:"<<args<<endl;
+    
     vector<Variant> data={10,20,30.0,"40"};
     vector<uint8_t> bytes={0xde,0xad,0xbe,0xef};
     

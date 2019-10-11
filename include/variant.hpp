@@ -31,6 +31,7 @@
 #include <exception>
 #include <map>
 #include <iostream>
+#include <initializer_list>
 
 namespace edupals
 {
@@ -265,6 +266,7 @@ namespace edupals
             Variant(std::vector<Variant>& value);
             Variant(std::vector<uint8_t>& value);
             Variant(uint8_t* value,size_t size);
+            Variant(std::initializer_list<Variant> list);
             
             ~Variant();
             
@@ -283,6 +285,11 @@ namespace edupals
                 Grow array variants by one, adding and empty value
             */
             void append();
+            
+            /*!
+                Adds a new Variant to an array
+            */
+            void append(Variant value);
             
             /*!
                 Create a struct (aka map) Variant
