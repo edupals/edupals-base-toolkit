@@ -30,6 +30,8 @@
 #include <vector>
 #include <exception>
 #include <map>
+#include <iostream>
+#include <initializer_list>
 
 namespace edupals
 {
@@ -38,7 +40,7 @@ namespace edupals
         
         class Variant;
         
-         enum class Type
+        enum class Type
         {
             None,
             Boolean,
@@ -55,7 +57,7 @@ namespace edupals
         {
             class Unitialized : public std::exception
             {
-                const char * what () const throw ()
+                const char* what () const throw ()
                 {
                     return "Variant not initialized";
                 }
@@ -63,7 +65,7 @@ namespace edupals
             
             class InvalidType : public std::exception
             {
-                const char * what () const throw ()
+                const char* what () const throw ()
                 {
                     return "Invalid type";
                 }
@@ -71,7 +73,7 @@ namespace edupals
             
             class OutOfBounds : public std::exception
             {
-                const char * what () const throw ()
+                const char* what () const throw ()
                 {
                     return "Index out of bounds";
                 }
@@ -80,164 +82,163 @@ namespace edupals
     
         namespace container
         {
-                class Base
-                {
-                    public:
-                        
-                    variant::Type type;
+            class Base
+            {
+                public:
                     
-                    virtual size_t size()
-                    {
-                        return 0;
-                    }
-                    
-                    Base()
-                    {
-                        type = variant::Type::None;
-                    }
-                    
-                    virtual ~Base()
-                    {
-                    }
-                };
+                variant::Type type;
                 
-                class Boolean: public Base
+                virtual size_t size()
                 {
-                    
-                    public:
-                    bool value;
-                    
-                    Boolean(bool value)
-                    {
-                        type=variant::Type::Boolean;
-                        this->value=value;
-                    }
-                    
-                    size_t size() override
-                    {
-                        return sizeof(bool);
-                    }
-                    
-                };
+                    return 0;
+                }
                 
-                class Int32: public Base
+                Base()
                 {
-                    
-                    public:
-                    int32_t value;
-                    
-                    Int32(int32_t value)
-                    {
-                        type=variant::Type::Int32;
-                        this->value=value;
-                    }
-                    
-                    size_t size() override
-                    {
-                        return sizeof(int32_t);
-                    }
-                    
-                };
+                    type = variant::Type::None;
+                }
                 
-                class Float: public Base
+                virtual ~Base()
                 {
-                    
-                    public:
-                    float value;
-                    
-                    Float(float value)
-                    {
-                        type=variant::Type::Float;
-                        this->value=value;
-                    }
-                    
-                    size_t size() override
-                    {
-                        return sizeof(float);
-                    }
-                    
-                };
+                }
+            };
+            
+            class Boolean: public Base
+            {
                 
-                class Double: public Base
-                {
-                    
-                    public:
-                    double value;
-                    
-                    Double(double value)
-                    {
-                        type=variant::Type::Double;
-                        this->value=value;
-                    }
-                    
-                    size_t size() override
-                    {
-                        return sizeof(double);
-                    }
-                    
-                };
+                public:
+                bool value;
                 
-                 class String: public Base
+                Boolean(bool value)
                 {
-                    
-                    public:
-                    std::string value;
-                    
-                    String(std::string value)
-                    {
-                        type=variant::Type::String;
-                        this->value=value;
-                    }
-                    
-                    size_t size() override
-                    {
-                        return value.size();
-                    }
-                    
-                };
+                    type=variant::Type::Boolean;
+                    this->value=value;
+                }
                 
-                class Bytes: public Base
+                size_t size() override
                 {
-                    public:
-                    std::vector<uint8_t> value;
-                    
-                    Bytes(std::vector<uint8_t>& value);
-                    Bytes(uint8_t* value,size_t size);
-                    
-                    size_t size() override
-                    {
-                        return value.size();
-                    }
-                    
-                };
+                    return sizeof(bool);
+                }
                 
-                class Array: public Base
-                {
-                    
-                    public:
-                    std::vector<variant::Variant> value;
-                    
-                    Array(std::vector<variant::Variant>& value);
-                    Array(size_t count);
-                    ~Array();
-                    
-                    size_t size() override;
-                    size_t count();
-                    
-                };
+            };
+            
+            class Int32: public Base
+            {
                 
-                class Struct: public Base
+                public:
+                int32_t value;
+                
+                Int32(int32_t value)
                 {
-                    
-                    public:
-                    std::map<std::string,variant::Variant> value;
-                    
-                    Struct();
-                    
-                    size_t size() override;
-                };
+                    type=variant::Type::Int32;
+                    this->value=value;
+                }
+                
+                size_t size() override
+                {
+                    return sizeof(int32_t);
+                }
+                
+            };
+            
+            class Float: public Base
+            {
+                
+                public:
+                float value;
+                
+                Float(float value)
+                {
+                    type=variant::Type::Float;
+                    this->value=value;
+                }
+                
+                size_t size() override
+                {
+                    return sizeof(float);
+                }
+                
+            };
+            
+            class Double: public Base
+            {
+                
+                public:
+                double value;
+                
+                Double(double value)
+                {
+                    type=variant::Type::Double;
+                    this->value=value;
+                }
+                
+                size_t size() override
+                {
+                    return sizeof(double);
+                }
+                
+            };
+            
+             class String: public Base
+            {
+                
+                public:
+                std::string value;
+                
+                String(std::string value)
+                {
+                    type=variant::Type::String;
+                    this->value=value;
+                }
+                
+                size_t size() override
+                {
+                    return value.size();
+                }
+                
+            };
+            
+            class Bytes: public Base
+            {
+                public:
+                std::vector<uint8_t> value;
+                
+                Bytes(std::vector<uint8_t>& value);
+                Bytes(uint8_t* value,size_t size);
+                
+                size_t size() override
+                {
+                    return value.size();
+                }
+                
+            };
+            
+            class Array: public Base
+            {
+                
+                public:
+                std::vector<variant::Variant> value;
+                
+                Array(std::vector<variant::Variant>& value);
+                Array(size_t count);
+                ~Array();
+                
+                size_t size() override;
+                size_t count();
+                
+            };
+            
+            class Struct: public Base
+            {
+                
+                public:
+                std::map<std::string,variant::Variant> value;
+                
+                Struct();
+                
+                size_t size() override;
+            };
         }
-        
         
         class Variant
         {
@@ -265,6 +266,7 @@ namespace edupals
             Variant(std::vector<Variant>& value);
             Variant(std::vector<uint8_t>& value);
             Variant(uint8_t* value,size_t size);
+            Variant(std::initializer_list<Variant> list);
             
             ~Variant();
             
@@ -283,6 +285,11 @@ namespace edupals
                 Grow array variants by one, adding and empty value
             */
             void append();
+            
+            /*!
+                Adds a new Variant to an array
+            */
+            void append(Variant value);
             
             /*!
                 Create a struct (aka map) Variant
@@ -362,7 +369,14 @@ namespace edupals
             Variant& operator[](const char* key);
             Variant& operator[](std::string key);
             
+            
+            
         };
+        
+        /*!
+                std stream support
+        */
+        std::ostream& operator<<(std::ostream& os,Variant& v);
     }
 }
 

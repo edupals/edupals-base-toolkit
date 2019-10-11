@@ -21,7 +21,6 @@
  *
  */
 
-
 #include "variant.hpp"
 
 
@@ -145,6 +144,15 @@ Variant::Variant(uint8_t* value,size_t size)
     data.reset(new container::Bytes(value,size));
 }
 
+Variant::Variant(std::initializer_list<Variant> list)
+{
+    data.reset(new container::Array(0));
+    
+    for (Variant v:list) {
+        append(v);
+    }
+}
+
 Variant::~Variant()
 {
 }
@@ -205,6 +213,11 @@ vector<string> Variant::keys()
 
 void Variant::append()
 {
+    append(Variant());
+}
+
+void Variant::append(Variant value)
+{
     if (!data) {
         throw variant::exception::Unitialized();
     }
@@ -215,7 +228,7 @@ void Variant::append()
     
     container::Array* cast = static_cast<container::Array*>(data.get());
     
-    cast->value.push_back(Variant());
+    cast->value.push_back(value);
 }
 
 size_t Variant::size()
@@ -416,4 +429,62 @@ Variant& Variant::operator[](const char* key)
 Variant& Variant::operator[](string key)
 {
     return get_value_from_key(key);
+}
+
+std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
+{
+    switch(v.type()) {
+        case variant::Type::Boolean:
+            os<<v.get_boolean();
+        break;
+        
+        case variant::Type::Int32:
+            os<<v.get_int32();
+        break;
+        
+        case variant::Type::Float:
+            os<<v.get_float();
+        break;
+        
+        case variant::Type::Double:
+            os<<v.get_double();
+        break;
+        
+        case variant::Type::Bytes:
+            os<<"bytes (size "<<v.get_bytes().size()<<")";
+        break;
+        
+        case variant::Type::String:
+            os<<v.get_string();
+        break;
+        
+        case variant::Type::Array:
+            os<<'[';
+            for (size_t n=0;n<v.count();n++) {
+                os<<v[n];
+                if (n!=v.count()-1) {
+                    os<<',';
+                }
+            }
+            os<<']';
+        break;
+        
+        case variant::Type::Struct:
+            os<<'{';
+            const vector<string> keys = v.keys();
+            int last=keys.size()-1;
+            for (size_t n=0;n<keys.size();n++) {
+                os<<keys[n];
+                os<<':';
+                os<<v[keys[n]];
+                if (n!=last) {
+                    os<<',';
+                }
+            }
+            os<<'}';
+        break;
+        
+    }
+    
+    return os;
 }

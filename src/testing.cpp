@@ -332,6 +332,9 @@ bool test_variant()
     Variant e=12.4f;
     Variant f="come get some!";
     
+    Variant args={1,{"two","three"},5,7.0,"9"};
+    clog<<"list:"<<args<<endl;
+    
     vector<Variant> data={10,20,30.0,"40"};
     vector<uint8_t> bytes={0xde,0xad,0xbe,0xef};
     
@@ -353,12 +356,15 @@ bool test_variant()
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
     
-    clog<<"a: "<<a.get_int32()<<endl;
-    clog<<"b: "<<b.get_float()<<endl;
-    clog<<"c: "<<c.get_int32()<<endl;
-    clog<<"d: "<<d.get_int32()<<endl;
-    clog<<"e: "<<e.get_float()<<endl;
-    clog<<"f: "<<f.get_string()<<endl;
+    clog<<array<<endl;
+    clog<<message<<endl;
+    clog<<"a: "<<a<<endl;
+    clog<<"b: "<<b<<endl;
+    clog<<"c: "<<c<<endl;
+    clog<<"d: "<<d<<endl;
+    clog<<"e: "<<e<<endl;
+    clog<<"f: "<<f<<endl;
+    clog<<"g: "<<g<<endl;
     clog<<"0: "<<array[0].get_int32()<<endl;
     clog<<"1: "<<array[1].get_int32()<<endl;
     clog<<"2: "<<array[2].get_double()<<endl;
