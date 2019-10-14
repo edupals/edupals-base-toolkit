@@ -15,6 +15,6 @@ Description: Edupals C++ toolkit
 
 Package: libedupals-base-dev
 Architecture: any
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, libedupals-base
 Description: Edupals C++ toolkit development files
  Development files (headers and cmakes) for Edupals base toolkit

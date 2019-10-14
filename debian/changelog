@@ -1,3 +1,9 @@
+edupals-base-toolkit (1.0.0.1) bionic; urgency=medium
+
+  * Added libedupals-base as dependency of dev package
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 14 Oct 2019 12:41:53 +0200
+
 edupals-base-toolkit (1.0.0.0) bionic; urgency=medium
 
   * Master tag: ceb360802a8473d732a9c329afb09d7fa682ff60
