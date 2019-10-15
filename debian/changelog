@@ -1,5 +1,6 @@
 edupals-base-toolkit (1.0.1.0) bionic; urgency=medium
 
+  * Master tag: df2b5512ba24b9364adca29859bf27edf215719a
   * Improved cmake package
 
  -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 15 Oct 2019 12:20:27 +0200
