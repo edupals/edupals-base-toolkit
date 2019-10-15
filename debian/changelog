@@ -1,3 +1,11 @@
+edupals-base-toolkit (1.0.2.0) bionic; urgency=medium
+
+  * Master tag: ea08be7246a782ef5d41f69c19f7522119a2efb8
+  * Lexer/dfa perfomance boost
+  * variants and json dumps strings as double-quoted
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 15 Oct 2019 17:21:33 +0200
+
 edupals-base-toolkit (1.0.1.0) bionic; urgency=medium
 
   * Master tag: df2b5512ba24b9364adca29859bf27edf215719a
