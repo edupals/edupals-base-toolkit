@@ -41,6 +41,7 @@ namespace edupals
             int last;
             bool _accept;
             bool _end;
+            bool _valid;
                 
             public:
             
@@ -62,22 +63,36 @@ namespace edupals
             /*!
                 Whenever dfa is accepting current pushed string
             */
-            bool accept();
+            bool accept()
+            {
+                return _accept;
+            }
             
             /*!
                 Whenever dfa is ready to end
             */
-            bool end();
+            bool end()
+            {
+                return _end;
+            }
+            
+            /*!
+                Whenever dfa still valid
+            */
+            bool valid()
+            {
+                return _valid;
+            }
             
             /*!
                 Triggered with first character pushed
             */
-            virtual void start();
+            virtual void start()=0;
             
             /*!
                 Triggered after a character been pushed
             */
-            virtual void step();
+            virtual void step()=0;
             
             /*!
                 Returns accepted string

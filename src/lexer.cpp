@@ -99,7 +99,12 @@ bool Lexer::step()
     
     count=0;
     
+    
     for (DFA* t:tokens) {
+        if (!t->valid()) {
+            continue;
+        }
+        
         t->push(c);
         
         if (t->accept()) {

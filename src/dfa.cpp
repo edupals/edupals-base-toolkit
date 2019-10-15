@@ -66,6 +66,8 @@ void DFA::push(int8_t c)
     if (_end) {
         last=cursor;
     }
+    
+    _valid=_accept;
 }
 
 void DFA::reset()
@@ -74,24 +76,7 @@ void DFA::reset()
     cursor=-1;
     _accept=false;
     _end=false;
-}
-
-bool DFA::accept()
-{
-    return _accept;
-}
-
-bool DFA::end()
-{
-    return _end;
-}
-
-void DFA::start()
-{
-}
-
-void DFA::step()
-{
+    _valid=true;
 }
 
 string DFA::value()
