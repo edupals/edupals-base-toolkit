@@ -1,4 +1,11 @@
 
-
+find_library(EDUPALS_BASE_LIB "edupals-base")
 set(EDUPALS_BASE_INCLUDE_DIRS "/usr/include/edupals/base/")
-set(EDUPALS_BASE_LIBRARIES "edupals-base")
+set(EDUPALS_BASE_LIBRARIES ${EDUPALS_BASE_LIB})
+
+add_library(Edupals::Base SHARED IMPORTED)
+set_target_properties(Edupals::Base PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES ${EDUPALS_BASE_INCLUDE_DIRS}
+    INTERFACE_LINK_LIBRARIES "Edupals::Base"
+    IMPORTED_LOCATION ${EDUPALS_BASE_LIBRARIES}
+)
