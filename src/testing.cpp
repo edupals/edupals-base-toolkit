@@ -402,7 +402,7 @@ bool test_json()
     
     stringstream input;
 
-    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false}";
+    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
     Variant parsed=json::load(input);
     
     json::dump(parsed,cout);

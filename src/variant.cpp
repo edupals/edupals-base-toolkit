@@ -460,7 +460,7 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
         break;
         
         case variant::Type::String:
-            os<<"\'"<<v.get_string()<<"\'";
+            os<<"\""<<v.get_string()<<"\"";
         break;
         
         case variant::Type::Array:

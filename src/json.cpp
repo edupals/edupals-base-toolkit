@@ -86,7 +86,7 @@ void edupals::json::dump(Variant& value,ostream& stream)
         break;
         
         case Type::String:
-            stream<<value.get_string();
+            stream<<"\""<<value.get_string()<<"\"";
         break;
         
         case Type::Boolean:
