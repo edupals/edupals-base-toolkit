@@ -435,7 +435,12 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
 {
     switch(v.type()) {
         case variant::Type::Boolean:
-            os<<v.get_boolean();
+            if (v.get_boolean()) {
+                os<<"true";
+            }
+            else {
+                os<<"false";
+            }
         break;
         
         case variant::Type::Int32:
@@ -455,7 +460,7 @@ std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
         break;
         
         case variant::Type::String:
-            os<<v.get_string();
+            os<<"\'"<<v.get_string()<<"\'";
         break;
         
         case variant::Type::Array:
