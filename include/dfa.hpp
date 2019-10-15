@@ -26,6 +26,7 @@
 
 #include <cstdint>
 #include <string>
+#include <cstring>
 
 namespace edupals
 {
@@ -41,6 +42,7 @@ namespace edupals
             int last;
             bool _accept;
             bool _end;
+            bool _valid;
                 
             public:
             
@@ -52,7 +54,35 @@ namespace edupals
                 Push a character into dfa
                 this will trigger either start or step methods
             */
-            void push(int8_t c);
+            void push(int8_t c)
+            {
+                if (cursor==capacity) {
+                    size_t new_capacity=capacity*1.5f;
+                    int8_t* tmp = new int8_t[new_capacity];
+                    
+                    std::memcpy(tmp,stack,capacity);
+                    
+                    delete [] stack;
+                    stack=tmp;
+                    capacity=new_capacity;
+                }
+                
+                cursor++;
+                stack[cursor]=c;
+
+                if (cursor==0) {
+                    start();
+                }
+                else {
+                    step();
+                }
+                
+                if (_end) {
+                    last=cursor;
+                }
+                
+                _valid=_accept;
+            }
             
             /*!
                 Resets dfa state
@@ -62,22 +92,36 @@ namespace edupals
             /*!
                 Whenever dfa is accepting current pushed string
             */
-            bool accept();
+            bool accept()
+            {
+                return _accept;
+            }
             
             /*!
                 Whenever dfa is ready to end
             */
-            bool end();
+            bool end()
+            {
+                return _end;
+            }
+            
+            /*!
+                Whenever dfa still valid
+            */
+            bool valid()
+            {
+                return _valid;
+            }
             
             /*!
                 Triggered with first character pushed
             */
-            virtual void start();
+            virtual void start()=0;
             
             /*!
                 Triggered after a character been pushed
             */
-            virtual void step();
+            virtual void step()=0;
             
             /*!
                 Returns accepted string

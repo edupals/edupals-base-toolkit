@@ -24,7 +24,6 @@
 
 #include <dfa.hpp>
 
-#include <cstring>
 
 using namespace edupals::parser;
 using namespace std;
@@ -40,58 +39,13 @@ DFA::~DFA()
     delete [] stack;
 }
 
-void DFA::push(int8_t c)
-{
-    if (cursor==capacity) {
-        size_t new_capacity=capacity*1.5f;
-        int8_t* tmp = new int8_t[new_capacity];
-        
-        std::memcpy(tmp,stack,capacity);
-        
-        delete [] stack;
-        stack=tmp;
-        capacity=new_capacity;
-    }
-    
-    cursor++;
-    stack[cursor]=c;
-
-    if (cursor==0) {
-        start();
-    }
-    else {
-        step();
-    }
-    
-    if (_end) {
-        last=cursor;
-    }
-}
-
 void DFA::reset()
 {
     last=0;
     cursor=-1;
     _accept=false;
     _end=false;
-}
-
-bool DFA::accept()
-{
-    return _accept;
-}
-
-bool DFA::end()
-{
-    return _end;
-}
-
-void DFA::start()
-{
-}
-
-void DFA::step()
-{
+    _valid=true;
 }
 
 string DFA::value()

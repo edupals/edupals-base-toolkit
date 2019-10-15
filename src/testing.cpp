@@ -339,6 +339,7 @@ bool test_variant()
     vector<uint8_t> bytes={0xde,0xad,0xbe,0xef};
     
     Variant g=bytes;
+    Variant h=true;
     
     Variant array(data);
     Variant stuff=Variant::create_array(6);
@@ -365,6 +366,7 @@ bool test_variant()
     clog<<"e: "<<e<<endl;
     clog<<"f: "<<f<<endl;
     clog<<"g: "<<g<<endl;
+    clog<<"h: "<<h<<endl;
     clog<<"0: "<<array[0].get_int32()<<endl;
     clog<<"1: "<<array[1].get_int32()<<endl;
     clog<<"2: "<<array[2].get_double()<<endl;
@@ -400,7 +402,7 @@ bool test_json()
     
     stringstream input;
 
-    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false}";
+    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
     Variant parsed=json::load(input);
     
     json::dump(parsed,cout);

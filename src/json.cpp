@@ -86,7 +86,7 @@ void edupals::json::dump(Variant& value,ostream& stream)
         break;
         
         case Type::String:
-            stream<<value.get_string();
+            stream<<"\""<<value.get_string()<<"\"";
         break;
         
         case Type::Boolean:
@@ -297,7 +297,7 @@ static void on_step(DFA* dfa,string token,Grammar* grammar)
 Variant edupals::json::load(istream& stream)
 {
     
-    token::Char ws(' ');
+    token::Group ws({' ','\t','\n'});
     token::Char lb('[');
     token::Char rb(']');
     token::Char lc('{');
