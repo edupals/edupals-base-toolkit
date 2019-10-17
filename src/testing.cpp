@@ -35,6 +35,7 @@
 #include <variant.hpp>
 #include <json.hpp>
 #include <bson.hpp>
+#include <base64.hpp>
 
 #include <iostream>
 #include <thread>
@@ -448,6 +449,19 @@ bool test_bson()
     return true;
 }
 
+bool test_base64()
+{
+    //expected: YWFhYQ==
+    vector<uint8_t> data = {'a','a','a'};
+    string b64;
+    
+    base64::encode(data,b64);
+    
+    clog<<"Encoded:"<<b64<<endl;
+    
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
 
@@ -522,6 +536,10 @@ int main (int argc,char* argv[])
         
         if (s=="bson") {
             test_bson();
+        }
+        
+        if (s=="base64") {
+            test_base64();
         }
     }
     
