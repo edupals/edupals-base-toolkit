@@ -30,8 +30,10 @@ using namespace std;
 
 const char* encode_table="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-char to_b64(int code)
+static int8_t to_b64(uint8_t code)
 {
+    code=code & 0x3f;
+    
     if (code<26) {
         return 'A'+code;
     }
@@ -43,6 +45,14 @@ char to_b64(int code)
             return '0'+(code-52);
         }
     }
+}
+
+static void shiftmask(uint8_t a,uint8_t b,uint8_t c,uint32_t* out)
+{
+    out[0]=(a & 0xfc)>>2;
+    out[1]=((a & 0x03)<<4) | ((b & 0xf0)>>4);
+    out[2]=((b & 0x0f)<<2) | ((c & 0xc0)>>6);
+    out[3]=c & 0x3f;
 }
 
 void edupals::base64::decode(string& in,vector<uint8_t>& out)
@@ -63,19 +73,36 @@ void edupals::base64::encode(vector<uint8_t>& in,string& out)
     
     clog<<"input size:"<<isize<<endl;
     clog<<"output size:"<<osize<<endl;
+    clog<<"remain: "<<remain<<endl;
     
     out.reserve(osize);
     
+    uint32_t c[4];
     for (size_t n=0;n<isize-remain;n+=3) {
-        uint32_t raw = (in[n+0]<<16) | (in[n+1]<<8) | (in[n+2]);
-        uint32_t c1=(raw & 0x00fd0000)>>18;
-        uint32_t c2=(raw & 0x0003f000)>>12;
-        uint32_t c3=(raw & 0x00000fd0)>>6;
-        uint32_t c4=(raw & 0x0000003f);
         
-        cout<<"block: "<<to_b64(c1)<<":"<<to_b64(c2)<<":"<<to_b64(c3)<<":"<<to_b64(c4)<<endl;
+        shiftmask(in[n+0],in[n+1],in[n+2],c);
+        
+        for (int m=0;m<4;m++) {
+            out.append(1,to_b64(c[m]));
+        }
     }
     
-    //TODO: compute remain here
+    if (remain==1) {
+        size_t n= isize-remain;
+        uint32_t c[4];
+        shiftmask(in[n],0,0,c);
+        out.append(1,to_b64(c[0]));
+        out.append(1,to_b64(c[1]));
+        out.append("==");
+    }
+    if (remain==2) {
+        size_t n= isize-remain;
+        uint32_t c[4];
+        shiftmask(in[n-1],in[n],0,c);
+        out.append(1,to_b64(c[0]));
+        out.append(1,to_b64(c[1]));
+        out.append(1,to_b64(c[2]));
+        out.append("=");
+    }
     
 }

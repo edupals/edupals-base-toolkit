@@ -452,7 +452,7 @@ bool test_bson()
 bool test_base64()
 {
     //expected: YWFhYQ==
-    vector<uint8_t> data = {'a','a','a'};
+    vector<uint8_t> data = {'a','a','a','a'};
     string b64;
     
     base64::encode(data,b64);
