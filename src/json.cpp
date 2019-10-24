@@ -38,6 +38,8 @@ void edupals::json::dump(Variant& value,ostream& stream)
     vector<string> keys;
     size_t count;
     
+    std::locale old_locale=stream.imbue(std::locale("C"));
+    
     switch(value.type()) {
         case Type::Struct:
             stream<<"{";
@@ -74,15 +76,15 @@ void edupals::json::dump(Variant& value,ostream& stream)
         break;
         
         case Type::Int32:
-            stream<<std::to_string(value.get_int32());
+            stream<<value.get_int32();
         break;
         
         case Type::Float:
-            stream<<std::to_string(value.get_float());
+            stream<<value.get_float();
         break;
         
         case Type::Double:
-            stream<<std::to_string(value.get_double());
+            stream<<value.get_double();
         break;
         
         case Type::String:
@@ -98,6 +100,8 @@ void edupals::json::dump(Variant& value,ostream& stream)
             }
         break;
     }
+    
+    stream.imbue(old_locale);
 }
 
 struct Production{

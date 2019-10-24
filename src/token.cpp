@@ -217,6 +217,11 @@ int Integer::get_int()
     return std::stoi(value());
 }
 
+Float::Float()
+{
+    is.imbue (std::locale("C"));
+}
+
 void Float::start()
 {
     char c = stack[0];
@@ -273,7 +278,11 @@ void Float::step()
 
 float Float::get_float()
 {
-    return std::stof(value());
+    float f;
+    is.str(value());
+    is>>f;
+    
+    return f;
 }
 
 void String::start()

@@ -329,8 +329,10 @@ bool test_variant()
     Variant b(3.14f);
     Variant c=a;
     Variant d=20;
-    Variant e=12.4f;
+    Variant e=12.4;
     Variant f="come get some!";
+    
+    clog<<"std::to_string "<<std::to_string(e.get_double())<<endl;
     
     Variant args={1,{"two","three"},5,7.0,"9"};
     clog<<"list:"<<args<<endl;
@@ -402,7 +404,7 @@ bool test_json()
     
     stringstream input;
 
-    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
+    input<<" { \"alfa\" : 33 , \"beta\": 4.325, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
     Variant parsed=json::load(input);
     
     json::dump(parsed,cout);
@@ -450,7 +452,7 @@ bool test_bson()
 
 int main (int argc,char* argv[])
 {
-
+    
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     
