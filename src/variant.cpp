@@ -43,6 +43,11 @@ container::Bytes::Bytes(uint8_t* values,size_t size)
     }
 }
 
+void container::Bytes::serialize(ostream& stream)
+{
+    ostream<<"bytes (size "<<size()<<")";
+}
+
 container::Array::Array(vector<Variant>& value)
 {
     this->type=Type::Array;
@@ -78,6 +83,18 @@ size_t container::Array::count()
     return value.size();
 }
 
+void container::Array::serialize(ostream& stream)
+{
+    stream<<'[';
+    for (size_t n=0;n<value.size();n++) {
+        v[n].serialize(stream);
+        if (n!=value.size()-1) {
+            stream<<',';
+        }
+    }
+    stream<<']';
+}
+
 container::Struct::Struct()
 {
      this->type=Type::Struct;
@@ -92,6 +109,27 @@ size_t container::Struct::size()
     }
     
     return total;
+}
+
+void container::Struct::serialize(ostream& stream)
+{
+    stream<<'{';
+    
+    map<string,Variant>::iterator it;
+    
+    it=value.begin();
+    
+    while (it!=value.end()) {
+        stream<<it->first<<":";
+        it->second.serialize(stream);
+        
+        it++;
+        
+        if (it!=value.end()) {
+            stream<<",";
+        }
+    }
+    stream<<'}';
 }
 
 Variant::Variant()
@@ -248,6 +286,13 @@ Type Variant::type()
     }
     
     return Type::None;
+}
+
+void Variant::serialize(ostream& stream)
+{
+    if (data) {
+        data->serialize(stream);
+    }
 }
 
 bool Variant::get_boolean()

@@ -101,6 +101,8 @@ namespace edupals
                 virtual ~Base()
                 {
                 }
+                
+                virtual void serialize(std::ostream& stream);
             };
             
             class Boolean: public Base
@@ -118,6 +120,16 @@ namespace edupals
                 size_t size() override
                 {
                     return sizeof(bool);
+                }
+                
+                void serialize(std::ostream& stream) override
+                {
+                    if (value) {
+                        stream<<"true";
+                    }
+                    else {
+                        stream<<"false";
+                    }
                 }
                 
             };
@@ -139,6 +151,10 @@ namespace edupals
                     return sizeof(int32_t);
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    ostream<<value;
+                }
             };
             
             class Float: public Base
@@ -158,6 +174,10 @@ namespace edupals
                     return sizeof(float);
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    ostream<<value;
+                }
             };
             
             class Double: public Base
@@ -177,6 +197,10 @@ namespace edupals
                     return sizeof(double);
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    ostream<<value;
+                }
             };
             
              class String: public Base
@@ -196,6 +220,10 @@ namespace edupals
                     return value.size();
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    ostream<<"\""<<value<<"\"";
+                }
             };
             
             class Bytes: public Base
@@ -211,6 +239,7 @@ namespace edupals
                     return value.size();
                 }
                 
+                void serialize(std::ostream& stream) override;
             };
             
             class Array: public Base
@@ -226,6 +255,7 @@ namespace edupals
                 size_t size() override;
                 size_t count();
                 
+                void serialize(std::ostream& stream) override;
             };
             
             class Struct: public Base
@@ -237,6 +267,8 @@ namespace edupals
                 Struct();
                 
                 size_t size() override;
+                
+                void serialize(std::ostream& stream) override;
             };
         }
         
@@ -268,7 +300,7 @@ namespace edupals
             Variant(uint8_t* value,size_t size);
             Variant(std::initializer_list<Variant> list);
             
-            ~Variant();
+            virtual ~Variant();
             
             /*!
                 Create an array variant with 'count' empty values
@@ -311,6 +343,11 @@ namespace edupals
                 Get type of Variant
             */
             Type type();
+            
+            /*!
+                Serialize contents to a standard output stream
+            */
+            void serialize(std::ostream& stream);
             
             /*!
                 get Variant as boolean
