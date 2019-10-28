@@ -102,7 +102,9 @@ namespace edupals
                 {
                 }
                 
-                virtual void serialize(std::ostream& stream);
+                virtual void serialize(std::ostream& stream)
+                {
+                }
             };
             
             class Boolean: public Base
@@ -153,7 +155,7 @@ namespace edupals
                 
                 void serialize(std::ostream& stream) override
                 {
-                    ostream<<value;
+                    stream<<value;
                 }
             };
             
@@ -176,7 +178,7 @@ namespace edupals
                 
                 void serialize(std::ostream& stream) override
                 {
-                    ostream<<value;
+                    stream<<value;
                 }
             };
             
@@ -199,7 +201,7 @@ namespace edupals
                 
                 void serialize(std::ostream& stream) override
                 {
-                    ostream<<value;
+                    stream<<value;
                 }
             };
             
@@ -222,7 +224,7 @@ namespace edupals
                 
                 void serialize(std::ostream& stream) override
                 {
-                    ostream<<"\""<<value<<"\"";
+                    stream<<"\""<<value<<"\"";
                 }
             };
             

@@ -45,7 +45,7 @@ container::Bytes::Bytes(uint8_t* values,size_t size)
 
 void container::Bytes::serialize(ostream& stream)
 {
-    ostream<<"bytes (size "<<size()<<")";
+    stream<<"bytes (size "<<size()<<")";
 }
 
 container::Array::Array(vector<Variant>& value)
@@ -87,7 +87,7 @@ void container::Array::serialize(ostream& stream)
 {
     stream<<'[';
     for (size_t n=0;n<value.size();n++) {
-        v[n].serialize(stream);
+        value[n].serialize(stream);
         if (n!=value.size()-1) {
             stream<<',';
         }
@@ -478,63 +478,7 @@ Variant& Variant::operator[](string key)
 
 std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
 {
-    switch(v.type()) {
-        case variant::Type::Boolean:
-            if (v.get_boolean()) {
-                os<<"true";
-            }
-            else {
-                os<<"false";
-            }
-        break;
-        
-        case variant::Type::Int32:
-            os<<v.get_int32();
-        break;
-        
-        case variant::Type::Float:
-            os<<v.get_float();
-        break;
-        
-        case variant::Type::Double:
-            os<<v.get_double();
-        break;
-        
-        case variant::Type::Bytes:
-            os<<"bytes (size "<<v.get_bytes().size()<<")";
-        break;
-        
-        case variant::Type::String:
-            os<<"\""<<v.get_string()<<"\"";
-        break;
-        
-        case variant::Type::Array:
-            os<<'[';
-            for (size_t n=0;n<v.count();n++) {
-                os<<v[n];
-                if (n!=v.count()-1) {
-                    os<<',';
-                }
-            }
-            os<<']';
-        break;
-        
-        case variant::Type::Struct:
-            os<<'{';
-            const vector<string> keys = v.keys();
-            int last=keys.size()-1;
-            for (size_t n=0;n<keys.size();n++) {
-                os<<keys[n];
-                os<<':';
-                os<<v[keys[n]];
-                if (n!=last) {
-                    os<<',';
-                }
-            }
-            os<<'}';
-        break;
-        
-    }
+    v.serialize(os);
     
     return os;
 }
