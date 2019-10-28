@@ -45,6 +45,7 @@ namespace edupals
             None,
             Boolean,
             Int32,
+            Int64,
             Float,
             Double,
             String,
@@ -76,6 +77,16 @@ namespace edupals
                 const char* what () const throw ()
                 {
                     return "Index out of bounds";
+                }
+            };
+            
+            class NotFound : public std::exception
+            {
+                public:
+                
+                const char* what () const throw ()
+                {
+                    return "Variant not found";
                 }
             };
         }
@@ -151,6 +162,29 @@ namespace edupals
                 size_t size() override
                 {
                     return sizeof(int32_t);
+                }
+                
+                void serialize(std::ostream& stream) override
+                {
+                    stream<<value;
+                }
+            };
+            
+            class Int64: public Base
+            {
+                
+                public:
+                int64_t value;
+                
+                Int64(int64_t value)
+                {
+                    type=variant::Type::Int64;
+                    this->value=value;
+                }
+                
+                size_t size() override
+                {
+                    return sizeof(int64_t);
                 }
                 
                 void serialize(std::ostream& stream) override
@@ -292,7 +326,8 @@ namespace edupals
             Variant();
             
             Variant(bool value);
-            Variant(int value);
+            Variant(int32_t value);
+            Variant(int64_t value);
             Variant(float value);
             Variant(double value);
             Variant(std::string value);
@@ -337,6 +372,18 @@ namespace edupals
             std::vector<std::string> keys();
             
             /*!
+                Looks for for a key without throwing exceptions
+                \return The value associated to that key or an empty Variant
+            */
+            Variant find(std::string key);
+            
+            /*!
+                Looks for for an index without throwing exceptions
+                \return The value associated to that index or an empty Variant
+            */
+            Variant find(int index);
+            
+            /*!
                 Compute size (in bytes) of Variant container, included children
             */
             size_t size();
@@ -364,6 +411,12 @@ namespace edupals
             int32_t get_int32();
             
             /*!
+                get Variant as a 64 bit signed integer
+                throws InvalidType exception in case of type missmatch
+            */
+            int64_t get_int64();
+            
+            /*!
                 get Variant as single precission float
                 throws InvalidType exception in case of type missmatch
             */
@@ -388,7 +441,8 @@ namespace edupals
             std::vector<uint8_t>& get_bytes();
             
             Variant& operator=(bool value);
-            Variant& operator=(int value);
+            Variant& operator=(int32_t value);
+            Variant& operator=(int64_t value);
             Variant& operator=(float value);
             Variant& operator=(double value);
             Variant& operator=(std::string value);
@@ -408,7 +462,15 @@ namespace edupals
             Variant& operator[](const char* key);
             Variant& operator[](std::string key);
             
-            
+            /*!
+                Looks for nested Variants (structs/arrays)
+                throws a NotFound exception if the path is not found
+                example: Variant v=value/"alfa"/"beta"/Type::Float;
+                
+            */
+            Variant& operator/(std::string key);
+            Variant& operator/(int index);
+            Variant& operator/(variant::Type type);
             
         };
         
@@ -416,6 +478,7 @@ namespace edupals
                 std stream support
         */
         std::ostream& operator<<(std::ostream& os,Variant& v);
+        
     }
 }
 

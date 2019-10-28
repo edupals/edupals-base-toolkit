@@ -348,7 +348,8 @@ bool test_variant()
     stuff.append();
     
     array[1]=15;
-    a=64;
+    a=64L;
+    
     stuff[6]="Amazing variant";
     
     Variant message=Variant::create_struct();
@@ -358,9 +359,16 @@ bool test_variant()
     message["gamma"]=2.0f;
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
+    message["delta"]["k2"]=Variant({11,22,33,44});
     
     clog<<array<<endl;
     clog<<message<<endl;
+    Variant find =message["delta"]["k2"].find(1); 
+    clog<<"find:"<<find<<endl;
+    
+    find = message/"delta"/"k2"/2/Type::Int32;
+    clog<<"find:"<<find<<endl;
+    
     clog<<"a: "<<a<<endl;
     clog<<"b: "<<b<<endl;
     clog<<"c: "<<c<<endl;

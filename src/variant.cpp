@@ -142,9 +142,14 @@ Variant::Variant(bool value)
     data.reset(new container::Boolean(value));
 }
 
-Variant::Variant(int value)
+Variant::Variant(int32_t value)
 {
     data.reset(new container::Int32(value));
+}
+
+Variant::Variant(int64_t value)
+{
+    data.reset(new container::Int64(value));
 }
 
 Variant::Variant(float value)
@@ -269,6 +274,36 @@ void Variant::append(Variant value)
     cast->value.push_back(value);
 }
 
+Variant Variant::find(string key)
+{
+    if (data) {
+        if ((*data).type==variant::Type::Struct) {
+            container::Struct* cast = static_cast<container::Struct*>(data.get());
+            map<string ,Variant>::iterator it = cast->value.find(key);
+            if (it!=cast->value.end()) {
+                return cast->value[string(key)];
+            }
+        }
+    }
+    
+    return Variant();
+}
+
+Variant Variant::find(int index)
+{
+    if (data) {
+        if ((*data).type==variant::Type::Array) {
+            container::Array* cast = static_cast<container::Array*>(data.get());
+            
+            if (index<cast->value.size()) {
+                return cast->value[index];
+            }
+        }
+    }
+    
+    return Variant();
+}
+
 size_t Variant::size()
 {
     if (data) {
@@ -321,6 +356,21 @@ int32_t Variant::get_int32()
     }
     
     container::Int32* cast=static_cast<container::Int32*>(data.get());
+
+    return cast->value;
+}
+
+int64_t Variant::get_int64()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Int64) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Int64* cast=static_cast<container::Int64*>(data.get());
 
     return cast->value;
 }
@@ -391,9 +441,15 @@ Variant& Variant::operator=(bool value)
     return *this;
 }
 
-Variant& Variant::operator=(int value)
+Variant& Variant::operator=(int32_t value)
 {
     data.reset(new container::Int32(value));
+    return *this;
+}
+
+Variant& Variant::operator=(int64_t value)
+{
+    data.reset(new container::Int64(value));
     return *this;
 }
 
@@ -474,6 +530,57 @@ Variant& Variant::operator[](const char* key)
 Variant& Variant::operator[](string key)
 {
     return get_value_from_key(key);
+}
+
+Variant& Variant::operator/(string key)
+{
+    
+    if (!data) {
+        throw variant::exception::NotFound();
+    }
+    
+    if ((*data).type!=variant::Type::Struct) {
+        throw variant::exception::NotFound();
+    }
+    
+    container::Struct* cast = static_cast<container::Struct*>(data.get());
+    
+    map<string ,Variant>::iterator it = cast->value.find(key);
+    
+    if (it==cast->value.end()) {
+        throw exception::NotFound();
+    }
+    
+    return cast->value[key];
+}
+
+Variant& Variant::operator/(int index)
+{
+    
+    if (!data) {
+        throw variant::exception::NotFound();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::NotFound();
+    }
+    
+    container::Array* cast = static_cast<container::Array*>(data.get());
+    
+    if (index>=cast->value.size()) {
+        throw exception::NotFound();
+    }
+    
+    return cast->value[index];
+}
+
+Variant& Variant::operator/(variant::Type type)
+{
+    if (this->type()!=type) {
+        throw exception::NotFound();
+    }
+    
+    return *this;
 }
 
 std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
