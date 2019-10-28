@@ -200,6 +200,15 @@ Variant::~Variant()
 {
 }
 
+bool Variant::none()
+{
+    if (data) {
+        return (data.get()->type==Type::None);
+    }
+    
+    return true;
+}
+
 Variant Variant::create_array(size_t count)
 {
     Variant value;

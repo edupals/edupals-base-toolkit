@@ -328,7 +328,7 @@ bool test_variant()
     Variant a(32);
     Variant b(3.14f);
     Variant c=a;
-    Variant d=20;
+    Variant d=20L;
     Variant e=12.4;
     Variant f="come get some!";
     
@@ -342,6 +342,18 @@ bool test_variant()
     
     Variant g=bytes;
     Variant h=true;
+    
+    bool ih=h;
+    int32_t ia=a;
+    int64_t id=d;
+    float ib=b;
+    double ie=e;
+    string isf=f;
+    
+    clog<<"implicit conversions:"<<ih<<","<<ia<<","<<id<<","<<ib<<","<<ie<<","<<isf<<endl;
+    
+    Variant nv={h,a,d,b,e,f};
+    clog<<nv<<endl;
     
     Variant array(data);
     Variant stuff=Variant::create_array(6);

@@ -340,6 +340,11 @@ namespace edupals
             virtual ~Variant();
             
             /*!
+                Whenever the Variant is None
+            */
+            bool none();
+            
+            /*!
                 Create an array variant with 'count' empty values
             */
             static Variant create_array(size_t count);
@@ -472,6 +477,35 @@ namespace edupals
             Variant& operator/(int index);
             Variant& operator/(variant::Type type);
             
+            operator bool()
+            {
+                return get_boolean();
+            }
+            
+            operator int32_t()
+            {
+                return get_int32();
+            }
+            
+            operator int64_t()
+            {
+                return get_int64();
+            }
+            
+            operator float()
+            {
+                return get_float();
+            }
+            
+            operator double()
+            {
+                return get_double();
+            }
+            
+            operator std::string()
+            {
+                return get_string();
+            }
         };
         
         /*!
