@@ -408,7 +408,6 @@ bool test_variant()
 
 bool test_json()
 {
-    
     Variant msg=Variant::create_struct();
     
     msg["status"]=true;
@@ -416,8 +415,7 @@ bool test_json()
     msg["value"]["name"]="edupals";
     msg["value"]["uid"]=1000;
     
-    vector<Variant> groups={100,200,201,202,203};
-    msg["value"]["groups"]=groups;
+    msg["value"]["groups"]=(Variant){100,200,201,202,203};
     
     json::dump(msg,cout);
     cout<<endl;

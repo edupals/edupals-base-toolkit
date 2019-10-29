@@ -325,17 +325,66 @@ namespace edupals
             */
             Variant();
             
+            /*!
+                Boolean constructor
+            */
             Variant(bool value);
+            
+            /*!
+                Signed int32 constructor
+            */
             Variant(int32_t value);
+            
+            /*!
+                Signed int 64 constructor
+            */
             Variant(int64_t value);
+            
+            /*!
+                Single precision float constructor
+            */
             Variant(float value);
+            
+            /*!
+                Double precision float constructor
+            */
             Variant(double value);
+            
+            /*!
+                String constructor
+            */
             Variant(std::string value);
+            
+            /*!
+                String constructor
+                \param value 0 ended C string
+            */
             Variant(const char* value);
+            
+            /*!
+                Array constructor
+                \param value std::vector of Variants
+            */
             Variant(std::vector<Variant>& value);
-            Variant(std::vector<uint8_t>& value);
-            Variant(uint8_t* value,size_t size);
+            
+            /*!
+                Array constructor
+                \param list c++ initialization list
+            */
             Variant(std::initializer_list<Variant> list);
+            
+            /*!
+                Bytes constructor
+                \param value std::vector of unsigned int8 (bytes)
+            */
+            Variant(std::vector<uint8_t>& value);
+            
+            /*!
+                Bytes constructor
+                \param value pointer to data, casted to unsigned int8
+                \param size size in bytes of data
+            */
+            Variant(uint8_t* value,size_t size);
             
             virtual ~Variant();
             

@@ -27,6 +27,7 @@
 #include "token.hpp"
 
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 
 using namespace edupals::variant;
@@ -38,7 +39,9 @@ void edupals::json::dump(Variant& value,ostream& stream)
     vector<string> keys;
     size_t count;
     
-    std::locale old_locale=stream.imbue(std::locale("C"));
+    std::ios_base::fmtflags flags(stream.flags());
+    stream.imbue(std::locale("C"));
+    stream<<std::setprecision(10)<<std::fixed;
     
     switch(value.type()) {
         case Type::Struct:
@@ -101,7 +104,7 @@ void edupals::json::dump(Variant& value,ostream& stream)
         break;
     }
     
-    stream.imbue(old_locale);
+    stream.flags(flags);
 }
 
 struct Production{
