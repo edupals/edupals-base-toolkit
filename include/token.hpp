@@ -28,6 +28,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 namespace edupals
 {
@@ -107,7 +108,11 @@ namespace edupals
                 
                 bool dot;
                 
+                std::istringstream is;
+                
                 public:
+                
+                Float();
                 
                 void start() override;
                 void step() override;

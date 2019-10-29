@@ -43,6 +43,11 @@ container::Bytes::Bytes(uint8_t* values,size_t size)
     }
 }
 
+void container::Bytes::serialize(ostream& stream)
+{
+    stream<<"bytes (size "<<size()<<")";
+}
+
 container::Array::Array(vector<Variant>& value)
 {
     this->type=Type::Array;
@@ -78,6 +83,18 @@ size_t container::Array::count()
     return value.size();
 }
 
+void container::Array::serialize(ostream& stream)
+{
+    stream<<'[';
+    for (size_t n=0;n<value.size();n++) {
+        value[n].serialize(stream);
+        if (n!=value.size()-1) {
+            stream<<',';
+        }
+    }
+    stream<<']';
+}
+
 container::Struct::Struct()
 {
      this->type=Type::Struct;
@@ -94,6 +111,27 @@ size_t container::Struct::size()
     return total;
 }
 
+void container::Struct::serialize(ostream& stream)
+{
+    stream<<'{';
+    
+    map<string,Variant>::iterator it;
+    
+    it=value.begin();
+    
+    while (it!=value.end()) {
+        stream<<it->first<<":";
+        it->second.serialize(stream);
+        
+        it++;
+        
+        if (it!=value.end()) {
+            stream<<",";
+        }
+    }
+    stream<<'}';
+}
+
 Variant::Variant()
 {
     
@@ -104,9 +142,14 @@ Variant::Variant(bool value)
     data.reset(new container::Boolean(value));
 }
 
-Variant::Variant(int value)
+Variant::Variant(int32_t value)
 {
     data.reset(new container::Int32(value));
+}
+
+Variant::Variant(int64_t value)
+{
+    data.reset(new container::Int64(value));
 }
 
 Variant::Variant(float value)
@@ -155,6 +198,15 @@ Variant::Variant(std::initializer_list<Variant> list)
 
 Variant::~Variant()
 {
+}
+
+bool Variant::none()
+{
+    if (data) {
+        return (data.get()->type==Type::None);
+    }
+    
+    return true;
 }
 
 Variant Variant::create_array(size_t count)
@@ -231,6 +283,36 @@ void Variant::append(Variant value)
     cast->value.push_back(value);
 }
 
+Variant Variant::find(string key)
+{
+    if (data) {
+        if ((*data).type==variant::Type::Struct) {
+            container::Struct* cast = static_cast<container::Struct*>(data.get());
+            map<string ,Variant>::iterator it = cast->value.find(key);
+            if (it!=cast->value.end()) {
+                return cast->value[string(key)];
+            }
+        }
+    }
+    
+    return Variant();
+}
+
+Variant Variant::find(int index)
+{
+    if (data) {
+        if ((*data).type==variant::Type::Array) {
+            container::Array* cast = static_cast<container::Array*>(data.get());
+            
+            if (index<cast->value.size()) {
+                return cast->value[index];
+            }
+        }
+    }
+    
+    return Variant();
+}
+
 size_t Variant::size()
 {
     if (data) {
@@ -248,6 +330,13 @@ Type Variant::type()
     }
     
     return Type::None;
+}
+
+void Variant::serialize(ostream& stream)
+{
+    if (data) {
+        data->serialize(stream);
+    }
 }
 
 bool Variant::get_boolean()
@@ -276,6 +365,21 @@ int32_t Variant::get_int32()
     }
     
     container::Int32* cast=static_cast<container::Int32*>(data.get());
+
+    return cast->value;
+}
+
+int64_t Variant::get_int64()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Int64) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Int64* cast=static_cast<container::Int64*>(data.get());
 
     return cast->value;
 }
@@ -346,9 +450,15 @@ Variant& Variant::operator=(bool value)
     return *this;
 }
 
-Variant& Variant::operator=(int value)
+Variant& Variant::operator=(int32_t value)
 {
     data.reset(new container::Int32(value));
+    return *this;
+}
+
+Variant& Variant::operator=(int64_t value)
+{
+    data.reset(new container::Int64(value));
     return *this;
 }
 
@@ -431,65 +541,60 @@ Variant& Variant::operator[](string key)
     return get_value_from_key(key);
 }
 
+Variant& Variant::operator/(string key)
+{
+    
+    if (!data) {
+        throw variant::exception::NotFound();
+    }
+    
+    if ((*data).type!=variant::Type::Struct) {
+        throw variant::exception::NotFound();
+    }
+    
+    container::Struct* cast = static_cast<container::Struct*>(data.get());
+    
+    map<string ,Variant>::iterator it = cast->value.find(key);
+    
+    if (it==cast->value.end()) {
+        throw exception::NotFound();
+    }
+    
+    return cast->value[key];
+}
+
+Variant& Variant::operator/(int index)
+{
+    
+    if (!data) {
+        throw variant::exception::NotFound();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::NotFound();
+    }
+    
+    container::Array* cast = static_cast<container::Array*>(data.get());
+    
+    if (index>=cast->value.size()) {
+        throw exception::NotFound();
+    }
+    
+    return cast->value[index];
+}
+
+Variant& Variant::operator/(variant::Type type)
+{
+    if (this->type()!=type) {
+        throw exception::NotFound();
+    }
+    
+    return *this;
+}
+
 std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
 {
-    switch(v.type()) {
-        case variant::Type::Boolean:
-            if (v.get_boolean()) {
-                os<<"true";
-            }
-            else {
-                os<<"false";
-            }
-        break;
-        
-        case variant::Type::Int32:
-            os<<v.get_int32();
-        break;
-        
-        case variant::Type::Float:
-            os<<v.get_float();
-        break;
-        
-        case variant::Type::Double:
-            os<<v.get_double();
-        break;
-        
-        case variant::Type::Bytes:
-            os<<"bytes (size "<<v.get_bytes().size()<<")";
-        break;
-        
-        case variant::Type::String:
-            os<<"\""<<v.get_string()<<"\"";
-        break;
-        
-        case variant::Type::Array:
-            os<<'[';
-            for (size_t n=0;n<v.count();n++) {
-                os<<v[n];
-                if (n!=v.count()-1) {
-                    os<<',';
-                }
-            }
-            os<<']';
-        break;
-        
-        case variant::Type::Struct:
-            os<<'{';
-            const vector<string> keys = v.keys();
-            int last=keys.size()-1;
-            for (size_t n=0;n<keys.size();n++) {
-                os<<keys[n];
-                os<<':';
-                os<<v[keys[n]];
-                if (n!=last) {
-                    os<<',';
-                }
-            }
-            os<<'}';
-        break;
-        
-    }
+    v.serialize(os);
     
     return os;
 }

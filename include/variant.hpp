@@ -45,6 +45,7 @@ namespace edupals
             None,
             Boolean,
             Int32,
+            Int64,
             Float,
             Double,
             String,
@@ -78,6 +79,16 @@ namespace edupals
                     return "Index out of bounds";
                 }
             };
+            
+            class NotFound : public std::exception
+            {
+                public:
+                
+                const char* what () const throw ()
+                {
+                    return "Variant not found";
+                }
+            };
         }
     
         namespace container
@@ -101,6 +112,10 @@ namespace edupals
                 virtual ~Base()
                 {
                 }
+                
+                virtual void serialize(std::ostream& stream)
+                {
+                }
             };
             
             class Boolean: public Base
@@ -118,6 +133,16 @@ namespace edupals
                 size_t size() override
                 {
                     return sizeof(bool);
+                }
+                
+                void serialize(std::ostream& stream) override
+                {
+                    if (value) {
+                        stream<<"true";
+                    }
+                    else {
+                        stream<<"false";
+                    }
                 }
                 
             };
@@ -139,6 +164,33 @@ namespace edupals
                     return sizeof(int32_t);
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    stream<<value;
+                }
+            };
+            
+            class Int64: public Base
+            {
+                
+                public:
+                int64_t value;
+                
+                Int64(int64_t value)
+                {
+                    type=variant::Type::Int64;
+                    this->value=value;
+                }
+                
+                size_t size() override
+                {
+                    return sizeof(int64_t);
+                }
+                
+                void serialize(std::ostream& stream) override
+                {
+                    stream<<value;
+                }
             };
             
             class Float: public Base
@@ -158,6 +210,10 @@ namespace edupals
                     return sizeof(float);
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    stream<<value;
+                }
             };
             
             class Double: public Base
@@ -177,6 +233,10 @@ namespace edupals
                     return sizeof(double);
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    stream<<value;
+                }
             };
             
              class String: public Base
@@ -196,6 +256,10 @@ namespace edupals
                     return value.size();
                 }
                 
+                void serialize(std::ostream& stream) override
+                {
+                    stream<<"\""<<value<<"\"";
+                }
             };
             
             class Bytes: public Base
@@ -211,6 +275,7 @@ namespace edupals
                     return value.size();
                 }
                 
+                void serialize(std::ostream& stream) override;
             };
             
             class Array: public Base
@@ -226,6 +291,7 @@ namespace edupals
                 size_t size() override;
                 size_t count();
                 
+                void serialize(std::ostream& stream) override;
             };
             
             class Struct: public Base
@@ -237,6 +303,8 @@ namespace edupals
                 Struct();
                 
                 size_t size() override;
+                
+                void serialize(std::ostream& stream) override;
             };
         }
         
@@ -257,18 +325,73 @@ namespace edupals
             */
             Variant();
             
+            /*!
+                Boolean constructor
+            */
             Variant(bool value);
-            Variant(int value);
+            
+            /*!
+                Signed int32 constructor
+            */
+            Variant(int32_t value);
+            
+            /*!
+                Signed int 64 constructor
+            */
+            Variant(int64_t value);
+            
+            /*!
+                Single precision float constructor
+            */
             Variant(float value);
+            
+            /*!
+                Double precision float constructor
+            */
             Variant(double value);
+            
+            /*!
+                String constructor
+            */
             Variant(std::string value);
+            
+            /*!
+                String constructor
+                \param value 0 ended C string
+            */
             Variant(const char* value);
+            
+            /*!
+                Array constructor
+                \param value std::vector of Variants
+            */
             Variant(std::vector<Variant>& value);
-            Variant(std::vector<uint8_t>& value);
-            Variant(uint8_t* value,size_t size);
+            
+            /*!
+                Array constructor
+                \param list c++ initialization list
+            */
             Variant(std::initializer_list<Variant> list);
             
-            ~Variant();
+            /*!
+                Bytes constructor
+                \param value std::vector of unsigned int8 (bytes)
+            */
+            Variant(std::vector<uint8_t>& value);
+            
+            /*!
+                Bytes constructor
+                \param value pointer to data, casted to unsigned int8
+                \param size size in bytes of data
+            */
+            Variant(uint8_t* value,size_t size);
+            
+            virtual ~Variant();
+            
+            /*!
+                Whenever the Variant is None
+            */
+            bool none();
             
             /*!
                 Create an array variant with 'count' empty values
@@ -303,6 +426,18 @@ namespace edupals
             std::vector<std::string> keys();
             
             /*!
+                Looks for for a key without throwing exceptions
+                \return The value associated to that key or an empty Variant
+            */
+            Variant find(std::string key);
+            
+            /*!
+                Looks for for an index without throwing exceptions
+                \return The value associated to that index or an empty Variant
+            */
+            Variant find(int index);
+            
+            /*!
                 Compute size (in bytes) of Variant container, included children
             */
             size_t size();
@@ -311,6 +446,11 @@ namespace edupals
                 Get type of Variant
             */
             Type type();
+            
+            /*!
+                Serialize contents to a standard output stream
+            */
+            void serialize(std::ostream& stream);
             
             /*!
                 get Variant as boolean
@@ -323,6 +463,12 @@ namespace edupals
                 throws InvalidType exception in case of type missmatch
             */
             int32_t get_int32();
+            
+            /*!
+                get Variant as a 64 bit signed integer
+                throws InvalidType exception in case of type missmatch
+            */
+            int64_t get_int64();
             
             /*!
                 get Variant as single precission float
@@ -349,7 +495,8 @@ namespace edupals
             std::vector<uint8_t>& get_bytes();
             
             Variant& operator=(bool value);
-            Variant& operator=(int value);
+            Variant& operator=(int32_t value);
+            Variant& operator=(int64_t value);
             Variant& operator=(float value);
             Variant& operator=(double value);
             Variant& operator=(std::string value);
@@ -369,14 +516,52 @@ namespace edupals
             Variant& operator[](const char* key);
             Variant& operator[](std::string key);
             
+            /*!
+                Looks for nested Variants (structs/arrays)
+                throws a NotFound exception if the path is not found
+                example: Variant v=value/"alfa"/"beta"/Type::Float;
+                
+            */
+            Variant& operator/(std::string key);
+            Variant& operator/(int index);
+            Variant& operator/(variant::Type type);
             
+            operator bool()
+            {
+                return get_boolean();
+            }
             
+            operator int32_t()
+            {
+                return get_int32();
+            }
+            
+            operator int64_t()
+            {
+                return get_int64();
+            }
+            
+            operator float()
+            {
+                return get_float();
+            }
+            
+            operator double()
+            {
+                return get_double();
+            }
+            
+            operator std::string()
+            {
+                return get_string();
+            }
         };
         
         /*!
                 std stream support
         */
         std::ostream& operator<<(std::ostream& os,Variant& v);
+        
     }
 }
 

@@ -328,9 +328,11 @@ bool test_variant()
     Variant a(32);
     Variant b(3.14f);
     Variant c=a;
-    Variant d=20;
-    Variant e=12.4f;
+    Variant d=20L;
+    Variant e=12.4;
     Variant f="come get some!";
+    
+    clog<<"std::to_string "<<std::to_string(e.get_double())<<endl;
     
     Variant args={1,{"two","three"},5,7.0,"9"};
     clog<<"list:"<<args<<endl;
@@ -341,12 +343,25 @@ bool test_variant()
     Variant g=bytes;
     Variant h=true;
     
+    bool ih=h;
+    int32_t ia=a;
+    int64_t id=d;
+    float ib=b;
+    double ie=e;
+    string isf=f;
+    
+    clog<<"implicit conversions:"<<ih<<","<<ia<<","<<id<<","<<ib<<","<<ie<<","<<isf<<endl;
+    
+    Variant nv={h,a,d,b,e,f};
+    clog<<nv<<endl;
+    
     Variant array(data);
     Variant stuff=Variant::create_array(6);
     stuff.append();
     
     array[1]=15;
-    a=64;
+    a=64L;
+    
     stuff[6]="Amazing variant";
     
     Variant message=Variant::create_struct();
@@ -356,9 +371,16 @@ bool test_variant()
     message["gamma"]=2.0f;
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
+    message["delta"]["k2"]=Variant({11,22,33,44});
     
     clog<<array<<endl;
     clog<<message<<endl;
+    Variant find =message["delta"]["k2"].find(1); 
+    clog<<"find:"<<find<<endl;
+    
+    find = message/"delta"/"k2"/2/Type::Int32;
+    clog<<"find:"<<find<<endl;
+    
     clog<<"a: "<<a<<endl;
     clog<<"b: "<<b<<endl;
     clog<<"c: "<<c<<endl;
@@ -386,7 +408,6 @@ bool test_variant()
 
 bool test_json()
 {
-    
     Variant msg=Variant::create_struct();
     
     msg["status"]=true;
@@ -394,15 +415,14 @@ bool test_json()
     msg["value"]["name"]="edupals";
     msg["value"]["uid"]=1000;
     
-    vector<Variant> groups={100,200,201,202,203};
-    msg["value"]["groups"]=groups;
+    msg["value"]["groups"]=(Variant){100,200,201,202,203};
     
     json::dump(msg,cout);
     cout<<endl;
     
     stringstream input;
 
-    input<<" { \"alfa\" : 33 , \"beta\": 4.0, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
+    input<<" { \"alfa\" : 33 , \"beta\": 4.325, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
     Variant parsed=json::load(input);
     
     json::dump(parsed,cout);
@@ -450,7 +470,7 @@ bool test_bson()
 
 int main (int argc,char* argv[])
 {
-
+    
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     
