@@ -1,3 +1,15 @@
+edupals-base-toolkit (1.0.3.0) bionic; urgency=medium
+
+  * Master tag: a9120f0a743980486fccc9e524f756a342552117
+  * Variant nested search using overrided divisor operator
+  * Variant implicit conversions to basic types (int,float,string)
+  * Refactored Variant serialization code
+  * Added Int64 Variant
+  * Added Variant find for key/index
+  * Fixed (mainly on json module) float serialization and parsing to avoid decimal comma locale mess
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 29 Oct 2019 09:27:57 +0100
+
 edupals-base-toolkit (1.0.2.0) bionic; urgency=medium
 
   * Master tag: ea08be7246a782ef5d41f69c19f7522119a2efb8
