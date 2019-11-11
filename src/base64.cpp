@@ -42,8 +42,40 @@ static int8_t to_b64(uint8_t code)
             return 'a'+(code-26);
         }
         else {
-            return '0'+(code-52);
+            if (code<62) {
+                return '0'+(code-52);
+            }
+            else {
+                return (code==63) ? '+' : '/';
+            }
         }
+    }
+}
+
+static uint8_t from_b64(int8_t sym)
+{
+    if (sym>='0' and sym<='9') {
+        return 52 + (sym-'0');
+    }
+    
+    if (sym>='a' and sym<='z') {
+        return 26 + (sym-'a');
+    }
+    
+    if (sym>='A' and sym<='Z') {
+        return 0 + (sym-'A');
+    }
+    
+    if (sym=='+') {
+        return 62;
+    }
+    
+    if (sym=='/') {
+        return 63;
+    }
+    
+    if (sym=='=') {
+        return 0xff;
     }
 }
 
@@ -55,8 +87,33 @@ static void shiftmask(uint8_t a,uint8_t b,uint8_t c,uint32_t* out)
     out[3]=c & 0x3f;
 }
 
+static int unpack(uint8_t* codes,uint8_t* data)
+{
+    int count=0;
+    
+    for (int n=0;n<4;n++) {
+    
+        if (codes[n]!=0xff) {
+            
+            
+            count++;
+        }
+    
+    }
+    
+    return count;
+}
+
 void edupals::base64::decode(string& in,vector<uint8_t>& out)
 {
+    for (size_t n=0;n<in.size();n+=4) {
+        uint8_t codes[4];
+        
+        codes[0]=from_b64(in[n+0]);
+        codes[1]=from_b64(in[n+1]);
+        codes[2]=from_b64(in[n+2]);
+        codes[3]=from_b64(in[n+3]);
+    }
 }
 
 void edupals::base64::encode(vector<uint8_t>& in,string& out)
