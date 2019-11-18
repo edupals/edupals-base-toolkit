@@ -28,8 +28,6 @@
 
 using namespace std;
 
-const char* encode_table="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 static int8_t to_b64(uint8_t code)
 {
     code=code & 0x3f;
@@ -87,23 +85,6 @@ static void shiftmask(uint8_t a,uint8_t b,uint8_t c,uint32_t* out)
     out[3]=c & 0x3f;
 }
 
-static int unpack(uint8_t* codes,uint8_t* data)
-{
-    int count=0;
-    
-    for (int n=0;n<4;n++) {
-    
-        if (codes[n]!=0xff) {
-            
-            
-            count++;
-        }
-    
-    }
-    
-    return count;
-}
-
 void edupals::base64::decode(string& in,vector<uint8_t>& out)
 {
     for (size_t n=0;n<in.size();n+=4) {
@@ -113,6 +94,23 @@ void edupals::base64::decode(string& in,vector<uint8_t>& out)
         codes[1]=from_b64(in[n+1]);
         codes[2]=from_b64(in[n+2]);
         codes[3]=from_b64(in[n+3]);
+        
+        uint8_t bt;
+        
+        bt = ((codes[0]&0x3f) << 2) | ((codes[1]&0x30)>>4);
+        out.push_back(bt);
+        
+        if (codes[2]!=0xff) {
+            
+            bt = ((codes[1]&0x0f) << 4) | ((codes[2]&0x3c) >>2);
+            out.push_back(bt);
+            
+            if (codes[3]!=0xff) {
+                
+                bt = ((codes[2]&0x03)<<6) | (codes[3]&0x3f);
+                out.push_back(bt);
+            }
+        }
     }
 }
 
@@ -127,10 +125,6 @@ void edupals::base64::encode(vector<uint8_t>& in,string& out)
     if (remain>0) {
         osize+=4;
     }
-    
-    clog<<"input size:"<<isize<<endl;
-    clog<<"output size:"<<osize<<endl;
-    clog<<"remain: "<<remain<<endl;
     
     out.reserve(osize);
     
@@ -147,7 +141,7 @@ void edupals::base64::encode(vector<uint8_t>& in,string& out)
     if (remain==1) {
         size_t n= isize-remain;
         uint32_t c[4];
-        shiftmask(in[n],0,0,c);
+        shiftmask(in[n+1],0,0,c);
         out.append(1,to_b64(c[0]));
         out.append(1,to_b64(c[1]));
         out.append("==");
@@ -155,7 +149,7 @@ void edupals::base64::encode(vector<uint8_t>& in,string& out)
     if (remain==2) {
         size_t n= isize-remain;
         uint32_t c[4];
-        shiftmask(in[n-1],in[n],0,c);
+        shiftmask(in[n],in[n+1],0,c);
         out.append(1,to_b64(c[0]));
         out.append(1,to_b64(c[1]));
         out.append(1,to_b64(c[2]));
