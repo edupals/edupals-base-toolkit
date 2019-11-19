@@ -75,6 +75,8 @@ static uint8_t from_b64(int8_t sym)
     if (sym=='=') {
         return 0xff;
     }
+    
+    throw exception::BadChar();
 }
 
 static void shiftmask(uint8_t a,uint8_t b,uint8_t c,uint32_t* out)
@@ -87,6 +89,11 @@ static void shiftmask(uint8_t a,uint8_t b,uint8_t c,uint32_t* out)
 
 void edupals::base64::decode(string& in,vector<uint8_t>& out)
 {
+    
+    if (in.size()%4!=0) {
+        throw exception::BadSize();
+    }
+    
     for (size_t n=0;n<in.size();n+=4) {
         uint8_t codes[4];
         
