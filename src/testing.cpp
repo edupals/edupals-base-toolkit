@@ -35,6 +35,7 @@
 #include <variant.hpp>
 #include <json.hpp>
 #include <bson.hpp>
+#include <base64.hpp>
 
 #include <iostream>
 #include <thread>
@@ -468,6 +469,45 @@ bool test_bson()
     return true;
 }
 
+bool test_base64()
+{
+    const string expected_ascii="edupals.base64";
+    const string expected_b64="ZWR1cGFscy5iYXNlNjQ=";
+    
+    clog<<"references:"<<endl;
+    clog<<"Ascii:"<<expected_ascii<<endl;
+    clog<<"Base64:"<<expected_b64<<endl;
+    
+    vector<uint8_t> data(expected_ascii.begin(),expected_ascii.end());
+    string b64;
+    
+    base64::encode(data,b64);
+    
+    clog<<"Encoded:"<<b64<<endl;
+    
+    if (b64!=expected_b64) {
+        cerr<<console::fg::red<<"Base64 encoding fail"<<console::reset::all<<endl;
+    }
+    
+    data.clear();
+    b64=expected_b64;
+    
+    base64::decode(b64,data);
+    
+    clog<<"Decoded:";
+    for (uint8_t c:data) {
+        clog<<c;
+    }
+    clog<<endl;
+    
+    string ascii(data.begin(),data.end());
+    
+    if (ascii!=expected_ascii) {
+        cerr<<console::fg::red<<"Base64 decoding fail"<<console::reset::all<<endl;
+    }
+    return true;
+}
+
 int main (int argc,char* argv[])
 {
     
@@ -542,6 +582,10 @@ int main (int argc,char* argv[])
         
         if (s=="bson") {
             test_bson();
+        }
+        
+        if (s=="base64") {
+            test_base64();
         }
     }
     
