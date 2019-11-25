@@ -27,6 +27,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace edupals
 {
@@ -57,6 +58,11 @@ namespace edupals
                 Gets current parent Process
             */
             static Process parent();
+            
+            /*!
+                Gets a list with runing processes
+            */
+            static std::vector<Process> get_process_list();
             
             /*!
                 Get full proc path

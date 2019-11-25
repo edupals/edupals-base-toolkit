@@ -35,6 +35,7 @@
 #include <variant.hpp>
 #include <json.hpp>
 #include <bson.hpp>
+#include <base64.hpp>
 
 #include <iostream>
 #include <thread>
@@ -42,10 +43,25 @@
 #include <sstream>
 #include <chrono>
 #include <fstream>
+#include <functional>
 
 using namespace edupals;
 using namespace edupals::variant;
 using namespace std;
+
+struct Test
+{
+    string name;
+    std::function<bool()> fn;
+    bool passed;
+    
+    Test(string name,std::function<bool()> fn)
+    {
+        this->name=name;
+        this->fn=fn;
+        this->passed=false;
+    }
+};
 
 bool test_network()
 {
@@ -197,6 +213,7 @@ bool test_filesystem()
 
 bool test_parser()
 {
+    bool status = true;
     
     parser::Lexer lexer;
     
@@ -234,6 +251,9 @@ bool test_parser()
     if (!lexer.eof()) {
         clog<<"Unknown token"<<endl;
     }
+    else {
+        status=false;
+    }
     
     clog<<endl;
     
@@ -249,6 +269,9 @@ bool test_parser()
     
     if (lexer.eof() and lexer.pending()) {
         clog<<"Unexpected EOF"<<endl;
+    }
+    else {
+        status=false;
     }
     
     clog<<endl;
@@ -266,6 +289,9 @@ bool test_parser()
     if (lexer.eof() and !lexer.pending()) {
         clog<<"Parsed succesfully"<<endl;
     }
+    else {
+        status=false;
+    }
     
     clog<<endl;
     
@@ -282,8 +308,11 @@ bool test_parser()
     if (!lexer.eof() and !lexer.pending()) {
         clog<<"No match"<<endl;
     }
+    else {
+        status=false;
+    }
     
-    return true;
+    return status;
 }
 
 bool test_log()
@@ -366,7 +395,8 @@ bool test_variant()
     
     Variant message=Variant::create_struct();
     
-    message["alfa"]="A";
+    const char* index="alfa";
+    message[index]="A";
     message["beta"]=1;
     message["gamma"]=2.0f;
     message["delta"]=Variant::create_struct();
@@ -468,8 +498,85 @@ bool test_bson()
     return true;
 }
 
+bool test_base64()
+{
+    const string expected_ascii="edupals.base64";
+    const string expected_b64="ZWR1cGFscy5iYXNlNjQ=";
+    
+    clog<<"references:"<<endl;
+    clog<<"Ascii:"<<expected_ascii<<endl;
+    clog<<"Base64:"<<expected_b64<<endl;
+    
+    vector<uint8_t> data(expected_ascii.begin(),expected_ascii.end());
+    string b64;
+    
+    base64::encode(data,b64);
+    
+    clog<<"Encoded:"<<b64<<endl;
+    
+    if (b64!=expected_b64) {
+        cerr<<console::fg::red<<"Base64 encoding fail"<<console::reset::all<<endl;
+    }
+    
+    data.clear();
+    b64=expected_b64;
+    
+    base64::decode(b64,data);
+    
+    clog<<"Decoded:";
+    for (uint8_t c:data) {
+        clog<<c;
+    }
+    clog<<endl;
+    
+    string ascii(data.begin(),data.end());
+    
+    if (ascii!=expected_ascii) {
+        cerr<<console::fg::red<<"Base64 decoding fail"<<console::reset::all<<endl;
+    }
+    return true;
+}
+
+bool evaluate(std::function<bool()> test_function)
+{
+    try {
+        return test_function();
+    }
+    catch(std::exception& e) {
+        cerr<<e.what()<<endl;
+        return false;
+    }
+}
+
 int main (int argc,char* argv[])
 {
+    map<string,bool> to_test;
+    
+    map<string,vector<Test> > tests;
+    
+    // system tests
+    tests["system"].push_back(Test("version",test_system_version));
+    tests["system"].push_back(Test("uptime",test_system_uptime));
+    tests["system"].push_back(Test("cmdline",test_system_cmdline));
+    tests["system"].push_back(Test("memory",test_system_memory));
+    tests["system"].push_back(Test("get_pids",test_system_get_pids));
+    tests["system"].push_back(Test("get_modules",test_system_get_modules));
+    
+    //parser
+    tests["parser"].push_back(Test("parser",test_parser));
+    
+    //variant
+    tests["variant"].push_back(Test("variant",test_variant));
+    
+    //json
+    tests["json"].push_back(Test("json",test_json));
+    
+    //bson
+    tests["bson"].push_back(Test("bson",test_bson));
+    
+    //base64
+    tests["base64"].push_back(Test("base64",test_base64));
+    
     
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
@@ -498,52 +605,43 @@ int main (int argc,char* argv[])
     }
     
     
+    
     for (string s:result.args) {
-        if (s=="system") {
-            test_system_version();
-            test_system_uptime();
-            test_system_cmdline();
-            test_system_memory();
-            test_system_get_pids();
-            test_system_get_modules();
-        }
-        
-        if (s=="network") {
-            test_network();
-        }
-        
-        if (s=="process") {
-            test_process();
-        }
-        
-        if (s=="threading") {
-            test_threading();
-        }
-        
-        if (s=="filesystem") {
-            test_filesystem();
-        }
-        
-        if (s=="parser") {
-            test_parser();
-        }
-        
-        if (s=="log") {
-            test_log();
-        }
-        
-        if (s=="variant") {
-            test_variant();
-        }
-        
-        if (s=="json") {
-            test_json();
-        }
-        
-        if (s=="bson") {
-            test_bson();
+        to_test[s]=true;
+    }
+    
+    clog<<"Testing..."<<endl<<endl;
+    int test_done=0;
+    int test_passed=0;
+    
+    map<string,bool> test_results;
+    
+    for (auto t:to_test) {
+        if (t.second) {
+            clog<<"**********"<<endl;
+            clog<<"  "<<t.first<<endl;
+            clog<<"**********"<<endl<<endl;
+            
+            for (Test& test: tests[t.first]) {
+                test_done++;
+                bool result = evaluate(test.fn);
+                if (result) {
+                    test_passed++;
+                    test.passed=result;
+                }
+                
+                test_results[t.first+":"+test.name]=result;
+            }
         }
     }
     
-    return 0;
+    clog<<endl<<"Results:"<<endl;
+    
+    for (auto r: test_results) {
+        clog<<"* "<<r.first<<" "<<(r.second ? "pass" : "fail")<<endl;
+    }
+    
+    clog<<std::dec<<"Test passed: ("<<test_passed<<"/"<<test_done<<")"<<endl;
+    
+    return ((test_done-test_passed)==0) ? 0:1;
 }

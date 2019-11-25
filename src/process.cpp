@@ -23,6 +23,7 @@
  
 
 #include <process.hpp>
+#include <system.hpp>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -62,6 +63,18 @@ Process Process::me()
 Process Process::parent()
 {
     return Process(getppid());
+}
+
+vector<Process> Process::get_process_list()
+{
+    vector<Process> ret;
+    vector<int32_t> pids = system::get_pids();
+    
+    for (int32_t pid:pids) {
+        ret.push_back(Process(pid));
+    }
+    
+    return ret;
 }
 
 string Process::get_proc()
