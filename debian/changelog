@@ -1,3 +1,12 @@
+edupals-base-toolkit (1.2.0.0) bionic; urgency=medium
+
+  * Master tag: 11290cbc6775871d0918ba9477b9c495181973b4
+  * Added base64 conversion module
+  * Added a non-const char* Variant subscript operator (in order to avoid ambiguity with build-in int64_t conversion)
+  * System process list can be listed from Process module too
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 25 Nov 2019 14:10:30 +0100
+
 edupals-base-toolkit (1.1.0.0) bionic; urgency=medium
 
   * Master tag: a9120f0a743980486fccc9e524f756a342552117
