@@ -536,6 +536,11 @@ Variant& Variant::operator[](const char* key)
     return get_value_from_key(string(key));
 }
 
+Variant& Variant::operator[](char* key)
+{
+    return get_value_from_key(string(key));
+}
+
 Variant& Variant::operator[](string key)
 {
     return get_value_from_key(key);

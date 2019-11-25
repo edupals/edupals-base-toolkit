@@ -395,7 +395,8 @@ bool test_variant()
     
     Variant message=Variant::create_struct();
     
-    message["alfa"]="A";
+    const char* index="alfa";
+    message[index]="A";
     message["beta"]=1;
     message["gamma"]=2.0f;
     message["delta"]=Variant::create_struct();

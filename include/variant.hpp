@@ -514,6 +514,7 @@ namespace edupals
                 throws InvalidType exception in case of type missmatch
             */
             Variant& operator[](const char* key);
+            Variant& operator[](char* key);
             Variant& operator[](std::string key);
             
             /*!
