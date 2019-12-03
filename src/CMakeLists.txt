@@ -8,7 +8,7 @@ set(source ${stable} ${unstable})
 
 add_library(edupals-base SHARED ${source})
 target_link_libraries(edupals-base stdc++fs pthread)
-set_target_properties(edupals-base PROPERTIES SOVERSION 1)
+set_target_properties(edupals-base PROPERTIES SOVERSION 1 VERSION "1.2.0")
 
 install(TARGETS edupals-base
     LIBRARY DESTINATION "lib"
