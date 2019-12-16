@@ -1,3 +1,9 @@
+edupals-base-toolkit (1.2.0.2) bionic; urgency=medium
+
+  * Added replace and conflict with deprecated binary package
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 16 Dec 2019 09:30:34 +0100
+
 edupals-base-toolkit (1.2.0.1) bionic; urgency=medium
 
   * Following soname debian policy
