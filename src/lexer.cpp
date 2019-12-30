@@ -89,12 +89,7 @@ bool Lexer::step()
     eat:
     
     if (!get_char(c)) {
-        if (!accepted) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return (accepted!=nullptr);
     }
     
     count=0;

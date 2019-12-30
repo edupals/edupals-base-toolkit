@@ -24,36 +24,35 @@
 
 #include <dfa.hpp>
 
+#include <limits>
 
 using namespace edupals::parser;
 using namespace std;
 
 DFA::DFA()
 {
-    capacity = 128;
-    stack = new int8_t[capacity];
 }
 
 DFA::~DFA()
 {
-    delete [] stack;
 }
 
 void DFA::reset()
 {
     last=0;
-    cursor=-1;
+    cursor= std::numeric_limits<size_t>::max();
     _accept=false;
     _end=false;
     _valid=true;
+    stack.clear();
 }
 
 string DFA::value()
 {
-    return string((const char*)stack,last+1);
+    return stack.substr(0,last+1);
 }
 
 size_t DFA::size()
 {
-    return cursor+1;
+    return stack.size();
 }

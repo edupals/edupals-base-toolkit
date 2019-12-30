@@ -32,7 +32,96 @@
 
 using namespace edupals::variant;
 using namespace edupals::parser;
+using namespace edupals::json;
 using namespace std;
+
+grammar::Parser::Parser()
+{
+    ws = new token::Group ({' ','\t','\n'});
+    lb = new token::Char('[');
+    rb = new token::Char(']');
+    lc = new token::Char('{');
+    rc = new token::Char('}');
+    colon = new token::Char(':');
+    comma = new token::Char(',');
+    float_num = new token::Float();
+    int_num = new token::Integer();
+    null = new token::Word("null");
+    str = new token::String();
+    boolean = new token::Boolean();
+    
+    lexer.add_token("WS",ws);
+    lexer.add_token("LEFT_BRACKET",lb);
+    lexer.add_token("RIGHT_BRACKET",rb);
+    lexer.add_token("LEFT_CURLY",lc);
+    lexer.add_token("RIGHT_CURLY",rc);
+    lexer.add_token("COLON",colon);
+    lexer.add_token("COMMA",comma);
+    
+    lexer.add_token("FLOAT",float_num);
+    lexer.add_token("INTEGER",int_num);
+    lexer.add_token("BOOLEAN",boolean);
+    
+    lexer.add_token("NULL",null);
+    lexer.add_token("STRING",str);
+}
+
+grammar::Parser::~Parser()
+{
+    
+}
+
+bool grammar::Parser::is_value(parser::DFA* token)
+{
+    if (token==float_num or token==int_num or token==str or token==boolean) {
+        return true;
+    }
+    
+    return false;
+}
+
+Variant grammar::Parser::get_value(parser::DFA* token)
+{
+    Variant tmp;
+    
+    if (token==float_num) {
+        tmp=static_cast<token::Float*>(dfa)->get_float();
+    }
+    
+    if (token==int_num) {
+        tmp=static_cast<token::Integer*>(dfa)->get_int();
+    }
+    
+    if (token==str) {
+        tmp=static_cast<token::String*>(dfa)->get_string();
+    }
+    
+    if (token==boolean) {
+        tmp=static_cast<token::Boolean*>(dfa)->get_bool();
+    }
+    
+    return tmp;
+}
+
+void grammar::Parser::push(ProductionType type)
+{
+    Production prod;
+    
+    prod.type=type;
+    prod.down=false;
+    
+    stack.push_back(prod);
+}
+
+void grammar::Parser::step(parser::DFA* token)
+{
+    /* ignore whitespaces */
+    if (token==ws) {
+        return;
+    }
+    
+    
+}
 
 void edupals::json::dump(Variant& value,ostream& stream)
 {

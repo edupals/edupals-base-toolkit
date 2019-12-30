@@ -42,7 +42,7 @@ void Word::start()
 
 void Word::step()
 {
-    if (cursor==match.size()) {
+    if (cursor>=match.size()) {
         _accept=false;
         _end=false;
     }
