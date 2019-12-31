@@ -122,17 +122,23 @@ void grammar::Parser::pop()
 
 void grammar::Parser::step(parser::DFA* token)
 {
+    
+    
     /* ignore whitespaces */
     if (token==ws) {
         return;
     }
     
+    clog<<lexer.get_token()<<endl;
+    
     Production& top = stack.back();
     
     bool value_ready=false;
+    clog<<"prod: "<<static_cast<int>(top.type)<<endl;
     
     /* value */
     if (is_value(token)) {
+        //clog<<"value:"<<lexer.get_token()<<endl;
         push(ProductionType::Value);
         Production& p=stack.back();
         p.value=get_value(token);
@@ -154,7 +160,7 @@ void grammar::Parser::step(parser::DFA* token)
     
     /* object */
     if (top.type==ProductionType::S0) {
-        
+        clog<<"s0"<<endl;
         top.value=Variant::create_struct();
         
         /* right curly */
@@ -171,6 +177,7 @@ void grammar::Parser::step(parser::DFA* token)
     }
     
     if (top.type==ProductionType::S1) {
+        clog<<"s1"<<endl;
         if (token==colon) {
             top.type=ProductionType::S2;
         }
@@ -179,8 +186,9 @@ void grammar::Parser::step(parser::DFA* token)
     }
     
     if (top.type==ProductionType::S2) {
-        
+        clog<<"s2:"<<lexer.get_token()<<endl;
         if (top.down) {
+            clog<<"pushing value: "<<last.value<<endl;
             top.value[top.key]=last.value;
             top.down=false;
         }
