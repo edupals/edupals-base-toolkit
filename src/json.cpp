@@ -85,19 +85,19 @@ Variant grammar::Parser::get_value(parser::DFA* token)
     Variant tmp;
     
     if (token==float_num) {
-        tmp=static_cast<token::Float*>(dfa)->get_float();
+        tmp=static_cast<token::Float*>(token)->get_float();
     }
     
     if (token==int_num) {
-        tmp=static_cast<token::Integer*>(dfa)->get_int();
+        tmp=static_cast<token::Integer*>(token)->get_int();
     }
     
     if (token==str) {
-        tmp=static_cast<token::String*>(dfa)->get_string();
+        tmp=static_cast<token::String*>(token)->get_string();
     }
     
     if (token==boolean) {
-        tmp=static_cast<token::Boolean*>(dfa)->get_bool();
+        tmp=static_cast<token::Boolean*>(token)->get_bool();
     }
     
     return tmp;
@@ -113,6 +113,13 @@ void grammar::Parser::push(ProductionType type)
     stack.push_back(prod);
 }
 
+void grammar::Parser::pop()
+{
+    last=stack.back();
+    stack.pop_back();
+    stack.back().down=true;
+}
+
 void grammar::Parser::step(parser::DFA* token)
 {
     /* ignore whitespaces */
@@ -120,7 +127,134 @@ void grammar::Parser::step(parser::DFA* token)
         return;
     }
     
+    Production& top = stack.back();
     
+    bool value_ready=false;
+    
+    /* value */
+    if (is_value(token)) {
+        push(ProductionType::Value);
+        Production& p=stack.back();
+        p.value=get_value(token);
+        pop();
+        value_ready=true;
+    }
+    
+    /* left curly */
+    if (token==lc) {
+        push(ProductionType::S0);
+        return;
+    }
+
+    /* left bracket */
+    if (token==lb) {
+        push(ProductionType::A0);
+        return;
+    }
+    
+    /* object */
+    if (top.type==ProductionType::S0) {
+        
+        top.value=Variant::create_struct();
+        
+        /* right curly */
+        if (token==rc) {
+            pop();
+        }
+        /* key */
+        if (token==str) {
+            top.key=static_cast<token::String*>(token)->get_string();;
+            top.type=ProductionType::S1;
+        }
+        
+        return;
+    }
+    
+    if (top.type==ProductionType::S1) {
+        if (token==colon) {
+            top.type=ProductionType::S2;
+        }
+        
+        return;
+    }
+    
+    if (top.type==ProductionType::S2) {
+        
+        if (top.down) {
+            top.value[top.key]=last.value;
+            top.down=false;
+        }
+        
+        if (token==comma) {
+            top.type=ProductionType::S3;
+        }
+        
+        if (token==rc) {
+            pop();
+        }
+        
+        return;
+    }
+    
+    if (top.type==ProductionType::S3) {
+        if (token==str) {
+            top.key=static_cast<token::String*>(token)->get_string();;
+            top.type=ProductionType::S1;
+        }
+        
+        return;
+    }
+    
+    /* array */
+    if (top.type==ProductionType::A0) {
+        top.value=Variant::create_array(0);
+        top.type=ProductionType::A1;
+    }
+    
+    if (top.type==ProductionType::A1) {
+        
+        if (top.down) {
+            top.value.append(last.value);
+            top.down=false;
+        }
+        
+        if (token==rb) {
+            pop();
+            return;
+        }
+        
+        if (token==comma) {
+            return;
+        }
+        
+    }
+}
+
+Variant grammar::Parser::parse(istream& stream)
+{
+    lexer.set_input(&stream);
+    
+    stack.clear();
+    
+    push(ProductionType::Value);
+    
+    while (lexer.step()) {
+        DFA* dfa = lexer.get_dfa();
+        step(dfa);
+    }
+    
+    if (!lexer.eof()) {
+        throw runtime_error("Unknown token");
+    }
+    else {
+        if (lexer.pending()) {
+            throw runtime_error("Unexpected EOF");
+        }
+    }
+    
+    Production& p=stack[1];
+    
+    return p.value;
 }
 
 void edupals::json::dump(Variant& value,ostream& stream)
@@ -196,94 +330,11 @@ void edupals::json::dump(Variant& value,ostream& stream)
     stream.flags(flags);
 }
 
-struct Production{
-    string name;
-    Variant value;
-    string key;
-    bool down;
-};
-
-struct Grammar
-{
-    
-    size_t pos;
-    Production* stack;
-    
-    Grammar()
-    {
-        pos=-1;
-        stack=new Production[64];
-    }
-    
-    void push(string name)
-    {
-        Production prod;
-        
-        prod.name=name;
-        pos++;
-        stack[pos]=prod;
-        stack[pos].down=false;
-        
-    }
-    
-    void pop()
-    {
-        pos--;
-        stack[pos].down=true;
-    }
-    
-    Production& top()
-    {
-        return stack[pos];
-    }
-    
-    Production& last()
-    {
-        return stack[pos+1];
-    }
-    
-};
-
-static bool is_value(string token)
-{
-    if (token=="INTEGER" or
-        token=="FLOAT" or
-        token=="STRING" or
-        token=="BOOLEAN"
-    ) {
-        return true;
-    }
-    
-    return false;
-}
-
-static Variant get_value(DFA* dfa,string token)
-{
-    Variant tmp;
-    
-    if (token=="INTEGER") {
-        tmp=static_cast<token::Integer*>(dfa)->get_int();
-    }
-    
-    if (token=="FLOAT") {
-        tmp=static_cast<token::Float*>(dfa)->get_float();
-    }
-    
-    if (token=="STRING") {
-        tmp=static_cast<token::String*>(dfa)->get_string();
-    }
-    
-    if (token=="BOOLEAN") {
-        tmp=static_cast<token::Boolean*>(dfa)->get_bool();
-    }
-    
-    return tmp;
-}
-
+/*
 static void on_step(DFA* dfa,string token,Grammar* grammar)
 {
     
-    /* ignoring whitespaces */
+    
     if (token=="WS") {
         return;
     }
@@ -389,10 +440,11 @@ static void on_step(DFA* dfa,string token,Grammar* grammar)
     }
     
 }
-
+*/
+    
 Variant edupals::json::load(istream& stream)
 {
-    
+    /*
     token::Group ws({' ','\t','\n'});
     token::Char lb('[');
     token::Char rb(']');
@@ -448,4 +500,9 @@ Variant edupals::json::load(istream& stream)
     Production& p=grammar.stack[1];
     
     return p.value;
+    */
+    
+    grammar::Parser parser;
+    
+    return parser.parse(stream);
 }

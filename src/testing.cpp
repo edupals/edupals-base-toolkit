@@ -438,6 +438,8 @@ bool test_variant()
 
 bool test_json()
 {
+    bool status = true;
+    
     Variant msg=Variant::create_struct();
     
     msg["status"]=true;
@@ -455,10 +457,35 @@ bool test_json()
     input<<" { \"alfa\" : 33 , \"beta\": 4.325, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
     Variant parsed=json::load(input);
     
+    try {
+        
+        Variant tmp;
+        
+        tmp = parsed/"alfa"/Type::Int32;
+        if (tmp.get_int32()!=33) {
+            status = false;
+        }
+        tmp = parsed/"beta"/Type::Double;
+        
+        if (tmp.get_double()<4.0 or tmp.get_double()>5.0) {
+            status = false;
+        }
+        tmp = parsed/"status"/Type::Boolean;
+        
+        if (tmp.get_boolean()==true) {
+            status = false;
+        }
+        
+        status = true;
+    }
+    catch(...) {
+        status = false;
+    }
+    
     json::dump(parsed,cout);
     cout<<endl;
     
-    return true;
+    return status;
 }
 
 bool test_bson()

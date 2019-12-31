@@ -39,6 +39,7 @@ namespace edupals
         {
             enum class ProductionType
             {
+                Value,
                 S0,
                 S1,
                 S2,
@@ -49,6 +50,8 @@ namespace edupals
             
             class Production
             {
+                public:
+                
                 ProductionType type;
                 variant::Variant value;
                 std::string key;
@@ -60,6 +63,7 @@ namespace edupals
                 
                 protected:
                 std::vector<Production> stack;
+                Production last;
                 
                 parser::DFA* ws;
                 parser::DFA* lb;
@@ -74,7 +78,7 @@ namespace edupals
                 parser::DFA* str;
                 parser::DFA* boolean;
                 
-                Lexer lexer;
+                parser::Lexer lexer;
                 
                 public:
                 
@@ -86,7 +90,11 @@ namespace edupals
                 
                 void push(ProductionType type);
                 
+                void pop();
+                
                 void step(parser::DFA* token);
+                
+                variant::Variant parse(std::istream& stream);
             };
         }
         
