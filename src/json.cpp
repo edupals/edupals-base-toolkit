@@ -69,7 +69,18 @@ grammar::Parser::Parser()
 
 grammar::Parser::~Parser()
 {
-    
+    delete ws;
+    delete lb;
+    delete rb;
+    delete lc;
+    delete rc;
+    delete colon;
+    delete comma;
+    delete float_num;
+    delete int_num;
+    delete null;
+    delete str;
+    delete boolean;
 }
 
 bool grammar::Parser::is_value(parser::DFA* token)
