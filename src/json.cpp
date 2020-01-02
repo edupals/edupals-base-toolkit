@@ -33,11 +33,12 @@
 using namespace edupals::variant;
 using namespace edupals::parser;
 using namespace edupals::json;
+using namespace edupals::json::exception;
 using namespace std;
 
 grammar::Parser::Parser()
 {
-    ws = new token::Group ({' ','\t','\n'});
+    ws = new token::Group ({' ','\t','\n','\r'});
     lb = new token::Char('[');
     rb = new token::Char(']');
     lc = new token::Char('{');
@@ -73,7 +74,7 @@ grammar::Parser::~Parser()
 
 bool grammar::Parser::is_value(parser::DFA* token)
 {
-    if (token==float_num or token==int_num or token==str or token==boolean) {
+    if (token==float_num or token==int_num or token==str or token==boolean or token==null) {
         return true;
     }
     
@@ -100,6 +101,10 @@ Variant grammar::Parser::get_value(parser::DFA* token)
         tmp=static_cast<token::Boolean*>(token)->get_bool();
     }
     
+    if (token==null) {
+        //nothing to do
+    }
+    
     return tmp;
 }
 
@@ -123,119 +128,149 @@ void grammar::Parser::pop()
 void grammar::Parser::step(parser::DFA* token)
 {
     
-    
     /* ignore whitespaces */
     if (token==ws) {
         return;
     }
     
-    clog<<lexer.get_token()<<endl;
-    
     Production& top = stack.back();
-    
-    bool value_ready=false;
-    clog<<"prod: "<<static_cast<int>(top.type)<<endl;
-    
-    /* value */
-    if (is_value(token)) {
-        //clog<<"value:"<<lexer.get_token()<<endl;
-        push(ProductionType::Value);
-        Production& p=stack.back();
-        p.value=get_value(token);
-        pop();
-        value_ready=true;
-    }
-    
-    /* left curly */
-    if (token==lc) {
-        push(ProductionType::S0);
-        return;
-    }
-
-    /* left bracket */
-    if (token==lb) {
-        push(ProductionType::A0);
-        return;
-    }
-    
-    /* object */
-    if (top.type==ProductionType::S0) {
-        clog<<"s0"<<endl;
-        top.value=Variant::create_struct();
+    /*
+    clog<<"production: "<<static_cast<int>(top.type)<<endl;
+    clog<<"token: "<<lexer.get_token()<<endl;
+    clog<<"value: "<<token->value()<<endl<<endl;
+    */
+    if (top.type==ProductionType::Object0) {
         
-        /* right curly */
+        if (token==lc) {
+            top.value=Variant::create_struct();
+            top.type=ProductionType::Object1;
+            
+            return;
+        }
+        
+        throw SyntaxError("Expected { but got "+token->value());
+    }
+    
+    if (top.type==ProductionType::Object1) {
+        
         if (token==rc) {
             pop();
+            return;
         }
-        /* key */
+        
         if (token==str) {
-            top.key=static_cast<token::String*>(token)->get_string();;
-            top.type=ProductionType::S1;
+            top.key=static_cast<token::String*>(token)->get_string();
+            top.type=ProductionType::Object2;
+            return;
         }
         
-        return;
+        throw SyntaxError("Expected } or string but got "+token->value());
     }
     
-    if (top.type==ProductionType::S1) {
-        clog<<"s1"<<endl;
+    if (top.type==ProductionType::Object2) {
+        
         if (token==colon) {
-            top.type=ProductionType::S2;
+            top.type=ProductionType::Object3;
+            return;
         }
         
-        return;
+        throw SyntaxError("Expected : but got "+token->value());
     }
     
-    if (top.type==ProductionType::S2) {
-        clog<<"s2:"<<lexer.get_token()<<endl;
-        if (top.down) {
-            clog<<"pushing value: "<<last.value<<endl;
-            top.value[top.key]=last.value;
-            top.down=false;
+    if (top.type==ProductionType::Object3) {
+        if (is_value(token)) {
+            last.value=get_value(token);
+            top.type=ProductionType::Object4;
+            return;
         }
+        
+        if (token==lc) {
+            top.type=ProductionType::Object4;
+            push(ProductionType::Object1);
+            stack.back().value=Variant::create_struct();
+            
+            return;
+        }
+        
+        if (token==lb) {
+            top.type=ProductionType::Object4;
+            push(ProductionType::Array0);
+            stack.back().value=Variant::create_array(0);
+            
+            return;
+        }
+        
+        throw SyntaxError("Expected value but got "+token->value());
+    }
+    
+    if (top.type==ProductionType::Object4) {
         
         if (token==comma) {
-            top.type=ProductionType::S3;
+            top.value[top.key]=last.value;
+            top.type=ProductionType::Object1;
+            return;
         }
         
         if (token==rc) {
+            top.value[top.key]=last.value;
             pop();
+            return;
         }
         
-        return;
+        throw SyntaxError("Expected } or , but got "+token->value());
     }
     
-    if (top.type==ProductionType::S3) {
-        if (token==str) {
-            top.key=static_cast<token::String*>(token)->get_string();;
-            top.type=ProductionType::S1;
-        }
+    if (top.type==ProductionType::Array0) {
         
-        return;
-    }
-    
-    /* array */
-    if (top.type==ProductionType::A0) {
-        top.value=Variant::create_array(0);
-        top.type=ProductionType::A1;
-    }
-    
-    if (top.type==ProductionType::A1) {
-        
-        if (top.down) {
-            top.value.append(last.value);
-            top.down=false;
+        if (is_value(token)) {
+            last.value=get_value(token);
+            top.type=ProductionType::Array1;
+            return;
         }
         
         if (token==rb) {
             pop();
+            
             return;
         }
         
-        if (token==comma) {
+        if (token==lc) {
+            top.type=ProductionType::Array1;
+            push(ProductionType::Object1);
+            stack.back().value=Variant::create_struct();
+            
             return;
         }
         
+        if (token==lb) {
+            top.type=ProductionType::Array1;
+            push(ProductionType::Array0);
+            stack.back().value=Variant::create_array(0);
+            
+            return;
+        }
+        
+        throw SyntaxError("Expected ] or value but got "+token->value());
     }
+    
+    if (top.type==ProductionType::Array1) {
+        if (token==comma) {
+            top.value.append(last.value);
+            top.type=ProductionType::Array0;
+            
+            return;
+        }
+        
+        if (token==rb) {
+            top.value.append(last.value);
+            pop();
+            
+            return;
+        }
+        
+        throw SyntaxError("Expected , or ] but got "+token->value());
+    }
+    
 }
 
 Variant grammar::Parser::parse(istream& stream)
@@ -244,7 +279,7 @@ Variant grammar::Parser::parse(istream& stream)
     
     stack.clear();
     
-    push(ProductionType::Value);
+    push(ProductionType::Object0);
     
     while (lexer.step()) {
         DFA* dfa = lexer.get_dfa();
@@ -260,9 +295,7 @@ Variant grammar::Parser::parse(istream& stream)
         }
     }
     
-    Production& p=stack[1];
-    
-    return p.value;
+    return last.value;
 }
 
 void edupals::json::dump(Variant& value,ostream& stream)
@@ -337,179 +370,9 @@ void edupals::json::dump(Variant& value,ostream& stream)
     
     stream.flags(flags);
 }
-
-/*
-static void on_step(DFA* dfa,string token,Grammar* grammar)
-{
-    
-    
-    if (token=="WS") {
-        return;
-    }
-    
-    Production& top = grammar->top();
-    
-    //clog<<"production "<<top.name<<" token "<<token<<endl;
-    
-    bool value_ready=false;
-    
-    if (is_value(token)) {
-        grammar->push("value");
-        Production& p=grammar->top();
-        p.value=get_value(dfa,token);
-        grammar->pop();
-        value_ready=true;
-    }
-    
-    if (token=="LEFT_CURLY") {
-        grammar->push("s0");
-        return;
-    }
-
-    if (token=="LEFT_BRACKET") {
-        grammar->push("a0");
-        return;
-    }
-    
-    if (top.name=="s0") {
-        
-        top.value=Variant::create_struct();
-        
-        if (token=="RIGHT_CURLY") {
-            grammar->pop();
-        }
-        
-        if (token=="STRING") {
-            top.key=static_cast<token::String*>(dfa)->get_string();;
-            top.name="s1";
-        }
-        
-        return;
-    }
-    
-    if (top.name=="s1") {
-        if (token=="COLON") {
-            top.name="s2";
-        }
-        
-        return;
-    }
-    
-    if (top.name=="s2") {
-        
-        if (top.down) {
-            Variant tmp=grammar->last().value;
-            top.value[top.key]=tmp;
-            top.down=false;
-        }
-        
-        if (token=="COMMA") {
-            top.name="s3";
-        }
-        
-        if (token=="RIGHT_CURLY") {
-            grammar->pop();
-        }
-        
-        return;
-    }
-    
-    if (top.name=="s3") {
-        if (token=="STRING") {
-            top.key=static_cast<token::String*>(dfa)->get_string();;
-            top.name="s1";
-        }
-        
-        return;
-    }
-    
-    if (top.name=="a0") {
-        top.value=Variant::create_array(0);
-        top.name="a1";
-    }
-    
-    if (top.name=="a1") {
-        
-        if (top.down) {
-            top.value.append();
-            top.value[top.value.count()-1]=grammar->last().value;
-            top.down=false;
-        }
-        
-        if (token=="RIGHT_BRACKET") {
-            grammar->pop();
-            return;
-        }
-        
-        if (token=="COMMA") {
-            return;
-        }
-        
-    }
-    
-}
-*/
     
 Variant edupals::json::load(istream& stream)
 {
-    /*
-    token::Group ws({' ','\t','\n'});
-    token::Char lb('[');
-    token::Char rb(']');
-    token::Char lc('{');
-    token::Char rc('}');
-    token::Char colon(':');
-    token::Char comma(',');
-    token::Float float_num;
-    token::Integer int_num;
-    token::Word null("null");
-    token::String str;
-    token::Boolean boolean;
-    
-    Lexer lexer;
-    
-    lexer.add_token("WS",&ws);
-    lexer.add_token("LEFT_BRACKET",&lb);
-    lexer.add_token("RIGHT_BRACKET",&rb);
-    lexer.add_token("LEFT_CURLY",&lc);
-    lexer.add_token("RIGHT_CURLY",&rc);
-    lexer.add_token("COLON",&colon);
-    lexer.add_token("COMMA",&comma);
-    
-    lexer.add_token("FLOAT",&float_num);
-    lexer.add_token("INTEGER",&int_num);
-    lexer.add_token("BOOLEAN",&boolean);
-    
-    lexer.add_token("NULL",&null);
-    lexer.add_token("STRING",&str);
-    
-    lexer.set_input(&stream);
-    
-    Grammar grammar;
-    grammar.push("value");
-    
-    while (lexer.step()) {
-        DFA* dfa = lexer.get_dfa();
-        string token = lexer.get_token();
-        
-        on_step(dfa,token,&grammar);
-        
-    }
-    
-    if (!lexer.eof()) {
-        throw runtime_error("Unknown token");
-    }
-    else {
-        if (lexer.pending()) {
-            throw runtime_error("Unexpected EOF");
-        }
-    }
-    
-    Production& p=grammar.stack[1];
-    
-    return p.value;
-    */
-    
     grammar::Parser parser;
     
     return parser.parse(stream);

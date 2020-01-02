@@ -30,16 +30,44 @@
 
 #include <ostream>
 #include <vector>
+#include <exception>
 
 namespace edupals
 {
     namespace json
     {
+        namespace exception
+        {
+            class SyntaxError : public std::exception
+            {
+                public:
+                
+                std::string message;
+                
+                SyntaxError(std::string message)
+                {
+                    this->message=message;
+                }
+                
+                const char* what () const throw ()
+                {
+                    return message.c_str();
+                }
+            };
+        }
+        
         namespace grammar
         {
             enum class ProductionType
             {
-                Value,
+                Object0,
+                Object1,
+                Object2,
+                Object3,
+                Object4,
+                Value0,
+                Array0,
+                Array1,
                 S0,
                 S1,
                 S2,

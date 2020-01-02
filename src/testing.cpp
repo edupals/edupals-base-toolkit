@@ -465,9 +465,8 @@ bool test_json()
         if (tmp.get_int32()!=33) {
             status = false;
         }
-        tmp = parsed/"beta"/Type::Double;
-        
-        if (tmp.get_double()<4.0 or tmp.get_double()>5.0) {
+        tmp = parsed/"beta"/Type::Float;
+        if (tmp.get_float()<4.0f or tmp.get_float()>5.0f) {
             status = false;
         }
         tmp = parsed/"status"/Type::Boolean;
