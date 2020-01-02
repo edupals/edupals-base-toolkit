@@ -27,6 +27,8 @@
 #include "console.hpp"
 
 #include <iostream>
+#include <ostream>
+#include <sstream>
 #include <string>
 
 #define debug dbg<<__FILE__<<" "<<__LINE__<<":"
@@ -42,7 +44,7 @@ namespace edupals
             - outputs to stderr (unoptimized now)
             - custom header
         */
-        class SyncBuf : public std::streambuf
+        class SyncBuf : public std::stringbuf
         {
             public:
             
@@ -53,7 +55,8 @@ namespace edupals
             std::string header;
             std::string back;
             
-            int overflow (int c = EOF) override;
+            //int overflow (int c = EOF) override;
+            int sync() override;
         };
 
         /*! debug stream (better use debug macro) */

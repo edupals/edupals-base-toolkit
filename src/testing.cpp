@@ -577,6 +577,8 @@ int main (int argc,char* argv[])
     //base64
     tests["base64"].push_back(Test("base64",test_base64));
     
+    //base64
+    tests["log"].push_back(Test("log",test_log));
     
     cmd::ArgumentParser parser;
     cmd::ParseResult result;

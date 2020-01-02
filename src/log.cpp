@@ -23,16 +23,13 @@
 
 #include "log.hpp"
 
-#include <atomic>
-#include <thread>
 #include <mutex>
 
 using namespace edupals;
 using namespace edupals::log;
 using namespace std;
 
-thread_local bool locked = false;
-mutex output;
+std::mutex io_mutex;
 
 SyncBuf dbg_buf(string(console::style::dim)+"[debug] ");
 SyncBuf info_buf("");
@@ -55,24 +52,12 @@ SyncBuf::SyncBuf(string header)
     
 }
 
-int SyncBuf::overflow (int c)
+int SyncBuf::sync()
 {
+    std::lock_guard<std::mutex> lock(io_mutex);
     
-    if (!locked) {
-        output.lock();
-        locked=true;
-        cerr<<header;
-    }
+    cerr<<header<<str()<<back<<std::flush;
+    str("");
     
-    cerr.put(c);
-    
-    if (c=='\n') {
-        cerr<<back;
-        locked=false;
-        output.unlock();
-    }
-    
-    return c;
+    return 0;
 }
-
-
