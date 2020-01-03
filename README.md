@@ -11,3 +11,6 @@ Actually the following modules are working:
 * filesystem: some fs goodies, as glob
 * network: list network devices. Get IP status will come soon
 * system: get processes, kernel version, boot parameters, loaded modules,...
+* variant: Dynamic easy to use Variant class (int, float, string, array, structure, ...)
+* json: simple json loader/dump
+* bson: simple bson loader/dump
