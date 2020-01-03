@@ -23,41 +23,46 @@
 
 #include "log.hpp"
 
-#include <mutex>
-
 using namespace edupals;
 using namespace edupals::log;
 using namespace std;
 
-std::mutex io_mutex;
+std::mutex SyncBuf::io_mutex;
 
-SyncBuf dbg_buf(string(console::style::dim)+"[debug] ");
-SyncBuf info_buf("");
-SyncBuf notice_buf(string(console::fg::blue)+
-                    string(console::style::bold));
-                    
-SyncBuf warning_buf(string(console::fg::yellow)+"[warning] ");
-SyncBuf error_buf(string(console::fg::red)+"[error] ");
-
-ostream edupals::log::dbg(&dbg_buf);
-ostream edupals::log::info(&info_buf);
-ostream edupals::log::notice(&notice_buf);
-ostream edupals::log::warning(&warning_buf);
-ostream edupals::log::error(&error_buf);
+SyncBuf::SyncBuf()
+{
+}
 
 SyncBuf::SyncBuf(string header)
 {
-    this->header=header;
-    back=console::reset::all;
-    
+    set_header(header);
 }
 
 int SyncBuf::sync()
 {
-    std::lock_guard<std::mutex> lock(io_mutex);
+    std::lock_guard<std::mutex> lock(SyncBuf::io_mutex);
     
     cerr<<header<<str()<<back<<std::flush;
     str("");
     
     return 0;
+}
+
+void SyncBuf::set_header(string header)
+{
+    this->header=header;
+    back=console::reset::all;
+}
+
+
+Log::Log(): std::ostream(&buffer)
+{
+}
+
+Log::Log(string header): buffer(header),std::ostream(&buffer)
+{
+}
+
+Log::Log(string format,string header): buffer(format+header), std::ostream(&buffer)
+{
 }

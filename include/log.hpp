@@ -30,6 +30,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <mutex>
 
 #define debug dbg<<__FILE__<<" "<<__LINE__<<":"
 
@@ -37,42 +38,43 @@ namespace edupals
 {
     namespace log
     {
+        
         /*!
-            Custom std::streambuf with folowing features:
-            - Thread safe, output is granted from start to first
-            end line character
-            - outputs to stderr (unoptimized now)
+            Custom std::stringbuf with folowing features:
+            - Object must be thread local to work properly
+            - outputs to stderr synchronized (mutex) at flush event
             - custom header
         */
         class SyncBuf : public std::stringbuf
         {
             public:
             
+            SyncBuf();
             SyncBuf(std::string header);
             
+            void set_header(std::string header);
+            
             protected:
+            
+            static std::mutex io_mutex;
             
             std::string header;
             std::string back;
             
-            //int overflow (int c = EOF) override;
             int sync() override;
         };
-
-        /*! debug stream (better use debug macro) */
-        extern std::ostream dbg;
         
-        /*! common output messages */
-        extern std::ostream info;
-        
-        /*! blue output messages */
-        extern std::ostream notice;
-        
-        /*!  yellow warnings */
-        extern std::ostream warning;
-        
-        /*! red errors */
-        extern std::ostream error;
+        class Log : public std::ostream
+        {
+            public:
+            
+            SyncBuf buffer;
+            
+            Log();
+            Log(std::string header);
+            Log(std::string style, std::string header);
+            
+        };
     }
 }
 
