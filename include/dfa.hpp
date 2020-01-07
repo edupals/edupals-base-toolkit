@@ -36,10 +36,10 @@ namespace edupals
         {
             protected:
             
-            int8_t* stack;
+            std::string stack;
             size_t capacity;
-            int cursor;
-            int last;
+            size_t cursor;
+            size_t last;
             bool _accept;
             bool _end;
             bool _valid;
@@ -56,20 +56,9 @@ namespace edupals
             */
             void push(int8_t c)
             {
-                if (cursor==capacity) {
-                    size_t new_capacity=capacity*1.5f;
-                    int8_t* tmp = new int8_t[new_capacity];
-                    
-                    std::memcpy(tmp,stack,capacity);
-                    
-                    delete [] stack;
-                    stack=tmp;
-                    capacity=new_capacity;
-                }
-                
                 cursor++;
-                stack[cursor]=c;
-
+                stack.push_back(c);
+                
                 if (cursor==0) {
                     start();
                 }
@@ -78,7 +67,7 @@ namespace edupals
                 }
                 
                 if (_end) {
-                    last=cursor;
+                    last=stack.size()-1;
                 }
                 
                 _valid=_accept;

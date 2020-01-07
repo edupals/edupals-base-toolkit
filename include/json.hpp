@@ -25,13 +25,107 @@
 #define EDUPALS_JSON
 
 #include "variant.hpp"
+#include "token.hpp"
+#include "lexer.hpp"
 
 #include <ostream>
+#include <vector>
+#include <exception>
 
 namespace edupals
 {
     namespace json
     {
+        namespace exception
+        {
+            class SyntaxError : public std::exception
+            {
+                public:
+                
+                std::string message;
+                
+                SyntaxError(std::string message)
+                {
+                    this->message=message;
+                }
+                
+                const char* what () const throw ()
+                {
+                    return message.c_str();
+                }
+            };
+        }
+        
+        namespace grammar
+        {
+            enum class ProductionType
+            {
+                Object0,
+                Object1,
+                Object2,
+                Object3,
+                Object4,
+                Value0,
+                Array0,
+                Array1,
+                S0,
+                S1,
+                S2,
+                S3,
+                A0,
+                A1
+            };
+            
+            class Production
+            {
+                public:
+                
+                ProductionType type;
+                variant::Variant value;
+                std::string key;
+                bool down;
+            };
+            
+            class Parser
+            {
+                
+                protected:
+                std::vector<Production> stack;
+                Production last;
+                
+                parser::DFA* ws;
+                parser::DFA* lb;
+                parser::DFA* rb;
+                parser::DFA* lc;
+                parser::DFA* rc;
+                parser::DFA* colon;
+                parser::DFA* comma;
+                parser::DFA* float_num;
+                parser::DFA* int_num;
+                parser::DFA* null;
+                parser::DFA* str;
+                parser::DFA* boolean;
+                
+                parser::Lexer lexer;
+                
+                public:
+                
+                Parser();
+                virtual ~Parser();
+                
+                bool is_value(parser::DFA* token);
+                variant::Variant get_value(parser::DFA* token);
+                
+                void push(ProductionType type);
+                
+                void pop();
+                
+                void step(parser::DFA* token);
+                
+                variant::Variant parse(std::istream& stream);
+            };
+        }
+        
         void dump(variant::Variant& value,std::ostream& stream);
         variant::Variant load(std::istream& stream);
     }
