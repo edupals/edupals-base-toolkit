@@ -317,29 +317,21 @@ bool test_parser()
 
 bool test_log()
 {
-    log::info<<"Testing colors:"<<endl<<endl;
-    
-    log::debug<<"testing debug"<<endl;
-    log::info<<"testing info"<<endl;
-    log::notice<<"testing notice"<<endl;
-    log::warning<<"testing warning"<<endl;
-    log::error<<"testing error"<<endl;
-    
-    log::info<<endl<<"Testing locks:"<<endl<<endl;
-
     std::thread workers[4];
-    
     
     for (int n=0;n<4;n++) {
         workers[n]=std::thread([]() {
-            log::notice<<"Created thread"<<endl;
+            stringstream s;
+            s<<"["<<std::this_thread::get_id()<<"] ";
+            log::Log out(console::fg::blue,s.str());
+            out<<"created thread"<<endl;
             
             for (int m=0;m<10;m++) {
-                log::debug<<"* "<<m<<endl;
+                out<<"* "<<m<<endl;
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
             
-            log::warning<<"bye"<<endl;
+            out<<"bye"<<endl;
         }
         );
         
@@ -577,6 +569,8 @@ int main (int argc,char* argv[])
     //base64
     tests["base64"].push_back(Test("base64",test_base64));
     
+    //base64
+    tests["log"].push_back(Test("log",test_log));
     
     cmd::ArgumentParser parser;
     cmd::ParseResult result;

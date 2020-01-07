@@ -23,56 +23,45 @@
 
 #include "log.hpp"
 
-#include <atomic>
-#include <thread>
-#include <mutex>
-
 using namespace edupals;
 using namespace edupals::log;
 using namespace std;
 
-thread_local bool locked = false;
-mutex output;
+std::mutex SyncBuf::io_mutex;
 
-SyncBuf dbg_buf(string(console::style::dim)+"[debug] ");
-SyncBuf info_buf("");
-SyncBuf notice_buf(string(console::fg::blue)+
-                    string(console::style::bold));
-                    
-SyncBuf warning_buf(string(console::fg::yellow)+"[warning] ");
-SyncBuf error_buf(string(console::fg::red)+"[error] ");
-
-ostream edupals::log::dbg(&dbg_buf);
-ostream edupals::log::info(&info_buf);
-ostream edupals::log::notice(&notice_buf);
-ostream edupals::log::warning(&warning_buf);
-ostream edupals::log::error(&error_buf);
+SyncBuf::SyncBuf()
+{
+}
 
 SyncBuf::SyncBuf(string header)
 {
+    set_header(header);
+}
+
+int SyncBuf::sync()
+{
+    std::lock_guard<std::mutex> lock(SyncBuf::io_mutex);
+    
+    cerr<<header<<str()<<back<<std::flush;
+    str("");
+    
+    return 0;
+}
+
+void SyncBuf::set_header(string header)
+{
     this->header=header;
     back=console::reset::all;
-    
 }
 
-int SyncBuf::overflow (int c)
+Log::Log(): std::ostream(&buffer)
 {
-    
-    if (!locked) {
-        output.lock();
-        locked=true;
-        cerr<<header;
-    }
-    
-    cerr.put(c);
-    
-    if (c=='\n') {
-        cerr<<back;
-        locked=false;
-        output.unlock();
-    }
-    
-    return c;
 }
 
+Log::Log(string header): buffer(header),std::ostream(&buffer)
+{
+}
 
+Log::Log(string format,string header): buffer(format+header), std::ostream(&buffer)
+{
+}
