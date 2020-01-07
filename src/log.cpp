@@ -54,7 +54,6 @@ void SyncBuf::set_header(string header)
     back=console::reset::all;
 }
 
-
 Log::Log(): std::ostream(&buffer)
 {
 }

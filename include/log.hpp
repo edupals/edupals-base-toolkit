@@ -32,8 +32,6 @@
 #include <string>
 #include <mutex>
 
-#define debug dbg<<__FILE__<<" "<<__LINE__<<":"
-
 namespace edupals
 {
     namespace log
@@ -71,7 +69,15 @@ namespace edupals
             SyncBuf buffer;
             
             Log();
+            
+            /*!
+                Creates a logger with a header (prepended at flush)
+            */
             Log(std::string header);
+            
+            /*!
+                Creates a logger with a header and a console style (fg/bg color)
+            */
             Log(std::string style, std::string header);
             
         };
