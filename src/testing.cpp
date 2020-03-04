@@ -114,14 +114,14 @@ bool test_system_cmdline()
 
 bool test_system_memory()
 {
-    clog<<"* total memory: "<<system::get_total_memory()/1024<<" kB"<<endl;
-    clog<<"* free memory: "<<system::get_free_memory()/1024<<" kB"<<endl;
+    clog<<"* total memory: "<<system::total_memory()/1024<<" kB"<<endl;
+    clog<<"* free memory: "<<system::free_memory()/1024<<" kB"<<endl;
     return true;
 }
 
-bool test_system_get_modules()
+bool test_system_modules()
 {
-    vector<string> modules = system::get_modules();
+    vector<string> modules = system::modules();
     
     clog<<"* modules:"<<endl;
     for (string& module : modules) {
@@ -131,9 +131,9 @@ bool test_system_get_modules()
     return true;
 }
 
-bool test_system_get_pids()
+bool test_system_pids()
 {
-    vector<int32_t> pids = system::get_pids();
+    vector<int32_t> pids = system::pids();
     
     clog<<"Process id:"<<endl;
     
@@ -149,10 +149,10 @@ bool test_process()
     system::Process p;
     
     clog<<"* process:"<<endl;
-    clog<<"    - cmdline: ["<<p.get_cmdline()<<"]"<<endl;
-    clog<<"    - comm: ["<<p.get_comm()<<"]"<<endl;
-    clog<<"    - state: ["<<p.get_state()<<"]"<<endl;
-    clog<<"    - ppid: ["<<p.get_ppid()<<"]"<<endl;
+    clog<<"    - cmdline: ["<<p.cmdline()<<"]"<<endl;
+    clog<<"    - comm: ["<<p.comm()<<"]"<<endl;
+    clog<<"    - state: ["<<p.state()<<"]"<<endl;
+    clog<<"    - ppid: ["<<p.ppid()<<"]"<<endl;
     
     return true;
 }
@@ -577,8 +577,10 @@ int main (int argc,char* argv[])
     tests["system"].push_back(Test("uptime",test_system_uptime));
     tests["system"].push_back(Test("cmdline",test_system_cmdline));
     tests["system"].push_back(Test("memory",test_system_memory));
-    tests["system"].push_back(Test("get_pids",test_system_get_pids));
-    tests["system"].push_back(Test("get_modules",test_system_get_modules));
+    tests["system"].push_back(Test("pids",test_system_pids));
+    tests["system"].push_back(Test("modules",test_system_modules));
+    
+    tests["process"].push_back(Test("process",test_process));
     
     //parser
     tests["parser"].push_back(Test("parser",test_parser));

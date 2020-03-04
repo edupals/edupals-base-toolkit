@@ -45,14 +45,14 @@ static void read_single_line(string path,string& dest)
     file.close();
 }
 
-Process::Process()
+Process::Process() : m_pid(-1)
 {
-    pid=-1;
+    
 }
 
-Process::Process(int32_t pid)
+Process::Process(int32_t pid) : m_pid(pid)
 {
-    this->pid=pid;
+    
 }
 
 Process Process::me()
@@ -65,47 +65,45 @@ Process Process::parent()
     return Process(getppid());
 }
 
-vector<Process> Process::get_process_list()
+vector<Process> Process::list()
 {
     vector<Process> ret;
-    vector<int32_t> pids = system::get_pids();
+    vector<int32_t> pids = system::pids();
     
-    for (int32_t pid:pids) {
-        ret.push_back(Process(pid));
+    for (int32_t p:pids) {
+        ret.push_back(Process(p));
     }
     
     return ret;
 }
 
-string Process::get_proc()
+string Process::proc()
 {
     string path;
     
-    if (pid<0) {
+    if (m_pid<0) {
         path="/proc/self";
     }
     else {
-        path="/proc/"+to_string(pid);
+        path="/proc/"+to_string(m_pid);
     }
     
     return path;
 }
 
-string Process::get_name()
+string Process::name()
 {
-    string cmdline = get_cmdline();
+    string tmp = cmdline();
     
-    return cmdline.substr(0,cmdline.find(' ',0));
+    return tmp.substr(0,tmp.find(' ',0));
 }
 
-string Process::get_cmdline()
+string Process::cmdline()
 {
-
     string dest;
     
-    string path=get_proc()+"/cmdline";
-    
-    
+    string path=proc()+"/cmdline";
+     
     ifstream file;
     
     file.open(path.c_str());
@@ -126,9 +124,9 @@ string Process::get_cmdline()
     return dest;
 }
 
-string Process::get_comm()
+string Process::comm()
 {
-    string path = get_proc()+"/comm";
+    string path = proc()+"/comm";
     string dest;
     
     read_single_line(path,dest);
@@ -136,9 +134,9 @@ string Process::get_comm()
     return dest;
 }
 
-char Process::get_state()
+char Process::state()
 {
-    string path = get_proc()+"/stat";
+    string path = proc()+"/stat";
     string dest;
     
     read_single_line(path,dest);
@@ -148,14 +146,14 @@ char Process::get_state()
     return dest[p+1];
 }
 
-int32_t Process::get_pid()
+int32_t Process::pid()
 {
-    return this->pid;
+    return m_pid;
 }
 
-int32_t Process::get_ppid()
+int32_t Process::ppid()
 {
-    string path = get_proc()+"/stat";
+    string path = proc()+"/stat";
     string dest;
     
     read_single_line(path,dest);
@@ -172,7 +170,7 @@ int32_t Process::get_ppid()
 
 bool Process::exists()
 {
-    int ret=kill(pid,0);
+    int ret=kill(m_pid,0);
     
     return (ret==0);
 }

@@ -53,25 +53,25 @@ namespace edupals
             Gets installed RAM
             \return ram size in bytes
         */
-        uint64_t get_total_memory();
+        uint64_t total_memory();
         
         /*!
             Gets current free ram
             \return free ram in bytes
         */
-        uint64_t get_free_memory();
+        uint64_t free_memory();
         
         /*!
             Gets loaded kernel modules
             \return vector of module names
         */
-        std::vector<std::string> get_modules();
+        std::vector<std::string> modules();
         
         /*!
             Gets current list of process IDs
             \return vector with PID
         */
-        std::vector<int32_t> get_pids();
+        std::vector<int32_t> pids();
     }
 }
 

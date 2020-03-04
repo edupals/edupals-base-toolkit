@@ -37,7 +37,7 @@ namespace edupals
         {
             protected:
             
-            int32_t pid;
+            int32_t m_pid;
             
             public:
             
@@ -62,35 +62,35 @@ namespace edupals
             /*!
                 Gets a list with runing processes
             */
-            static std::vector<Process> get_process_list();
+            static std::vector<Process> list();
             
             /*!
                 Get full proc path
             */
-            std::string get_proc();
+            std::string proc();
             
             /*!
                 Get process name
             */
-            std::string get_name();
+            std::string name();
             
             /*!
                 Get complete process cmd line
             */
-            std::string get_cmdline();
-            std::string get_comm();
+            std::string cmdline();
+            std::string comm();
             
-            char get_state();
+            char state();
             
             /*!
                 Get process pid
             */
-            int32_t get_pid();
+            int32_t pid();
             
             /*!
                 Get parent process pid
             */
-            int32_t get_ppid();
+            int32_t ppid();
             
             /*!
                 Check if the process exists
