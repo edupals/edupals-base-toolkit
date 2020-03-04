@@ -27,6 +27,7 @@
 #include <filesystem.hpp>
 #include <cmd.hpp>
 #include <process.hpp>
+#include <user.hpp>
 #include <workqueue.hpp>
 #include <token.hpp>
 #include <lexer.hpp>
@@ -153,6 +154,19 @@ bool test_process()
     clog<<"    - comm: ["<<p.comm()<<"]"<<endl;
     clog<<"    - state: ["<<p.state()<<"]"<<endl;
     clog<<"    - ppid: ["<<p.ppid()<<"]"<<endl;
+    
+    return true;
+}
+
+bool test_user()
+{
+    system::User user(1000);
+    
+    clog<<"user 1000:"<<endl;
+    clog<<"\tname:"<<user.name<<endl;
+    clog<<"\tgecos:"<<user.gecos<<endl;
+    clog<<"\tdir:"<<user.dir<<endl;
+    clog<<"\tshell:"<<user.shell<<endl;
     
     return true;
 }
@@ -581,6 +595,8 @@ int main (int argc,char* argv[])
     tests["system"].push_back(Test("modules",test_system_modules));
     
     tests["process"].push_back(Test("process",test_process));
+    
+    tests["user"].push_back(Test("user",test_user));
     
     //parser
     tests["parser"].push_back(Test("parser",test_parser));

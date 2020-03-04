@@ -3,7 +3,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 add_definitions(-std=c++1z )
 
 set(stable log.cpp cmd.cpp system.cpp variant.cpp)
-set(unstable network.cpp process.cpp filesystem.cpp dfa.cpp token.cpp lexer.cpp json.cpp bson.cpp base64.cpp)
+set(unstable network.cpp process.cpp filesystem.cpp dfa.cpp token.cpp lexer.cpp json.cpp bson.cpp base64.cpp user.cpp)
 set(source ${stable} ${unstable})
 
 add_library(edupals-base SHARED ${source})
