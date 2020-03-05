@@ -28,6 +28,7 @@
 
 #include <string>
 #include <exception>
+#include <vector>
 
 namespace edupals
 {
@@ -39,7 +40,7 @@ namespace edupals
             {
                 public:
                 
-                const char * what () const throw ()
+                const char* what () const throw ()
                 {
                     return "User not found";
                 }
@@ -54,17 +55,40 @@ namespace edupals
             
             public:
             
+            /*! user name */
             std::string name;
+            
+            /*! user password, usually blank */
             std::string password;
+            
+            /*! unix user id */
             uid_t uid;
+            
+            /*! unix user main group id */
             gid_t gid;
+            
+            /*! see: https://en.wikipedia.org/wiki/Gecos_field */
             std::string gecos;
-            std::string dir;
+            
+            /*! user home */
+            std::string home;
+            
+            /*! shell binary path */
             std::string shell;
             
+            /*! Create user from posix passwd struct */
             User(struct passwd* pw);
+            
+            /*! Create user from posix uid */
             User(uid_t uid);
+            
+            /*! Create user from user name */
             User(const char* name);
+            
+            /*! Create an empty user */
+            User();
+            
+            static std::vector<User> list();
         };
     }
 }

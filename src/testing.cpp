@@ -165,8 +165,15 @@ bool test_user()
     clog<<"user 1000:"<<endl;
     clog<<"\tname:"<<user.name<<endl;
     clog<<"\tgecos:"<<user.gecos<<endl;
-    clog<<"\tdir:"<<user.dir<<endl;
+    clog<<"\thome:"<<user.home<<endl;
     clog<<"\tshell:"<<user.shell<<endl;
+    clog<<endl;
+    
+    vector<system::User> users = system::User::list();
+    
+    for (system::User& user:users) {
+        clog<<"* "<<user.name<<":"<<user.password<<":"<<user.uid<<":"<<user.gid<<endl;
+    }
     
     return true;
 }

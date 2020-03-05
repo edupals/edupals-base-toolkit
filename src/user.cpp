@@ -23,6 +23,8 @@
 
 #include <user.hpp>
 
+#include <stdexcept>
+
 using namespace edupals::system;
 using namespace std;
 
@@ -53,6 +55,10 @@ User::User(const char* name)
     build(pw);
 }
 
+User::User() : uid(-1)
+{
+}
+
 void User::build(struct passwd* pw)
 {
     name=pw->pw_name;
@@ -60,6 +66,29 @@ void User::build(struct passwd* pw)
     uid=pw->pw_uid;
     gid=pw->pw_gid;
     gecos=pw->pw_gecos;
-    dir=pw->pw_dir;
+    home=pw->pw_dir;
     shell=pw->pw_shell;
+}
+
+vector<User> User::list()
+{
+    vector<User> users;
+    
+    struct passwd* pw;
+    
+    L1:
+    errno=0;
+    pw=getpwent();
+    
+    if(!pw) {
+        if (errno!=0) {
+            throw runtime_error("Error reading passwd database");
+        }
+    }
+    else {
+        users.push_back(User(pw));
+        goto L1;
+    }
+    
+    return users;
 }
