@@ -40,12 +40,14 @@ namespace edupals
             {
                 public:
                 
-                const char* what () const throw ()
+                const char* what() const throw()
                 {
                     return "User not found";
                 }
             };
         }
+        
+        class Group;
         
         class User
         {
@@ -88,7 +90,12 @@ namespace edupals
             /*! Create an empty user */
             User();
             
+            /*! gets current (real) user */
+            static User me();
+            
             static std::vector<User> list();
+            
+            Group group();
         };
     }
 }

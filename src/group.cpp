@@ -21,91 +21,71 @@
  *
  */
 
-#include <user.hpp>
 #include <group.hpp>
-
-#include <unistd.h>
 
 #include <stdexcept>
 
 using namespace edupals::system;
 using namespace std;
 
-User::User(struct passwd* pw)
+Group::Group(struct group* gr)
 {
-    build(pw);
+    build(gr);
 }
 
-User::User(uid_t uid)
+Group::Group(gid_t gid)
 {
-    struct passwd* pw=getpwuid(uid);
+    struct group* gr=getgrgid(gid);
     
-    if(pw==nullptr) {
-        throw exception::UserNotFound();
+    if (gr==nullptr) {
+        throw exception::GroupNotFound();
     }
     
-    build(pw);
+    build(gr);
 }
 
-User::User(const char* name)
+Group::Group(const char* name)
 {
-    struct passwd* pw=getpwnam(name);
+    struct group* gr=getgrnam(name);
     
-    if(pw==nullptr) {
-        throw exception::UserNotFound();
+    if (gr==nullptr) {
+        throw exception::GroupNotFound();
     }
     
-    build(pw);
+    build(gr);
 }
 
-User::User() : uid(-1)
+Group::Group() : gid(-1)
 {
 }
 
-User User::me()
+void Group::build(struct group* gr)
 {
-    return User(getuid());
+    name=gr->gr_name;
+    gid=gr->gr_gid;
 }
 
-void User::build(struct passwd* pw)
+vector<Group> Group::list()
 {
-    name=pw->pw_name;
-    password=pw->pw_passwd;
-    uid=pw->pw_uid;
-    gid=pw->pw_gid;
-    gecos=pw->pw_gecos;
-    home=pw->pw_dir;
-    shell=pw->pw_shell;
-}
-
-vector<User> User::list()
-{
-    vector<User> users;
+    vector<Group> groups;
     
-    struct passwd* pw;
+    struct group* gr;
     
     L1:
     errno=0;
-    pw=getpwent();
+    gr=getgrent();
     
-    if(!pw) {
+    if(!gr) {
         if (errno!=0) {
-            throw runtime_error("Error reading passwd database");
+            throw runtime_error("Error reading group database");
         }
         
-        endpwent();
+        endgrent();
     }
     else {
-        users.push_back(User(pw));
+        groups.push_back(Group(gr));
         goto L1;
     }
     
-    return users;
-}
-
-Group User::group()
-{
-    Group gr(gid);
-    
-    return gr;
+    return groups;
 }

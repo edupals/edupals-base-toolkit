@@ -28,6 +28,7 @@
 #include <cmd.hpp>
 #include <process.hpp>
 #include <user.hpp>
+#include <group.hpp>
 #include <workqueue.hpp>
 #include <token.hpp>
 #include <lexer.hpp>
@@ -160,9 +161,9 @@ bool test_process()
 
 bool test_user()
 {
-    system::User user(1000);
+    system::User user=system::User::me();
     
-    clog<<"user 1000:"<<endl;
+    clog<<"user:"<<user.uid<<endl;
     clog<<"\tname:"<<user.name<<endl;
     clog<<"\tgecos:"<<user.gecos<<endl;
     clog<<"\thome:"<<user.home<<endl;
@@ -172,7 +173,20 @@ bool test_user()
     vector<system::User> users = system::User::list();
     
     for (system::User& user:users) {
-        clog<<"* "<<user.name<<":"<<user.password<<":"<<user.uid<<":"<<user.gid<<endl;
+        clog<<"* "<<user.name<<":"<<user.password<<":"<<user.uid<<":"<<user.group().name<<endl;
+    }
+    
+    return true;
+}
+
+bool test_group()
+{
+    vector<system::Group> groups;
+    
+    groups = system::Group::list();
+    
+    for (system::Group& group:groups) {
+        clog<<"* "<<group.gid<<":"<<group.name<<endl;
     }
     
     return true;
@@ -604,6 +618,8 @@ int main (int argc,char* argv[])
     tests["process"].push_back(Test("process",test_process));
     
     tests["user"].push_back(Test("user",test_user));
+    
+    tests["group"].push_back(Test("group",test_group));
     
     //parser
     tests["parser"].push_back(Test("parser",test_parser));
