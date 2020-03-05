@@ -22,6 +22,7 @@
  */
 
 #include <group.hpp>
+#include <user.hpp>
 
 #include <stdexcept>
 
@@ -88,4 +89,31 @@ vector<Group> Group::list()
     }
     
     return groups;
+}
+
+vector<User> Group::users()
+{
+    vector<User> ret;
+    
+    struct group* gr = getgrgid(gid);
+    
+    if(!gr) {
+        throw runtime_error("Error reading group database");
+    }
+    
+    size_t n=0;
+    
+    char* name;
+    
+    L1:
+    
+    name=gr->gr_mem[n];
+    
+    if(name) {
+        n++;
+        ret.push_back(User(name));
+        goto L1;
+    }
+    
+    return ret;
 }

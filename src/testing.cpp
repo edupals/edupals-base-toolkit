@@ -189,6 +189,16 @@ bool test_group()
         clog<<"* "<<group.gid<<":"<<group.name<<endl;
     }
     
+    clog<<endl;
+    
+    clog<<"sudo:"<<endl;
+    system::Group group("adm");
+    vector<system::User> users = group.users();
+    
+    for (system::User& user:users) {
+        clog<<"* "<<user.name<<endl;
+    }
+    
     return true;
 }
 

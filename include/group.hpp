@@ -46,6 +46,8 @@ namespace edupals
             };
         }
         
+        class User;
+        
         class Group
         {
             protected:
@@ -63,6 +65,8 @@ namespace edupals
             Group();
             
             static std::vector<Group> list();
+            
+            std::vector<User> users();
         };
     }
 }
