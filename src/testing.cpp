@@ -199,6 +199,15 @@ bool test_group()
         clog<<"* "<<user.name<<endl;
     }
     
+    clog<<endl;
+    system::User user=system::User::me();
+    clog<<"User:"<<user.name<<endl;
+    
+    groups=user.groups();
+    for (system::Group& group:groups) {
+        clog<<"* "<<group.gid<<":"<<group.name<<endl;
+    }
+    
     return true;
 }
 

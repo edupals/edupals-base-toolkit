@@ -109,3 +109,45 @@ Group User::group()
     
     return gr;
 }
+
+vector<Group> User::groups()
+{
+    vector<Group> ret;
+    
+    //push main gid
+    ret.push_back(Group(this->gid));
+    
+    struct group* gr;
+    
+    setgrent();
+    
+    L1:
+    
+    errno=0;
+    gr=getgrent();
+    
+    if (!gr) {
+        if (errno!=0) {
+            throw runtime_error("Error reading group database");
+        }
+        endgrent();
+    }
+    else {
+        
+        if (gr->gr_gid!=this->gid) {
+            char** member=gr->gr_mem;
+            
+            while(*member) {
+                if (this->name==*member) {
+                    ret.push_back(Group(gr));
+                    break;
+                }
+                member++;
+            }
+        }
+        
+        goto L1;
+    }
+    
+    return ret;
+}

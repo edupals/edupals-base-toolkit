@@ -56,16 +56,40 @@ namespace edupals
             
             public:
             
+            /*! Group name */
             std::string name;
+            
+            /*! posix group id */
             gid_t gid;
             
+            /*! creates a group object from posix struct */
             Group(struct group* gr);
+            
+            /*! 
+            * creates a group object from its posix group id 
+            * \throws GroupNotFound
+            */
             Group(gid_t gid);
+            
+            /*!
+            * creates a group object from its name
+            * \throws GroupNotFound
+            */
             Group(const char* name);
+            
+            /*!
+            * creates an empty group object
+            */
             Group();
             
+            /*!
+             * gets all available groups
+            */
             static std::vector<Group> list();
             
+            /*!
+            * gets all users that belongs to the group
+            */
             std::vector<User> users();
         };
     }

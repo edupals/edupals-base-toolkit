@@ -81,10 +81,10 @@ namespace edupals
             /*! Create user from posix passwd struct */
             User(struct passwd* pw);
             
-            /*! Create user from posix uid */
+            /*! create user object from posix uid */
             User(uid_t uid);
             
-            /*! Create user from user name */
+            /*! create user object from user name */
             User(const char* name);
             
             /*! Create an empty user */
@@ -93,9 +93,14 @@ namespace edupals
             /*! gets current (real) user */
             static User me();
             
+            /*! gets available users */
             static std::vector<User> list();
             
+            /*! get user main group */
             Group group();
+            
+            /*! gets all group user belongs to */
+            std::vector<Group> groups();
         };
     }
 }
