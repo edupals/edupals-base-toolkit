@@ -84,6 +84,8 @@ vector<User> User::list()
     
     struct passwd* pw;
     
+    setpwent();
+    
     L1:
     errno=0;
     pw=getpwent();

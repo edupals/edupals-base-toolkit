@@ -39,10 +39,13 @@ Group::Group(gid_t gid)
     struct group* gr=getgrgid(gid);
     
     if (gr==nullptr) {
-        throw exception::GroupNotFound();
+        this->gid=gid;
+    }
+    else {
+        build(gr);
     }
     
-    build(gr);
+    
 }
 
 Group::Group(const char* name)
@@ -71,6 +74,8 @@ vector<Group> Group::list()
     vector<Group> groups;
     
     struct group* gr;
+    
+    setgrent();
     
     L1:
     errno=0;
