@@ -101,6 +101,16 @@ namespace edupals
             
             /*! gets all group user belongs to */
             std::vector<Group> groups();
+            
+            bool operator == (User& a)
+            {
+                return uid==a.uid;
+            }
+            
+            bool operator != (User& a)
+            {
+                return uid!=a.uid;
+            }
         };
     }
 }

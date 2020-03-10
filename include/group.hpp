@@ -66,8 +66,9 @@ namespace edupals
             Group(struct group* gr);
             
             /*! 
-            * creates a group object from its posix group id 
-            * \throws GroupNotFound
+            * creates a group object from its posix group id
+            * Group name may not exists in database, so name will be
+            * an empty string
             */
             Group(gid_t gid);
             
@@ -84,13 +85,25 @@ namespace edupals
             
             /*!
              * gets all available groups
+             * \throws runtime_error if database cannot be accessed
             */
             static std::vector<Group> list();
             
             /*!
             * gets all users that belongs to the group
+            * \throws runtime_error if database cannot be accessed
             */
             std::vector<User> users();
+            
+            bool operator == (Group& a)
+            {
+                return gid==a.gid;
+            }
+            
+            bool operator != (Group& a)
+            {
+                return gid!=a.gid;
+            }
         };
     }
 }
