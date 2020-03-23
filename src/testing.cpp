@@ -225,6 +225,7 @@ bool test_threading()
             queue.push(n);
             cm.lock();
             clog<<"pushed "<<n<<endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
             cm.unlock();
         }
     
@@ -633,6 +634,8 @@ int main (int argc,char* argv[])
     tests["system"].push_back(Test("memory",test_system_memory));
     tests["system"].push_back(Test("pids",test_system_pids));
     tests["system"].push_back(Test("modules",test_system_modules));
+    
+    tests["workqueue"].push_back(Test("workqueue",test_threading));
     
     tests["process"].push_back(Test("process",test_process));
     
