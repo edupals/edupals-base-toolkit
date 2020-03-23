@@ -126,7 +126,18 @@ namespace edupals
             };
         }
         
+        /*!
+            Serialize Variant container into a json format
+            \param value Variant container
+            \param stream valid output stream
+        */
         void dump(variant::Variant& value,std::ostream& stream);
+        
+        /*!
+            Load a json into a Variant
+            \param stream valid input stream
+            \return a Variant container matching parsed json
+        */
         variant::Variant load(std::istream& stream);
     }
 }

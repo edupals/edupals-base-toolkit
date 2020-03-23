@@ -32,6 +32,9 @@ namespace edupals
 {
     namespace filesystem
     {
+        /*!
+            Gets a list of paths matching glob expression
+        */
         std::vector<std::experimental::filesystem::path> glob(std::string expression);
     }
 }
