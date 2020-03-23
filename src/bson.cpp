@@ -172,7 +172,7 @@ static size_t dump_document(Variant& value,ostream& stream)
     return size;
 }
 
-void edupals::bson::dump(ostream& stream,Variant& value)
+void edupals::bson::dump(Variant& value,ostream& stream)
 {
     dump_document(value,stream);
 }

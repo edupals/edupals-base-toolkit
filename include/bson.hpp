@@ -70,10 +70,10 @@ namespace edupals
         
         /*!
             Serialize Variant container as a bson
-            \param stream valid output stream
             \param value data to serialize
+            \param stream valid output stream
         */
-        void dump(std::ostream& stream,variant::Variant& value);
+        void dump(variant::Variant& value,std::ostream& stream);
         
         /*!
             Load a bson into a Variant

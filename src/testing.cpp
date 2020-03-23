@@ -556,7 +556,7 @@ bool test_bson()
     */
     ofstream ofile("/tmp/edupals.bson");
     
-    bson::dump(ofile,msg);
+    bson::dump(msg,ofile);
     
     ofile.close();
     
