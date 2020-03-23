@@ -113,6 +113,38 @@ uint8_t IP4::operator [] (int n)
     return address[n];
 }
 
+Interface::Interface(string name)
+{
+    path="/sys/class/net/"+name;
+    this->name=name;
+}
+
+bool Interface::carrier()
+{
+    if(!exists()) {
+        //Boo!
+    }
+    
+    ifstream file;
+    string tmp;
+    
+    fs::path sysfs = path;
+    fs::path carrier = sysfs / "carrier";
+    
+    file.open(carrier);
+    std::getline(file,tmp);
+    file.close();
+    
+    return (tmp=="1");
+}
+
+bool Interface::exists()
+{
+    fs::path sysfs = path;
+    
+    return fs::exists(sysfs);
+}
+
 Device::Device(string name)
 {
     

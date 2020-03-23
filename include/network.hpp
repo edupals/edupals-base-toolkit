@@ -98,6 +98,28 @@ namespace edupals
             uint8_t operator [] (int n);
         };
         
+        class Interface
+        {
+            public:
+            
+            std::string name;
+            std::string path;
+            
+            Interface(std::string name);
+            
+            bool carrier();
+            
+            uint32_t mtu();
+            
+            uint32_t type();
+            
+            MAC address();
+            
+            bool exists();
+            
+            static std::vector<Interface> list();
+        };
+        
         /*!
             This class represents a Linux network device (it may not be a 
             physical device, but a virtual one)
