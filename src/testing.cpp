@@ -67,23 +67,21 @@ struct Test
 
 bool test_network()
 {
-    vector<string> devices;
+    vector<network::Interface> ifaces;
     
-    devices = network::get_devices();
+    ifaces = network::Interface::list();
     
-    clog<<"Network devices:"<<endl;
+    clog<<"Network interfaces:"<<endl;
     
-    for (string& path:devices) {
-        clog<<"* "<<console::fg::red<<path<<console::reset::all<<endl;
+    for (network::Interface& iface:ifaces) {
+        clog<<"* "<<console::fg::red<<iface.path<<console::reset::all<<endl;
         
-        network::Device dev(path);
-        
-        clog<<"\tName:"<<dev.name<<endl;
-        clog<<"\tDevice:"<<dev.path<<endl;
-        clog<<"\tType:"<<dev.type<<endl;
-        clog<<"\tAddress:"<<dev.address.to_string()<<endl;
-        clog<<"\tcarrier:"<<dev.carrier<<endl;
-        clog<<"\tmtu:"<<dev.mtu<<endl;
+        clog<<"\tName:"<<iface.name<<endl;
+        clog<<"\tDevice:"<<iface.path<<endl;
+        clog<<"\tType:"<<iface.type()<<endl;
+        clog<<"\tAddress:"<<iface.address().to_string()<<endl;
+        clog<<"\tcarrier:"<<iface.carrier()<<endl;
+        clog<<"\tmtu:"<<iface.mtu()<<endl;
         
     }
     
@@ -639,6 +637,8 @@ int main (int argc,char* argv[])
     
     tests["process"].push_back(Test("process",test_process));
     
+    tests["network"].push_back(Test("network",test_network));
+    
     tests["user"].push_back(Test("user",test_user));
     
     tests["group"].push_back(Test("group",test_group));
@@ -686,8 +686,6 @@ int main (int argc,char* argv[])
             }
         }
     }
-    
-    
     
     for (string s:result.args) {
         to_test[s]=true;

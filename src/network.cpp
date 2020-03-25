@@ -135,7 +135,7 @@ string Interface::read_str(string prop)
     std::getline(file,tmp);
     file.close();
     
-    return tmp
+    return tmp;
 }
 
 uint32_t Interface::read_u32(string prop)
@@ -146,8 +146,13 @@ uint32_t Interface::read_u32(string prop)
 
 bool Interface::carrier()
 {
-    uint32_t value = read_u32("carrier");
-    return (value==1);
+    try {
+        uint32_t value = read_u32("carrier");
+        return (value==1);
+    }
+    catch (std::exception e) {
+        return false;
+    }
 }
 
 uint32_t Interface::mtu()
@@ -173,75 +178,15 @@ bool Interface::exists()
     return fs::exists(sysfs);
 }
 
-Device::Device(string name)
+vector<Interface> Interface::list()
 {
-    
-    this->path="/sys/class/net/"+name;
-    
-    update();
-}
-
-void Device::update()
-{
-    // ignore empty device path
-    if (this->path.size()==0) {
-        return;
-    }
-    
-    fs::path sysfs = this->path;
-    
-    // name is just final filename of path
-    this->name=sysfs.filename();
-    
-     ifstream file;
-     string tmp;
-
-    // mac address
-    fs::path address = sysfs / "address";
-    
-    file.open(address);
-    std::getline(file,tmp);
-    file.close();
-    
-    this->address=MAC(tmp);
-    
-    // carrier status
-    fs::path carrier = sysfs / "carrier";
-    
-    file.open(carrier);
-    std::getline(file,tmp);
-    file.close();
-    
-    this->carrier=(tmp=="1");
-        
-    //mtu
-    fs::path mtu = sysfs / "mtu";
-    
-    file.open(mtu);
-    std::getline(file,tmp);
-    file.close();
-    
-    this->mtu=std::stoi(tmp);
-    
-    //type
-    fs::path type = sysfs / "type";
-    
-    file.open(type);
-    std::getline(file,tmp);
-    file.close();
-    
-    this->type=std::stoi(tmp);
-}
-
-vector<string> edupals::network::get_devices()
-{
-    vector<string> devices;
+    vector<Interface> ifaces;
     
     fs::path sysfs("/sys/class/net");
     
     for (auto& dev: fs::directory_iterator(sysfs)) {
-        devices.push_back(dev.path().filename());
+        ifaces.push_back(Interface(dev.path().filename()));
     }
     
-    return devices;
+    return ifaces;
 }

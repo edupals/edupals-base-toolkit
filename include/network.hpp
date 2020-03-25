@@ -119,6 +119,10 @@ namespace edupals
             uint8_t operator [] (int n);
         };
         
+        /*!
+            This class represents a Linux network device (it may not be a 
+            physical device, but a virtual one)
+        */
         class Interface
         {
             protected:
@@ -128,70 +132,40 @@ namespace edupals
             
             public:
             
+            /*! interface name */
             std::string name;
+            
+            /*! sysfs path */
             std::string path;
+            
+            Interface(){};
             
             Interface(std::string name);
             
+            /*! Carrier status (connection ) */
             bool carrier();
             
-            uint32_t mtu();
-            
-            uint32_t type();
-            
-            MAC address();
-            
-            bool exists();
-            
-            static std::vector<Interface> list();
-        };
-        
-        /*!
-            This class represents a Linux network device (it may not be a 
-            physical device, but a virtual one)
-        */
-        class Device
-        {
-            public:
-            
-            /*! Device path */
-            std::string path;
-            
-            /*! Device name */
-            std::string name;
-            
-            /*! Hardware MAC Address */
-            MAC address;
-            
-            /*! Carrier status (connection ) */
-            bool carrier;
-            
             /*! Current mtu */
-            uint32_t mtu;
+            uint32_t mtu();
             
             /*!
                 Hardware type, common values are 1 for Ethernet and
                 772 for loopback, see if_arp.h for details
             */
-            uint32_t type;
+            uint32_t type();
             
-            Device(){};
+            /*! Hardware MAC Address */
+            MAC address();
+            
+            /*! whenever interface exists or not */
+            bool exists();
             
             /*!
-                Create device from path
+                gets a list of all avialable interfaces
             */
-            Device(std::string name);
-            
-            /*!
-                Update properties
-            */
-            void update();
+            static std::vector<Interface> list();
         };
         
-        /*!
-            Get a list of available network devices
-        */
-        std::vector<std::string> get_devices();
     }
 }
 
