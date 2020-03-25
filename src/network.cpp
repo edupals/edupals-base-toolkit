@@ -36,10 +36,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+using namespace edupals::network;
+using namespace edupals::network::exception;
 using namespace std;
 namespace fs=std::experimental::filesystem;
-using namespace edupals::network;
-
 
 MAC::MAC(array<uint8_t,6> address) : address(address)
 {
@@ -119,23 +119,51 @@ Interface::Interface(string name)
     this->name=name;
 }
 
-bool Interface::carrier()
+string Interface::read_str(string prop)
 {
     if(!exists()) {
-        //Boo!
+        throw InterfaceNotFound(name);
     }
     
     ifstream file;
     string tmp;
     
     fs::path sysfs = path;
-    fs::path carrier = sysfs / "carrier";
+    fs::path carrier = sysfs / prop;
     
     file.open(carrier);
     std::getline(file,tmp);
     file.close();
     
-    return (tmp=="1");
+    return tmp
+}
+
+uint32_t Interface::read_u32(string prop)
+{
+    string tmp = read_str(prop);
+    return std::stoi(tmp);
+}
+
+bool Interface::carrier()
+{
+    uint32_t value = read_u32("carrier");
+    return (value==1);
+}
+
+uint32_t Interface::mtu()
+{
+    return read_u32("mtu");
+}
+
+uint32_t Interface::type()
+{
+    return read_u32("type");
+}
+
+MAC Interface::address()
+{
+    string tmp = read_str("address");
+    return MAC(tmp);
 }
 
 bool Interface::exists()

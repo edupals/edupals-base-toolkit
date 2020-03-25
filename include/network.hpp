@@ -28,11 +28,32 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <exception>
 
 namespace edupals
 {
     namespace network
     {
+        namespace exception
+        {
+            class InterfaceNotFound : public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InterfaceNotFound(std::string& iface)
+                {
+                    msg="interface not found:"+iface;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+        }
+        
         /*!
             MAC Address class
         */
@@ -100,6 +121,11 @@ namespace edupals
         
         class Interface
         {
+            protected:
+            
+            std::string read_str(std::string prop);
+            uint32_t read_u32(std::string prop);
+            
             public:
             
             std::string name;
