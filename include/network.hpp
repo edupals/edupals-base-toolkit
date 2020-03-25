@@ -157,6 +157,8 @@ namespace edupals
             /*! Hardware MAC Address */
             MAC address();
             
+            IP4 ip4();
+            
             /*! whenever interface exists or not */
             bool exists();
             

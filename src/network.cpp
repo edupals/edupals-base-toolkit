@@ -28,6 +28,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <experimental/filesystem>
 
 #include <sys/ioctl.h>
@@ -89,10 +90,10 @@ uint8_t MAC::operator [] (int n)
 
 IP4::IP4(uint32_t address)
 {
-    this->address[0]=address & 0x000000FF;
-    this->address[1]=(address & 0x0000FF00)>>8;
-    this->address[2]=(address & 0x00FF0000)>>16;
-    this->address[3]=(address & 0xFF000000)>>24;
+    this->address[3]=address & 0x000000FF;
+    this->address[2]=(address & 0x0000FF00)>>8;
+    this->address[1]=(address & 0x00FF0000)>>16;
+    this->address[0]=(address & 0xFF000000)>>24;
 }
 
 IP4::IP4(array<uint8_t,4> address) : address(address)
@@ -103,7 +104,7 @@ string IP4::to_string()
 {
     stringstream s;
     
-    s<<address[3]<<"."<<address[2]<<"."<<address[1]<<"."<<address[0];
+    s<<(int)address[3]<<"."<<(int)address[2]<<"."<<(int)address[1]<<"."<<(int)address[0];
     
     return s.str();
 }
@@ -169,6 +170,22 @@ MAC Interface::address()
 {
     string tmp = read_str("address");
     return MAC(tmp);
+}
+
+IP4 Interface::ip4()
+{
+    int fd;
+    struct ifreq ifr;
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    ifr.ifr_addr.sa_family = AF_INET;
+    std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFADDR, &ifr);
+    close(fd);
+    struct sockaddr_in* sin = (struct sockaddr_in*)&ifr.ifr_addr;
+
+    return IP4(sin->sin_addr.s_addr);
 }
 
 bool Interface::exists()

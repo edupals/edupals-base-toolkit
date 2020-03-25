@@ -82,6 +82,7 @@ bool test_network()
         clog<<"\tAddress:"<<iface.address().to_string()<<endl;
         clog<<"\tcarrier:"<<iface.carrier()<<endl;
         clog<<"\tmtu:"<<iface.mtu()<<endl;
+        clog<<"\tip4:"<<iface.ip4().to_string()<<endl;
         
     }
     
