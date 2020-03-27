@@ -114,6 +114,63 @@ uint8_t IP4::operator [] (int n)
     return address[n];
 }
 
+Mask4::Mask4(uint32_t address) : IP4(address)
+{
+}
+
+Mask4::Mask4(array<uint8_t,4> address) : IP4(address)
+{
+}
+
+int32_t Mask4::bits()
+{
+    int32_t num=0;
+    bool knee=false;
+    
+    for (int n=0;n<4;n++) {
+        for (int b=0;b<8;b++) {
+            uint8_t m = 1<<b;
+            uint8_t v = address[n] & m;
+            
+            if (knee) {
+                if (v==0) {
+                    return -1;
+                }
+            }
+            else {
+                if (v==0) {
+                    num++;
+                }
+                else {
+                    knee=true;
+                }
+            }
+        }
+    }
+    
+    return 32-num;
+}
+
+bool Mask4::valid()
+{
+    int32_t v=bits();
+    
+    return (v!=-1);
+}
+
+bool Mask4::in_range(IP4 subnet,IP4 ip)
+{
+    for (int n=0;n<3;n++) {
+        uint8_t v = ~(subnet[n] ^ ip[n]);
+        v = address[n] & v;
+        if (v!=0xff) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 Interface::Interface(string name)
 {
     path="/sys/class/net/"+name;
@@ -183,7 +240,40 @@ IP4 Interface::ip4()
     std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
     ioctl(fd, SIOCGIFADDR, &ifr);
     close(fd);
-    struct sockaddr_in* sin = (struct sockaddr_in*)&ifr.ifr_addr;
+    struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_addr);
+
+    return IP4(sin->sin_addr.s_addr);
+}
+
+//TODO: factorize
+Mask4 Interface::mask4()
+{
+    int fd;
+    struct ifreq ifr;
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    ifr.ifr_addr.sa_family = AF_INET;
+    std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFNETMASK, &ifr);
+    close(fd);
+    struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_netmask);
+
+    return Mask4(sin->sin_addr.s_addr);
+}
+
+IP4 Interface::broadcast4()
+{
+    int fd;
+    struct ifreq ifr;
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    ifr.ifr_addr.sa_family = AF_INET;
+    std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFBRDADDR, &ifr);
+    close(fd);
+    struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_broadaddr);
 
     return IP4(sin->sin_addr.s_addr);
 }

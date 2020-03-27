@@ -119,6 +119,21 @@ namespace edupals
             uint8_t operator [] (int n);
         };
         
+        class Mask4 : public IP4
+        {
+            public:
+            
+            Mask4(uint32_t address);
+            
+            Mask4(std::array<uint8_t,4> address);
+            
+            int32_t bits();
+            
+            bool valid();
+            
+            bool in_range(IP4 subnet,IP4 ip);
+        };
+        
         /*!
             This class represents a Linux network device (it may not be a 
             physical device, but a virtual one)
@@ -157,7 +172,14 @@ namespace edupals
             /*! Hardware MAC Address */
             MAC address();
             
+            /*! Get IPv4 Address */
             IP4 ip4();
+            
+            /*! Get IPv4 subnet mask */
+            Mask4 mask4();
+            
+            /*! Get IPv4 broadcast */
+            IP4 broadcast4();
             
             /*! whenever interface exists or not */
             bool exists();

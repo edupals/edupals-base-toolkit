@@ -83,9 +83,24 @@ bool test_network()
         clog<<"\tcarrier:"<<iface.carrier()<<endl;
         clog<<"\tmtu:"<<iface.mtu()<<endl;
         clog<<"\tip4:"<<iface.ip4().to_string()<<endl;
+        clog<<"\tbroadcast:"<<iface.broadcast4().to_string()<<endl;
+        network::Mask4 mask=iface.mask4();
+        clog<<"\tmask:"<<mask.to_string()<<" ("<<mask.bits()<<")"<<endl;
         
     }
     
+    network::Mask4 mask({255,255,255,0});
+    network::IP4 subnet({192,168,0,0});
+    network::IP4 ip_a({192,168,0,1});
+    network::IP4 ip_b({192,168,4,1});
+    
+    clog<<endl;
+    clog<<"mask:"<<mask.to_string()<<endl;
+    clog<<"subnet:"<<subnet.to_string()<<endl;
+    clog<<"ip a:"<<ip_a.to_string()<<endl;
+    clog<<"ip b:"<<ip_b.to_string()<<endl;
+    clog<<"a "<<mask.in_range(subnet,ip_a)<<endl;
+    clog<<"b "<<mask.in_range(subnet,ip_b)<<endl;
     return true;
 }
 
