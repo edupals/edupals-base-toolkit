@@ -40,7 +40,7 @@ namespace edupals
             {
                 public:
                 
-                const char * what () const throw ()
+                const char* what () const throw ()
                 {
                     return "Unexpected end of file";
                 }
@@ -57,7 +57,8 @@ namespace edupals
                 {
                     this->type=type;
                 }
-                const char * what () const throw ()
+                
+                const char* what () const throw ()
                 {
                     std::stringstream ss;
                     ss<<"Unsupported export to BSON:"<<static_cast<int>(type);
@@ -67,7 +68,18 @@ namespace edupals
             };
         }
         
-        void dump(std::ostream& stream,variant::Variant& value);
+        /*!
+            Serialize Variant container as a bson
+            \param value data to serialize
+            \param stream valid output stream
+        */
+        void dump(variant::Variant& value,std::ostream& stream);
+        
+        /*!
+            Load a bson into a Variant
+            \param stream valid input stream
+            \return Bson loaded as Variant container
+        */
         variant::Variant load(std::istream& stream);
     }
 }

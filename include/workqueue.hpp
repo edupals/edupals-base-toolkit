@@ -68,7 +68,7 @@ namespace edupals
             {
                 std::unique_lock<std::mutex> lck(qmutex);
                 
-                if(queue.size()>=max_size) {
+                while(queue.size()>=max_size) {
                     cond_full.wait(lck);
                 }
                 queue.push(t);
@@ -85,7 +85,7 @@ namespace edupals
             {
                 std::unique_lock<std::mutex> lck(qmutex);
                 
-                if (queue.empty()) {
+                while (queue.empty()) {
                     cond_empty.wait(lck);
                 }
                 

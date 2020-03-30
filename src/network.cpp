@@ -28,6 +28,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <experimental/filesystem>
 
 #include <sys/ioctl.h>
@@ -36,10 +37,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+using namespace edupals::network;
+using namespace edupals::network::exception;
 using namespace std;
 namespace fs=std::experimental::filesystem;
-using namespace edupals::network;
-
 
 MAC::MAC(array<uint8_t,6> address) : address(address)
 {
@@ -103,7 +104,7 @@ string IP4::to_string()
 {
     stringstream s;
     
-    s<<address[3]<<"."<<address[2]<<"."<<address[1]<<"."<<address[0];
+    s<<(int)address[0]<<"."<<(int)address[1]<<"."<<(int)address[2]<<"."<<(int)address[3];
     
     return s.str();
 }
@@ -113,75 +114,194 @@ uint8_t IP4::operator [] (int n)
     return address[n];
 }
 
-Device::Device(string name)
+uint32_t IP4::get_uint32()
 {
+    uint32_t tmp;
     
-    this->path="/sys/class/net/"+name;
+    tmp=address[0] | (address[1]<<8) | (address[2]<<16) | (address[3]<<24);
     
-    update();
+    return tmp;
 }
 
-void Device::update()
+Mask4::Mask4(uint32_t address) : IP4(address)
 {
-    // ignore empty device path
-    if (this->path.size()==0) {
-        return;
+}
+
+Mask4::Mask4(array<uint8_t,4> address) : IP4(address)
+{
+}
+
+int32_t Mask4::bits()
+{
+    int32_t num=0;
+    bool knee=false;
+    
+    for (int n=3;n>=0;n--) {
+        for (int b=0;b<8;b++) {
+            uint8_t m = 1<<b;
+            uint8_t v = address[n] & m;
+            
+            if (knee) {
+                if (v==0) {
+                    return -1;
+                }
+            }
+            else {
+                if (v==0) {
+                    num++;
+                }
+                else {
+                    knee=true;
+                }
+            }
+        }
     }
     
-    fs::path sysfs = this->path;
-    
-    // name is just final filename of path
-    this->name=sysfs.filename();
-    
-     ifstream file;
-     string tmp;
+    return 32-num;
+}
 
-    // mac address
-    fs::path address = sysfs / "address";
+bool Mask4::valid()
+{
+    int32_t v=bits();
     
-    file.open(address);
-    std::getline(file,tmp);
-    file.close();
+    return (v!=-1);
+}
+
+bool Mask4::in_range(IP4 subnet,IP4 ip)
+{
+    for (int n=0;n<3;n++) {
+        uint8_t v = ~(subnet[n] ^ ip[n]);
+        v = address[n] & v;
+        if (v!=0xff) {
+            return false;
+        }
+    }
     
-    this->address=MAC(tmp);
+    return true;
+}
+
+Interface::Interface(string name)
+{
+    path="/sys/class/net/"+name;
+    this->name=name;
+}
+
+string Interface::read_str(string prop)
+{
+    if(!exists()) {
+        throw InterfaceNotFound(name);
+    }
     
-    // carrier status
-    fs::path carrier = sysfs / "carrier";
+    ifstream file;
+    string tmp;
+    
+    fs::path sysfs = path;
+    fs::path carrier = sysfs / prop;
     
     file.open(carrier);
     std::getline(file,tmp);
     file.close();
     
-    this->carrier=(tmp=="1");
-        
-    //mtu
-    fs::path mtu = sysfs / "mtu";
-    
-    file.open(mtu);
-    std::getline(file,tmp);
-    file.close();
-    
-    this->mtu=std::stoi(tmp);
-    
-    //type
-    fs::path type = sysfs / "type";
-    
-    file.open(type);
-    std::getline(file,tmp);
-    file.close();
-    
-    this->type=std::stoi(tmp);
+    return tmp;
 }
 
-vector<string> edupals::network::get_devices()
+uint32_t Interface::read_u32(string prop)
 {
-    vector<string> devices;
+    string tmp = read_str(prop);
+    return std::stoi(tmp);
+}
+
+bool Interface::carrier()
+{
+    try {
+        uint32_t value = read_u32("carrier");
+        return (value==1);
+    }
+    catch (std::exception e) {
+        return false;
+    }
+}
+
+uint32_t Interface::mtu()
+{
+    return read_u32("mtu");
+}
+
+uint32_t Interface::type()
+{
+    return read_u32("type");
+}
+
+MAC Interface::address()
+{
+    string tmp = read_str("address");
+    return MAC(tmp);
+}
+
+IP4 Interface::ip4()
+{
+    int fd;
+    struct ifreq ifr;
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    ifr.ifr_addr.sa_family = AF_INET;
+    std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFADDR, &ifr);
+    close(fd);
+    struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_addr);
+    return IP4(sin->sin_addr.s_addr);
+}
+
+//TODO: factorize
+Mask4 Interface::mask4()
+{
+    int fd;
+    struct ifreq ifr;
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    ifr.ifr_addr.sa_family = AF_INET;
+    std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFNETMASK, &ifr);
+    close(fd);
+    struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_netmask);
+
+    return Mask4(sin->sin_addr.s_addr);
+}
+
+IP4 Interface::broadcast4()
+{
+    int fd;
+    struct ifreq ifr;
+
+    fd = socket(AF_INET, SOCK_DGRAM, 0);
+    
+    ifr.ifr_addr.sa_family = AF_INET;
+    std::strncpy(ifr.ifr_name, name.c_str(), IFNAMSIZ-1);
+    ioctl(fd, SIOCGIFBRDADDR, &ifr);
+    close(fd);
+    struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_broadaddr);
+
+    return IP4(sin->sin_addr.s_addr);
+}
+
+bool Interface::exists()
+{
+    fs::path sysfs = path;
+    
+    return fs::exists(sysfs);
+}
+
+vector<Interface> Interface::list()
+{
+    vector<Interface> ifaces;
     
     fs::path sysfs("/sys/class/net");
     
     for (auto& dev: fs::directory_iterator(sysfs)) {
-        devices.push_back(dev.path().filename());
+        ifaces.push_back(Interface(dev.path().filename()));
     }
     
-    return devices;
+    return ifaces;
 }

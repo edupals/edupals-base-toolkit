@@ -24,8 +24,6 @@
 #ifndef EDUPALS_CONSOLE
 #define EDUPALS_CONSOLE
 
-#include <iostream>
-
 namespace edupals
 {
     namespace console

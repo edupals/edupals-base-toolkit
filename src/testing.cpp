@@ -27,6 +27,8 @@
 #include <filesystem.hpp>
 #include <cmd.hpp>
 #include <process.hpp>
+#include <user.hpp>
+#include <group.hpp>
 #include <workqueue.hpp>
 #include <token.hpp>
 #include <lexer.hpp>
@@ -65,26 +67,41 @@ struct Test
 
 bool test_network()
 {
-    vector<string> devices;
+    vector<network::Interface> ifaces;
     
-    devices = network::get_devices();
+    ifaces = network::Interface::list();
     
-    clog<<"Network devices:"<<endl;
+    clog<<"Network interfaces:"<<endl;
     
-    for (string& path:devices) {
-        clog<<"* "<<console::fg::red<<path<<console::reset::all<<endl;
+    for (network::Interface& iface:ifaces) {
+        clog<<"* "<<console::fg::red<<iface.path<<console::reset::all<<endl;
         
-        network::Device dev(path);
-        
-        clog<<"\tName:"<<dev.name<<endl;
-        clog<<"\tDevice:"<<dev.path<<endl;
-        clog<<"\tType:"<<dev.type<<endl;
-        clog<<"\tAddress:"<<dev.address.to_string()<<endl;
-        clog<<"\tcarrier:"<<dev.carrier<<endl;
-        clog<<"\tmtu:"<<dev.mtu<<endl;
+        clog<<"\tName:"<<iface.name<<endl;
+        clog<<"\tDevice:"<<iface.path<<endl;
+        clog<<"\tType:"<<iface.type()<<endl;
+        clog<<"\tAddress:"<<iface.address().to_string()<<endl;
+        clog<<"\tcarrier:"<<iface.carrier()<<endl;
+        clog<<"\tmtu:"<<iface.mtu()<<endl;
+        clog<<"\tip4:"<<iface.ip4().to_string()<<endl;
+        clog<<"\tuint32 ip:"<<std::hex<<iface.ip4().get_uint32()<<std::dec<<endl;
+        clog<<"\tbroadcast:"<<iface.broadcast4().to_string()<<endl;
+        network::Mask4 mask=iface.mask4();
+        clog<<"\tmask:"<<mask.to_string()<<" ("<<mask.bits()<<")"<<endl;
         
     }
     
+    network::Mask4 mask({255,255,255,0});
+    network::IP4 subnet({192,168,0,0});
+    network::IP4 ip_a({192,168,0,1});
+    network::IP4 ip_b({192,168,4,1});
+    
+    clog<<endl;
+    clog<<"mask:"<<mask.to_string()<<endl;
+    clog<<"subnet:"<<subnet.to_string()<<endl;
+    clog<<"ip a:"<<ip_a.to_string()<<endl;
+    clog<<"ip b:"<<ip_b.to_string()<<endl;
+    clog<<"a "<<mask.in_range(subnet,ip_a)<<endl;
+    clog<<"b "<<mask.in_range(subnet,ip_b)<<endl;
     return true;
 }
 
@@ -114,14 +131,14 @@ bool test_system_cmdline()
 
 bool test_system_memory()
 {
-    clog<<"* total memory: "<<system::get_total_memory()/1024<<" kB"<<endl;
-    clog<<"* free memory: "<<system::get_free_memory()/1024<<" kB"<<endl;
+    clog<<"* total memory: "<<system::total_memory()/1024<<" kB"<<endl;
+    clog<<"* free memory: "<<system::free_memory()/1024<<" kB"<<endl;
     return true;
 }
 
-bool test_system_get_modules()
+bool test_system_modules()
 {
-    vector<string> modules = system::get_modules();
+    vector<string> modules = system::modules();
     
     clog<<"* modules:"<<endl;
     for (string& module : modules) {
@@ -131,9 +148,9 @@ bool test_system_get_modules()
     return true;
 }
 
-bool test_system_get_pids()
+bool test_system_pids()
 {
-    vector<int32_t> pids = system::get_pids();
+    vector<int32_t> pids = system::pids();
     
     clog<<"Process id:"<<endl;
     
@@ -149,10 +166,62 @@ bool test_process()
     system::Process p;
     
     clog<<"* process:"<<endl;
-    clog<<"    - cmdline: ["<<p.get_cmdline()<<"]"<<endl;
-    clog<<"    - comm: ["<<p.get_comm()<<"]"<<endl;
-    clog<<"    - state: ["<<p.get_state()<<"]"<<endl;
-    clog<<"    - ppid: ["<<p.get_ppid()<<"]"<<endl;
+    clog<<"    - cmdline: ["<<p.cmdline()<<"]"<<endl;
+    clog<<"    - comm: ["<<p.comm()<<"]"<<endl;
+    clog<<"    - state: ["<<p.state()<<"]"<<endl;
+    clog<<"    - ppid: ["<<p.ppid()<<"]"<<endl;
+    
+    return true;
+}
+
+bool test_user()
+{
+    system::User user=system::User::me();
+    
+    clog<<"user:"<<user.uid<<endl;
+    clog<<"\tname:"<<user.name<<endl;
+    clog<<"\tgecos:"<<user.gecos<<endl;
+    clog<<"\thome:"<<user.home<<endl;
+    clog<<"\tshell:"<<user.shell<<endl;
+    clog<<endl;
+    
+    vector<system::User> users = system::User::list();
+    
+    for (system::User& user:users) {
+        clog<<"* "<<user.name<<":"<<user.password<<":"<<user.uid<<":"<<user.group().name<<endl;
+    }
+    
+    return true;
+}
+
+bool test_group()
+{
+    vector<system::Group> groups;
+    
+    groups = system::Group::list();
+    
+    for (system::Group& group:groups) {
+        clog<<"* "<<group.gid<<":"<<group.name<<endl;
+    }
+    
+    clog<<endl;
+    
+    clog<<"sudo:"<<endl;
+    system::Group group("adm");
+    vector<system::User> users = group.users();
+    
+    for (system::User& user:users) {
+        clog<<"* "<<user.name<<endl;
+    }
+    
+    clog<<endl;
+    system::User user=system::User::me();
+    clog<<"User:"<<user.name<<endl;
+    
+    groups=user.groups();
+    for (system::Group& group:groups) {
+        clog<<"* "<<group.gid<<":"<<group.name<<endl;
+    }
     
     return true;
 }
@@ -171,6 +240,7 @@ bool test_threading()
             queue.push(n);
             cm.lock();
             clog<<"pushed "<<n<<endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(20));
             cm.unlock();
         }
     
@@ -317,29 +387,21 @@ bool test_parser()
 
 bool test_log()
 {
-    log::info<<"Testing colors:"<<endl<<endl;
-    
-    log::debug<<"testing debug"<<endl;
-    log::info<<"testing info"<<endl;
-    log::notice<<"testing notice"<<endl;
-    log::warning<<"testing warning"<<endl;
-    log::error<<"testing error"<<endl;
-    
-    log::info<<endl<<"Testing locks:"<<endl<<endl;
-
     std::thread workers[4];
-    
     
     for (int n=0;n<4;n++) {
         workers[n]=std::thread([]() {
-            log::notice<<"Created thread"<<endl;
+            stringstream s;
+            s<<"["<<std::this_thread::get_id()<<"] ";
+            log::Log out(console::fg::blue,s.str());
+            out<<"created thread"<<endl;
             
             for (int m=0;m<10;m++) {
-                log::debug<<"* "<<m<<endl;
+                out<<"* "<<m<<endl;
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
             }
             
-            log::warning<<"bye"<<endl;
+            out<<"bye"<<endl;
         }
         );
         
@@ -438,6 +500,8 @@ bool test_variant()
 
 bool test_json()
 {
+    bool status = true;
+    
     Variant msg=Variant::create_struct();
     
     msg["status"]=true;
@@ -455,10 +519,34 @@ bool test_json()
     input<<" { \"alfa\" : 33 , \"beta\": 4.325, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
     Variant parsed=json::load(input);
     
+    try {
+        
+        Variant tmp;
+        
+        tmp = parsed/"alfa"/Type::Int32;
+        if (tmp.get_int32()!=33) {
+            status = false;
+        }
+        tmp = parsed/"beta"/Type::Float;
+        if (tmp.get_float()<4.0f or tmp.get_float()>5.0f) {
+            status = false;
+        }
+        tmp = parsed/"status"/Type::Boolean;
+        
+        if (tmp.get_boolean()==true) {
+            status = false;
+        }
+        
+        status = true;
+    }
+    catch(...) {
+        status = false;
+    }
+    
     json::dump(parsed,cout);
     cout<<endl;
     
-    return true;
+    return status;
 }
 
 bool test_bson()
@@ -483,7 +571,7 @@ bool test_bson()
     */
     ofstream ofile("/tmp/edupals.bson");
     
-    bson::dump(ofile,msg);
+    bson::dump(msg,ofile);
     
     ofile.close();
     
@@ -559,8 +647,18 @@ int main (int argc,char* argv[])
     tests["system"].push_back(Test("uptime",test_system_uptime));
     tests["system"].push_back(Test("cmdline",test_system_cmdline));
     tests["system"].push_back(Test("memory",test_system_memory));
-    tests["system"].push_back(Test("get_pids",test_system_get_pids));
-    tests["system"].push_back(Test("get_modules",test_system_get_modules));
+    tests["system"].push_back(Test("pids",test_system_pids));
+    tests["system"].push_back(Test("modules",test_system_modules));
+    
+    tests["workqueue"].push_back(Test("workqueue",test_threading));
+    
+    tests["process"].push_back(Test("process",test_process));
+    
+    tests["network"].push_back(Test("network",test_network));
+    
+    tests["user"].push_back(Test("user",test_user));
+    
+    tests["group"].push_back(Test("group",test_group));
     
     //parser
     tests["parser"].push_back(Test("parser",test_parser));
@@ -577,6 +675,8 @@ int main (int argc,char* argv[])
     //base64
     tests["base64"].push_back(Test("base64",test_base64));
     
+    //base64
+    tests["log"].push_back(Test("log",test_log));
     
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
@@ -603,8 +703,6 @@ int main (int argc,char* argv[])
             }
         }
     }
-    
-    
     
     for (string s:result.args) {
         to_test[s]=true;

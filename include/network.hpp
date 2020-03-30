@@ -28,11 +28,32 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <exception>
 
 namespace edupals
 {
     namespace network
     {
+        namespace exception
+        {
+            class InterfaceNotFound : public std::exception
+            {
+                public:
+                
+                std::string msg;
+                
+                InterfaceNotFound(std::string& iface)
+                {
+                    msg="interface not found:"+iface;
+                }
+                
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+        }
+        
         /*!
             MAC Address class
         */
@@ -96,54 +117,94 @@ namespace edupals
                 Acces to address byte n
             */
             uint8_t operator [] (int n);
+            
+            /*!
+                Gets uint32 address representation
+            */
+            uint32_t get_uint32();
+        };
+        
+        class Mask4 : public IP4
+        {
+            public:
+            
+            Mask4(uint32_t address);
+            
+            Mask4(std::array<uint8_t,4> address);
+            
+            /*!
+                Get number of bits mask representation
+                return -1 if mask is not valid 1 sequence
+            */
+            int32_t bits();
+            
+            /*!
+                Whenever the mask is valid or not
+            */
+            bool valid();
+            
+            /*!
+                Checks if ip is in range for the subnet/mask
+            */
+            bool in_range(IP4 subnet,IP4 ip);
         };
         
         /*!
             This class represents a Linux network device (it may not be a 
             physical device, but a virtual one)
         */
-        class Device
+        class Interface
         {
+            protected:
+            
+            std::string read_str(std::string prop);
+            uint32_t read_u32(std::string prop);
+            
             public:
             
-            /*! Device path */
-            std::string path;
-            
-            /*! Device name */
+            /*! interface name */
             std::string name;
             
-            /*! Hardware MAC Address */
-            MAC address;
+            /*! sysfs path */
+            std::string path;
+            
+            Interface(){};
+            
+            Interface(std::string name);
             
             /*! Carrier status (connection ) */
-            bool carrier;
+            bool carrier();
             
             /*! Current mtu */
-            uint32_t mtu;
+            uint32_t mtu();
             
             /*!
                 Hardware type, common values are 1 for Ethernet and
                 772 for loopback, see if_arp.h for details
             */
-            uint32_t type;
+            uint32_t type();
             
-            Device(){};
+            /*! Hardware MAC Address */
+            MAC address();
+            
+            /*! Get IPv4 Address */
+            IP4 ip4();
+            
+            /*! Get IPv4 subnet mask */
+            Mask4 mask4();
+            
+            /*! Get IPv4 broadcast */
+            IP4 broadcast4();
+            
+            /*! whenever interface exists or not */
+            bool exists();
             
             /*!
-                Create device from path
+                gets a list of all avialable interfaces
             */
-            Device(std::string name);
-            
-            /*!
-                Update properties
-            */
-            void update();
+            static std::vector<Interface> list();
         };
         
-        /*!
-            Get a list of available network devices
-        */
-        std::vector<std::string> get_devices();
     }
 }
 

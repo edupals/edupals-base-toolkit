@@ -84,21 +84,21 @@ string edupals::system::cmdline()
     return cmdline;
 }
 
-uint64_t edupals::system::get_total_memory()
+uint64_t edupals::system::total_memory()
 {
     uint64_t pages = sysconf(_SC_PHYS_PAGES);
     uint64_t page_size = sysconf(_SC_PAGE_SIZE);
     return pages * page_size;
 }
 
-uint64_t edupals::system::get_free_memory()
+uint64_t edupals::system::free_memory()
 {
     uint64_t pages = sysconf(_SC_AVPHYS_PAGES);
     uint64_t page_size = sysconf(_SC_PAGE_SIZE);
     return pages * page_size;
 }
 
-vector<string> edupals::system::get_modules()
+vector<string> edupals::system::modules()
 {
     //TODO: Crappy implementation
     vector<string> modules;
@@ -124,7 +124,7 @@ vector<string> edupals::system::get_modules()
     return modules;
 }
 
-vector<int32_t> edupals::system::get_pids()
+vector<int32_t> edupals::system::pids()
 {
     vector<int32_t> pids;
     
