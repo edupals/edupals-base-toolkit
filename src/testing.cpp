@@ -83,6 +83,7 @@ bool test_network()
         clog<<"\tcarrier:"<<iface.carrier()<<endl;
         clog<<"\tmtu:"<<iface.mtu()<<endl;
         clog<<"\tip4:"<<iface.ip4().to_string()<<endl;
+        clog<<"\tuint32 ip:"<<std::hex<<iface.ip4().get_uint32()<<std::dec<<endl;
         clog<<"\tbroadcast:"<<iface.broadcast4().to_string()<<endl;
         network::Mask4 mask=iface.mask4();
         clog<<"\tmask:"<<mask.to_string()<<" ("<<mask.bits()<<")"<<endl;

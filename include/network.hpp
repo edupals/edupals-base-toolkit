@@ -117,6 +117,11 @@ namespace edupals
                 Acces to address byte n
             */
             uint8_t operator [] (int n);
+            
+            /*!
+                Gets uint32 address representation
+            */
+            uint32_t get_uint32();
         };
         
         class Mask4 : public IP4
@@ -127,10 +132,20 @@ namespace edupals
             
             Mask4(std::array<uint8_t,4> address);
             
+            /*!
+                Get number of bits mask representation
+                return -1 if mask is not valid 1 sequence
+            */
             int32_t bits();
             
+            /*!
+                Whenever the mask is valid or not
+            */
             bool valid();
             
+            /*!
+                Checks if ip is in range for the subnet/mask
+            */
             bool in_range(IP4 subnet,IP4 ip);
         };
         

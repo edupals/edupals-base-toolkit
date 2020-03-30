@@ -90,10 +90,10 @@ uint8_t MAC::operator [] (int n)
 
 IP4::IP4(uint32_t address)
 {
-    this->address[3]=address & 0x000000FF;
-    this->address[2]=(address & 0x0000FF00)>>8;
-    this->address[1]=(address & 0x00FF0000)>>16;
-    this->address[0]=(address & 0xFF000000)>>24;
+    this->address[0]=address & 0x000000FF;
+    this->address[1]=(address & 0x0000FF00)>>8;
+    this->address[2]=(address & 0x00FF0000)>>16;
+    this->address[3]=(address & 0xFF000000)>>24;
 }
 
 IP4::IP4(array<uint8_t,4> address) : address(address)
@@ -104,7 +104,7 @@ string IP4::to_string()
 {
     stringstream s;
     
-    s<<(int)address[3]<<"."<<(int)address[2]<<"."<<(int)address[1]<<"."<<(int)address[0];
+    s<<(int)address[0]<<"."<<(int)address[1]<<"."<<(int)address[2]<<"."<<(int)address[3];
     
     return s.str();
 }
@@ -112,6 +112,15 @@ string IP4::to_string()
 uint8_t IP4::operator [] (int n)
 {
     return address[n];
+}
+
+uint32_t IP4::get_uint32()
+{
+    uint32_t tmp;
+    
+    tmp=address[0] | (address[1]<<8) | (address[2]<<16) | (address[3]<<24);
+    
+    return tmp;
 }
 
 Mask4::Mask4(uint32_t address) : IP4(address)
@@ -127,7 +136,7 @@ int32_t Mask4::bits()
     int32_t num=0;
     bool knee=false;
     
-    for (int n=0;n<4;n++) {
+    for (int n=3;n>=0;n--) {
         for (int b=0;b<8;b++) {
             uint8_t m = 1<<b;
             uint8_t v = address[n] & m;
@@ -241,7 +250,6 @@ IP4 Interface::ip4()
     ioctl(fd, SIOCGIFADDR, &ifr);
     close(fd);
     struct sockaddr_in* sin = (struct sockaddr_in*)&(ifr.ifr_addr);
-
     return IP4(sin->sin_addr.s_addr);
 }
 
