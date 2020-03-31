@@ -2,15 +2,17 @@
 include_directories(${CMAKE_SOURCE_DIR}/include)
 add_definitions(-std=c++1z )
 
-set(stable log.cpp cmd.cpp system.cpp variant.cpp)
-set(unstable network.cpp process.cpp filesystem.cpp dfa.cpp token.cpp lexer.cpp json.cpp bson.cpp base64.cpp user.cpp group.cpp)
+set(libname edupals-base)
+
+set(stable log.cpp cmd.cpp system.cpp variant.cpp process.cpp filesystem.cpp dfa.cpp token.cpp lexer.cpp json.cpp bson.cpp base64.cpp user.cpp group.cpp)
+set(unstable network.cpp )
 set(source ${stable} ${unstable})
 
-add_library(edupals-base SHARED ${source})
-target_link_libraries(edupals-base stdc++fs pthread)
-set_target_properties(edupals-base PROPERTIES SOVERSION 1 VERSION "1.2.0")
+add_library(${libname} SHARED ${source})
+target_link_libraries(${libname} stdc++fs pthread)
+set_target_properties(${libname} PROPERTIES SOVERSION 2 VERSION "2.0.0")
 
-install(TARGETS edupals-base
+install(TARGETS ${libname}
     LIBRARY DESTINATION "lib"
 )
 
@@ -20,7 +22,7 @@ install(FILES "${PROJECT_SOURCE_DIR}/EdupalsBaseConfig.cmake"
 
 #testing application
 add_executable(testing testing.cpp)
-target_link_libraries(testing edupals-base)
+target_link_libraries(testing ${libname})
 
 
 
