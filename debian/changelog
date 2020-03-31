@@ -1,3 +1,13 @@
+edupals-base-toolkit (2.0.0.0) bionic; urgency=medium
+
+  * Added user/group module
+  * Faster json parser
+  * Refactored network module
+  * Improved work queue in order to avoid spourious wake ups
+  * Some misc fixes
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 31 Mar 2020 10:36:27 +0200
+
 edupals-base-toolkit (1.2.0.2) bionic; urgency=medium
 
   * Added replace and conflict with deprecated binary package
