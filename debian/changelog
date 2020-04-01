@@ -5,6 +5,7 @@ edupals-base-toolkit (2.0.0.0) bionic; urgency=medium
   * Refactored network module
   * Improved work queue in order to avoid spourious wake ups
   * Some misc fixes
+  * master tag: 1f5e1ba17ad55d06e7721e564f314b0cd59fa098
 
  -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 31 Mar 2020 10:36:27 +0200
 
