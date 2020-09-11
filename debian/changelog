@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.0.0.1) focal; urgency=medium
+
+  * Focal release
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Fri, 11 Sep 2020 16:10:03 +0200
+
 edupals-base-toolkit (2.0.0.0) bionic; urgency=medium
 
   * Added user/group module
