@@ -124,7 +124,7 @@ void grammar::Parser::push(ProductionType type)
     Production prod;
     
     prod.type=type;
-    prod.down=false;
+    //prod.down=false;
     
     stack.push_back(prod);
 }
@@ -133,18 +133,26 @@ void grammar::Parser::pop()
 {
     last=stack.back();
     stack.pop_back();
-    stack.back().down=true;
+    //stack.back().down=true;
 }
 
 void grammar::Parser::step(parser::DFA* token)
 {
+    Production& top = stack.back();
+    
+    if (token==nullptr) {
+        if (stack.size()>0) {
+            top.value=last.value;
+            pop();
+        }
+        
+        return;
+    }
     
     /* ignore whitespaces */
     if (token==ws) {
         return;
     }
-    
-    Production& top = stack.back();
     /*
     clog<<"production: "<<static_cast<int>(top.type)<<endl;
     clog<<"token: "<<lexer.get_token()<<endl;
@@ -282,6 +290,30 @@ void grammar::Parser::step(parser::DFA* token)
         throw SyntaxError("Expected , or ] but got "+token->value());
     }
     
+    if (top.type==ProductionType::Json0) {
+        // flat value
+        if (is_value(token)) {
+            top.value=get_value(token);
+            pop();
+            return;
+        }
+        
+        if (token==lc) {
+            push(ProductionType::Object1);
+            stack.back().value=Variant::create_struct();
+            
+            return;
+        }
+        
+        if (token==lb) {
+            push(ProductionType::Array0);
+            stack.back().value=Variant::create_array(0);
+            
+            return;
+        }
+        
+        throw SyntaxError("Expected value but got "+token->value());
+    }
 }
 
 Variant grammar::Parser::parse(istream& stream)
@@ -290,7 +322,7 @@ Variant grammar::Parser::parse(istream& stream)
     
     stack.clear();
     
-    push(ProductionType::Object0);
+    push(ProductionType::Json0);
     
     while (lexer.step()) {
         DFA* dfa = lexer.get_dfa();
@@ -305,6 +337,8 @@ Variant grammar::Parser::parse(istream& stream)
             throw runtime_error("Unexpected EOF");
         }
     }
+    
+    step(nullptr);
     
     return last.value;
 }
