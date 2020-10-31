@@ -65,15 +65,9 @@ namespace edupals
                 Object2,
                 Object3,
                 Object4,
-                Value0,
                 Array0,
                 Array1,
-                S0,
-                S1,
-                S2,
-                S3,
-                A0,
-                A1
+                Json0
             };
             
             class Production
@@ -108,11 +102,6 @@ namespace edupals
                 
                 parser::Lexer lexer;
                 
-                public:
-                
-                Parser();
-                virtual ~Parser();
-                
                 bool is_value(parser::DFA* token);
                 variant::Variant get_value(parser::DFA* token);
                 
@@ -121,6 +110,11 @@ namespace edupals
                 void pop();
                 
                 void step(parser::DFA* token);
+                
+                public:
+                
+                Parser();
+                virtual ~Parser();
                 
                 variant::Variant parse(std::istream& stream);
             };
