@@ -1,3 +1,10 @@
+edupals-base-toolkit (2.0.1.0) focal; urgency=medium
+
+  * Master tag: 283cd39d49ce89eee60bcdc7b6f295d84b42df63 
+  * Fixed json parser. It did only allow to start parsing with an object, neither an array nor flat value  
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Sat, 31 Oct 2020 17:09:02 +0100
+
 edupals-base-toolkit (2.0.0.1) focal; urgency=medium
 
   * Focal release
