@@ -494,6 +494,10 @@ namespace edupals
             */
             std::vector<uint8_t>& get_bytes();
             
+            std::vector<Variant>& get_array();
+            
+            std::map<std::string,Variant>& get_struct();
+            
             Variant& operator=(bool value);
             Variant& operator=(int32_t value);
             Variant& operator=(int64_t value);

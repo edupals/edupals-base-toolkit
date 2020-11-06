@@ -23,7 +23,6 @@
 
 #include "variant.hpp"
 
-
 using namespace edupals::variant;
 using namespace std;
 
@@ -441,6 +440,36 @@ vector<uint8_t>& Variant::get_bytes()
     
     container::Bytes* cast=static_cast<container::Bytes*>(data.get());
 
+    return cast->value;
+}
+
+vector<Variant>& Variant::get_array()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Array* cast=static_cast<container::Array*>(data.get());
+    
+    return cast->value;
+}
+
+map<string,Variant>& Variant::get_struct()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Struct) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Struct* cast=static_cast<container::Struct*>(data.get());
+    
     return cast->value;
 }
 

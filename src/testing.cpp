@@ -494,6 +494,13 @@ bool test_variant()
     
     auto tmp = g.get_bytes();
     clog<<"0x"<<hex<<(int)tmp[0]<<(int)tmp[1]<<(int)tmp[2]<<(int)tmp[3]<<endl;
+    clog<<dec;
+    
+    clog<<"iteration:"<<endl;
+    
+    for (auto kv : message.get_struct()) {
+        clog<<kv.second<<endl;
+    }
     
     return true;
 }
