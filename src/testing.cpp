@@ -497,11 +497,11 @@ bool test_variant()
     clog<<dec;
     
     clog<<"iteration:"<<endl;
-    
-    for (auto kv : message.get_struct()) {
-        clog<<kv.second<<endl;
+    if (message.is_struct()) {
+        for (auto kv : message.get_struct()) {
+            clog<<kv.second<<endl;
+        }
     }
-    
     return true;
 }
 
