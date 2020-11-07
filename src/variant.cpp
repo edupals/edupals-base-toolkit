@@ -626,6 +626,66 @@ Variant& Variant::operator/(variant::Type type)
     return *this;
 }
 
+bool Variant::to_boolean()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch(type) {
+        
+        case variant::Type::Boolean:
+            return get_boolean();
+        break;
+        
+        case variant::Type::Int32:
+            return ((bool)get_int32());
+        break;
+        
+        case variant::Type::Int64:
+            return ((bool)get_int64());
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+    
+}
+
+int32_t Variant::to_int32()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch(type) {
+        
+        case variant::Type::Boolean:
+            return (int32_t)get_boolean();
+        break;
+        
+        case variant::Type::Int32:
+            return get_int32();
+        break;
+        
+        case variant::Type::Int64:
+            return ((int32_t)get_int64());
+        break;
+        
+        case variant::Type::Float:
+            return ((int32_t)get_float());
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+    
+}
+
 std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
 {
     v.serialize(os);

@@ -494,8 +494,16 @@ namespace edupals
             */
             std::vector<uint8_t>& get_bytes();
             
+            /*!
+                Gets internal array storage
+                throws InvalidType exception in case of type missmatch
+            */
             std::vector<Variant>& get_array();
             
+            /*!
+                Gets internal struct storage
+                throws InvalidType exception in case of type missmatch
+            */
             std::map<std::string,Variant>& get_struct();
             
             Variant& operator=(bool value);
@@ -605,6 +613,10 @@ namespace edupals
             {
                 return (data and data.get()->type==Type::Struct);
             }
+            
+            bool to_boolean();
+            
+            int32_t to_int32();
         };
         
         /*!

@@ -460,7 +460,7 @@ bool test_variant()
     const char* index="alfa";
     message[index]="A";
     message["beta"]=1;
-    message["gamma"]=2.0f;
+    message["gamma"]=2.2f;
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
     message["delta"]["k2"]=Variant({11,22,33,44});
@@ -489,7 +489,7 @@ bool test_variant()
     
     clog<<"alfa: "<<message["alfa"].get_string()<<endl;
     clog<<"beta: "<<message["beta"].get_int32()<<endl;
-    clog<<"gamma: "<<message["gamma"].get_float()<<endl;
+    clog<<"gamma: "<<message["gamma"].to_int32()<<endl;
     clog<<"delta: "<<message["delta"]["k1"].get_int32()<<endl;
     
     auto tmp = g.get_bytes();
