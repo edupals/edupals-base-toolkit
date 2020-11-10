@@ -1,0 +1,65 @@
+/*
+ * Copyright (C) 2020 Edupals project
+ *
+ * Author:
+ *  Enrique Medina Gremaldos <quiqueiii@gmail.com>
+ *
+ * Source:
+ *  https://github.com/edupals/edupals-base-toolkit
+ *
+ * This file is a part of edupals-base-toolkit.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ */
+
+#ifndef EDUPALS_URI
+#define EDUPALS_URI
+
+#include <string>
+
+namespace edupals
+{
+    namespace uri
+    {
+        namespace exception
+        {
+            class SyntaxError : public std::exception
+            {
+                public:
+                
+                std::string message;
+                
+                SyntaxError(std::string message)
+                {
+                    this->message=message;
+                }
+                
+                const char* what () const throw ()
+                {
+                    return message.c_str();
+                }
+            };
+        }
+        
+        class Uri
+        {
+            public:
+            
+            Uri(std::string uri);
+            
+            std::string schema;
+            std::string path;
+        };
+    }
+}
+
+#endif

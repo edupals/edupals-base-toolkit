@@ -617,6 +617,8 @@ namespace edupals
             bool to_boolean();
             
             int32_t to_int32();
+            
+            float to_float();
         };
         
         /*!

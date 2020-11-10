@@ -36,6 +36,10 @@ namespace edupals
     {
         namespace token
         {
+            bool is_num(char c);
+            bool is_alpha_lower(char c);
+            bool is_alpha_upper(char c);
+            
             class Word: public DFA
             {
                 private:
@@ -128,6 +132,39 @@ namespace edupals
                 void step() override;
                 
                 std::string get_string();
+            };
+            
+            class IP4: public DFA
+            {
+                private:
+                
+                int dots;
+                int digits;
+                
+                int in;
+                
+                public:
+                
+                uint8_t ip[4];
+                    
+                void start() override;
+                void step() override;
+            };
+            
+            /*!
+                RFC 1123 hostname token
+            */
+            class Hostname: public DFA
+            {
+                private:
+                
+                std::vector<int> dots;
+                bool first;
+                
+                public:
+                
+                void start() override;
+                void step() override;
             };
         }
     }

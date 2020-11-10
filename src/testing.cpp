@@ -38,6 +38,7 @@
 #include <json.hpp>
 #include <bson.hpp>
 #include <base64.hpp>
+#include <uri.hpp>
 
 #include <iostream>
 #include <thread>
@@ -633,6 +634,15 @@ bool test_base64()
     return true;
 }
 
+bool test_uri()
+{
+    string address = "http://www.google.com";
+    clog<<"url: "<<address<<endl;
+    uri::Uri url(address);
+    
+    return true;
+}
+
 bool evaluate(std::function<bool()> test_function)
 {
     try {
@@ -685,6 +695,9 @@ int main (int argc,char* argv[])
     
     //base64
     tests["log"].push_back(Test("log",test_log));
+    
+    //uri
+    tests["uri"].push_back(Test("uri",test_uri));
     
     cmd::ArgumentParser parser;
     cmd::ParseResult result;

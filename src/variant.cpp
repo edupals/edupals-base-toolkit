@@ -686,6 +686,33 @@ int32_t Variant::to_int32()
     
 }
 
+float Variant::to_float()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch (type) {
+        
+        case variant::Type::Int32:
+            return ((float)get_int32());
+        break;
+        
+        case variant::Type::Int64:
+            return ((float)get_int64());
+        break;
+        
+        case variant::Type::Float:
+            return get_float();
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+}
+
 std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)
 {
     v.serialize(os);
