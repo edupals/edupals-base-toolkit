@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <array>
 
 namespace edupals
 {
@@ -145,27 +146,12 @@ namespace edupals
                 
                 public:
                 
-                uint8_t ip[4];
+                std::array<uint8_t,4> ip;
                     
                 void start() override;
                 void step() override;
             };
             
-            /*!
-                RFC 1123 hostname token
-            */
-            class Hostname: public DFA
-            {
-                private:
-                
-                std::vector<int> dots;
-                bool first;
-                
-                public:
-                
-                void start() override;
-                void step() override;
-            };
         }
     }
 }

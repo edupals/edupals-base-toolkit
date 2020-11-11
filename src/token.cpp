@@ -42,7 +42,6 @@ bool edupals::parser::token::is_alpha_upper(char c)
     return (c>='A' and c<='Z');
 }
 
-
 Word::Word(string match)
 {
     this->match=match;
@@ -207,7 +206,7 @@ void Integer::start()
         _accept=true;
     }
     
-    if (c>='0' and c<='9') {
+    if (is_num(c)) {
         _accept=true;
         _end=true;
     }
@@ -218,8 +217,9 @@ void Integer::step()
     if (!_accept) {
         return;
     }
+    char c = stack[cursor];
     
-    if (stack[cursor]>='0' and stack[cursor]<='9') {
+    if (is_num(c)) {
         _accept=true;
     }
     else {
@@ -248,7 +248,7 @@ void Float::start()
         _accept=true;
     }
     
-    if (c>='0' and c<='9') {
+    if (is_num(c)) {
         _accept=true;
     }
     
@@ -268,7 +268,7 @@ void Float::step()
     char c = stack[cursor];
     
     if (dot) {
-        if (c>='0' and c<='9') {
+        if (is_num(c)) {
             _accept=true;
             _end=true;
         }
@@ -282,7 +282,7 @@ void Float::step()
             dot=true;
         }
         else {
-            if (c>='0' and c<='9') {
+            if (is_num(c)) {
                 _accept=true;
             }
             else {
@@ -406,58 +406,4 @@ void IP4::step()
         }
     }
     
-}
-
-void Hostname::start()
-{
-    char c = stack[0];
-    
-    first=false;
-    
-    if (is_num(c) or is_alpha_lower(c)) {
-        _accept=true;
-    }
-}
-
-void Hostname::step()
-{
-    if (!_accept) {
-        return;
-    }
-    
-    char c = stack[cursor];
-    
-    if (c=='.') {
-        _end=false;
-        
-        if (first) {
-            _accept=false;
-        }
-        else {
-            first=true;
-            dots.push_back(cursor);
-        }
-    }
-    else {
-        
-        if (is_num(c) or is_alpha_lower(c)) {
-            _accept=true;
-            _end=true;
-            
-            if (first) {
-                first=false;
-            }
-        }
-        else {
-            if (c=='-' and !first) {
-                _accept=true;
-                _end=false;
-            }
-            else {
-                _accept=false;
-                _end=false;
-            }
-        }
-        
-    }
 }

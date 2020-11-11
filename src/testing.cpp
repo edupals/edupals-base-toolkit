@@ -636,9 +636,30 @@ bool test_base64()
 
 bool test_uri()
 {
-    string address = "http://www.google.com";
+    string address = "http://noname@80.20.200.1/alfa/beta/gamma";
+    
     clog<<"url: "<<address<<endl;
     uri::Uri url(address);
+    
+    clog<<"scheme:"<<url.scheme<<endl;
+    clog<<"user:"<<url.user<<endl;
+    clog<<"host:"<<url.host<<endl;
+    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"port:"<<url.port<<endl;
+    clog<<"path:"<<url.path<<endl;
+    
+    clog<<endl;
+    address = "my-protocol://net.lliurex/nopath";
+    
+    clog<<"url: "<<address<<endl;
+    url=uri::Uri(address);
+    
+    clog<<"scheme:"<<url.scheme<<endl;
+    clog<<"user:"<<url.user<<endl;
+    clog<<"host:"<<url.host<<endl;
+    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"port:"<<url.port<<endl;
+    clog<<"path:"<<url.path<<endl;
     
     return true;
 }

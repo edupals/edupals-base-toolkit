@@ -96,7 +96,13 @@ namespace edupals
             /*! 4 byte address */
             std::array<uint8_t,4> address;
             
-            IP4(){};
+            IP4()
+            {
+                address[0]=0;
+                address[1]=0;
+                address[2]=0;
+                address[3]=0;
+            };
             
             /*!
                 Create address from uint32 representation

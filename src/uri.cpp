@@ -33,58 +33,104 @@ using namespace edupals::parser;
 
 using namespace std;
 
-class Scheme: public DFA
+class Name: public DFA
 {
+    private:
     
+    std::vector<int> dots;
+    bool first;
+    bool some_alpha;
+                
     public:
     
     void start() override
     {
         char c = stack[0];
         
-        if ( (c>='A' and c<='Z') or (c>='a' and c<='z') ) {
+        first=false;
+        some_alpha=false;
+        
+        if (token::is_num(c)) {
             _accept=true;
-            _end=true;
+        }
+        
+        if (token::is_alpha_lower(c)) {
+            _accept=true;
+            some_alpha=true;
         }
     }
+    
     void step() override
     {
         if (!_accept) {
-            return;
+        return;
         }
         
         char c = stack[cursor];
         
-        if (!( (c>='A' and c<='Z') or (c>='a' and c<='z') or (c>='0' and c<='9') or (c=='+') or (c=='.') or (c=='-'))) {
-            _accept=false;
+        if (c=='.') {
             _end=false;
+            
+            if (first) {
+                _accept=false;
+            }
+            else {
+                first=true;
+                dots.push_back(cursor);
+            }
+        }
+        else {
+            
+            if (token::is_num(c)) {
+                _accept=true;
+                _end = some_alpha;
+            }
+            else {
+                if (token::is_alpha_lower(c)) {
+                    some_alpha=true;
+                    _accept=true;
+                    _end = true;
+                }
+                else {
+                    if (c=='-' and !first) {
+                        some_alpha=true;
+                        _accept=true;
+                        _end=false;
+                    }
+                    else {
+                        _accept=false;
+                        _end=false;
+                    }
+                }
+            }
+            
         }
     }
 };
 
 Uri::Uri(string uri)
 {
+    this->port=0;
+    
     DFA* colon = new token::Char(':');
-    DFA* doubleslash = new token::Word("//");
-    Scheme* scheme = new Scheme();
+    DFA* slash = new token::Char('/');
     DFA* hash = new token::Char('#');
     DFA* at = new token::Char('@');
     DFA* question = new token::Char('?');
     DFA* port = new token::Integer();
     DFA* ip4 = new token::IP4();
-    DFA* hostname = new token::Hostname();
+    DFA* name = new Name();
     
     Lexer lexer;
     
     lexer.add_token("COLON",colon);
-    lexer.add_token("DS",doubleslash);
-    lexer.add_token("SCHEME",scheme);
+    lexer.add_token("SLASH",slash);
     lexer.add_token("HASH",hash);
     lexer.add_token("AT",at);
     lexer.add_token("QUESTION",question);
     lexer.add_token("PORT",port);
     lexer.add_token("IP4",ip4);
-    lexer.add_token("HOSTNAME",hostname);
+    lexer.add_token("NAME",name);
     
     stringstream stream;
     
@@ -92,37 +138,169 @@ Uri::Uri(string uri)
     
     lexer.set_input(&stream);
     
+    int rule = 0;
+    string temp;
+    
     while (lexer.step()) {
-        clog<<lexer.get_token()<<endl;
+        //clog<<"rule: "<<rule<<" token: "<<lexer.get_token()<<endl;
         DFA* dfa = lexer.get_dfa();
-       
-        if (dfa==scheme) {
-            clog<<"scheme: "<<dfa->value()<<endl;
+        
+        if (rule==0) {
+            if (dfa!=name) {
+                throw exception::SyntaxError("expected name");
+            }
+            this->scheme = dfa->value();
+            rule++;
+            continue;
         }
         
-        if (dfa==ip4) {
-            clog<<"ipv4:"<<endl;
-            for (int n=0;n<4;n++) {
-                clog<<(int)static_cast<token::IP4*>(dfa)->ip[n]<<endl;
+        if (rule==1) {
+            if (dfa!=colon) {
+                throw exception::SyntaxError("expected colon");
+            }
+            rule++;
+            continue;
+        }
+        
+        if (rule==2) {
+            if (dfa!=slash) {
+                throw exception::SyntaxError("expected slash");
+            }
+            rule++;
+            continue;
+        }
+        
+        if (rule==3) {
+            if (dfa==slash) {
+                // we have a host
+                rule++;
+                continue;
+            }
+            else {
+                // we are already parsing path
+                if (dfa==name) {
+                    this->path="/";
+                    rule=10;
+                    continue;
+                }
+                else {
+                    throw exception::SyntaxError("expected slash or name");
+                }
             }
         }
         
-        if (dfa==hostname) {
-            clog<<"hostname:"<<dfa->value()<<endl;
+        if (rule==4) {
+            if (dfa==name) {
+                temp=dfa->value();
+                rule++;
+                continue;
+            }
+            if (dfa==ip4) {
+                this->host=dfa->value();
+                this->ip=network::IP4(static_cast<token::IP4*>(dfa)->ip);
+                
+                rule=7;
+                continue;
+            }
+            
+            throw exception::SyntaxError("expected name or ip4");
         }
+        
+        if (rule==5) {
+            if (dfa==at) {
+                this->user=temp;
+                rule++;
+                continue;
+            }
+            
+            this->host=temp;
+            
+            if (dfa==slash) {
+                this->path+="/";
+                rule=10;
+                continue;
+            }
+            
+            if (dfa==colon) {
+                rule=8;
+                continue;
+            }
+        }
+        
+        if (rule==6) {
+            if (dfa==name) {
+                this->host=dfa->value();
+                rule++;
+                continue;
+            }
+            
+            if (dfa==ip4) {
+                this->host=dfa->value();
+                this->ip=network::IP4(static_cast<token::IP4*>(dfa)->ip);
+                rule++;
+                continue;
+            }
+            
+            throw exception::SyntaxError("expected name or ip4");
+        }
+        
+        if (rule==7) {
+            if (dfa==colon) {
+                rule++;
+                continue;
+            }
+            
+            if (dfa==slash) {
+                this->path+="/";
+                rule=10;
+                continue;
+            }
+        }
+        
+        if (rule==8) {
+            if (dfa!=port) {
+                throw exception::SyntaxError("expected port");
+            }
+            this->port=static_cast<token::Integer*>(dfa)->get_int();
+            rule++;
+            continue;
+        }
+        
+        if (rule==9) {
+            if (dfa!=slash) {
+                throw exception::SyntaxError("expected slash");
+            }
+            this->path+="/";
+            rule++;
+            continue;
+        }
+        
+        if (rule==10) {
+            if (dfa!=name) {
+                throw exception::SyntaxError("expected name");
+            }
+            this->path+=dfa->value();
+            
+            rule=9;
+            continue;
+        }
+        
     }
     if (!lexer.eof()) {
-        cerr<<"Unknown token";
+        throw exception::SyntaxError("Unknown token");
     }
     else {
         if (lexer.pending()) {
-            cerr<<"Unexpected EOF";
+            throw exception::SyntaxError("Unexpected EOF");
         }
     }
+    
     delete colon;
-    delete doubleslash;
-    delete scheme;
+    delete slash;
     delete hash;
     delete at;
     delete question;
+    delete port;
+    delete ip4;
+    delete name;
 }
