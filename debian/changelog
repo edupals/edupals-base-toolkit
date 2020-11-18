@@ -1,3 +1,11 @@
+edupals-base-toolkit (2.1.0.0) focal; urgency=medium
+
+  * Master tag: e7c64650bb612ca96c943b4463dc35bf8417e6e3 
+  * Added a uri parser module
+  * Added some handy methods and conversions to Variant module
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 18 Nov 2020 12:39:12 +0100
+
 edupals-base-toolkit (2.0.1.0) focal; urgency=medium
 
   * Master tag: 283cd39d49ce89eee60bcdc7b6f295d84b42df63 
