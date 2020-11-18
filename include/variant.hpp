@@ -494,6 +494,18 @@ namespace edupals
             */
             std::vector<uint8_t>& get_bytes();
             
+            /*!
+                Gets internal array storage
+                throws InvalidType exception in case of type missmatch
+            */
+            std::vector<Variant>& get_array();
+            
+            /*!
+                Gets internal struct storage
+                throws InvalidType exception in case of type missmatch
+            */
+            std::map<std::string,Variant>& get_struct();
+            
             Variant& operator=(bool value);
             Variant& operator=(int32_t value);
             Variant& operator=(int64_t value);
@@ -556,6 +568,57 @@ namespace edupals
             {
                 return get_string();
             }
+            
+            bool is_boolean()
+            {
+                return (data and data.get()->type==Type::Boolean);
+            }
+            
+            bool is_int32()
+            {
+                return (data and data.get()->type==Type::Int32);
+            }
+            
+            bool is_int64()
+            {
+                return (data and data.get()->type==Type::Int64);
+            }
+            
+            bool is_float()
+            {
+                return (data and data.get()->type==Type::Float);
+            }
+            
+            bool is_double()
+            {
+                return (data and data.get()->type==Type::Double);
+            }
+            
+            bool is_string()
+            {
+                return (data and data.get()->type==Type::String);
+            }
+            
+            bool is_bytes()
+            {
+                return (data and data.get()->type==Type::Bytes);
+            }
+            
+            bool is_array()
+            {
+                return (data and data.get()->type==Type::Array);
+            }
+            
+            bool is_struct()
+            {
+                return (data and data.get()->type==Type::Struct);
+            }
+            
+            bool to_boolean();
+            
+            int32_t to_int32();
+            
+            float to_float();
         };
         
         /*!

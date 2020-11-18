@@ -38,6 +38,7 @@
 #include <json.hpp>
 #include <bson.hpp>
 #include <base64.hpp>
+#include <uri.hpp>
 
 #include <iostream>
 #include <thread>
@@ -460,7 +461,7 @@ bool test_variant()
     const char* index="alfa";
     message[index]="A";
     message["beta"]=1;
-    message["gamma"]=2.0f;
+    message["gamma"]=2.2f;
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
     message["delta"]["k2"]=Variant({11,22,33,44});
@@ -489,12 +490,19 @@ bool test_variant()
     
     clog<<"alfa: "<<message["alfa"].get_string()<<endl;
     clog<<"beta: "<<message["beta"].get_int32()<<endl;
-    clog<<"gamma: "<<message["gamma"].get_float()<<endl;
+    clog<<"gamma: "<<message["gamma"].to_int32()<<endl;
     clog<<"delta: "<<message["delta"]["k1"].get_int32()<<endl;
     
     auto tmp = g.get_bytes();
     clog<<"0x"<<hex<<(int)tmp[0]<<(int)tmp[1]<<(int)tmp[2]<<(int)tmp[3]<<endl;
+    clog<<dec;
     
+    clog<<"iteration:"<<endl;
+    if (message.is_struct()) {
+        for (auto kv : message.get_struct()) {
+            clog<<kv.second<<endl;
+        }
+    }
     return true;
 }
 
@@ -626,6 +634,36 @@ bool test_base64()
     return true;
 }
 
+bool test_uri()
+{
+    string address = "http://noname@80.20.200.1/alfa/beta/gamma";
+    
+    clog<<"url: "<<address<<endl;
+    uri::Uri url(address);
+    
+    clog<<"scheme:"<<url.scheme<<endl;
+    clog<<"user:"<<url.user<<endl;
+    clog<<"host:"<<url.host<<endl;
+    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"port:"<<url.port<<endl;
+    clog<<"path:"<<url.path<<endl;
+    
+    clog<<endl;
+    address = "my-protocol://net.lliurex/nopath";
+    
+    clog<<"url: "<<address<<endl;
+    url=uri::Uri(address);
+    
+    clog<<"scheme:"<<url.scheme<<endl;
+    clog<<"user:"<<url.user<<endl;
+    clog<<"host:"<<url.host<<endl;
+    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"port:"<<url.port<<endl;
+    clog<<"path:"<<url.path<<endl;
+    
+    return true;
+}
+
 bool evaluate(std::function<bool()> test_function)
 {
     try {
@@ -678,6 +716,9 @@ int main (int argc,char* argv[])
     
     //base64
     tests["log"].push_back(Test("log",test_log));
+    
+    //uri
+    tests["uri"].push_back(Test("uri",test_uri));
     
     cmd::ArgumentParser parser;
     cmd::ParseResult result;

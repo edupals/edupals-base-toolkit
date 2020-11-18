@@ -23,7 +23,6 @@
 
 #include "variant.hpp"
 
-
 using namespace edupals::variant;
 using namespace std;
 
@@ -444,6 +443,36 @@ vector<uint8_t>& Variant::get_bytes()
     return cast->value;
 }
 
+vector<Variant>& Variant::get_array()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Array) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Array* cast=static_cast<container::Array*>(data.get());
+    
+    return cast->value;
+}
+
+map<string,Variant>& Variant::get_struct()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    if ((*data).type!=variant::Type::Struct) {
+        throw variant::exception::InvalidType();
+    }
+    
+    container::Struct* cast=static_cast<container::Struct*>(data.get());
+    
+    return cast->value;
+}
+
 Variant& Variant::operator=(bool value)
 {
     data.reset(new container::Boolean(value));
@@ -595,6 +624,93 @@ Variant& Variant::operator/(variant::Type type)
     }
     
     return *this;
+}
+
+bool Variant::to_boolean()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch(type) {
+        
+        case variant::Type::Boolean:
+            return get_boolean();
+        break;
+        
+        case variant::Type::Int32:
+            return ((bool)get_int32());
+        break;
+        
+        case variant::Type::Int64:
+            return ((bool)get_int64());
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+    
+}
+
+int32_t Variant::to_int32()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch(type) {
+        
+        case variant::Type::Boolean:
+            return (int32_t)get_boolean();
+        break;
+        
+        case variant::Type::Int32:
+            return get_int32();
+        break;
+        
+        case variant::Type::Int64:
+            return ((int32_t)get_int64());
+        break;
+        
+        case variant::Type::Float:
+            return ((int32_t)get_float());
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+    
+}
+
+float Variant::to_float()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch (type) {
+        
+        case variant::Type::Int32:
+            return ((float)get_int32());
+        break;
+        
+        case variant::Type::Int64:
+            return ((float)get_int64());
+        break;
+        
+        case variant::Type::Float:
+            return get_float();
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
 }
 
 std::ostream& edupals::variant::operator<<(std::ostream& os, Variant& v)

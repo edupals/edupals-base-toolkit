@@ -76,7 +76,7 @@ static uint8_t from_b64(int8_t sym)
         return 0xff;
     }
     
-    throw edupals::base64::exception::BadChar();
+    throw edupals::base64::exception::BadChar(sym);
 }
 
 static void shiftmask(uint8_t a,uint8_t b,uint8_t c,uint32_t* out)
@@ -163,4 +163,25 @@ void edupals::base64::encode(vector<uint8_t>& in,string& out)
         out.append("=");
     }
     
+}
+
+string edupals::base64::decode(string& in)
+{
+    vector<uint8_t> data;
+    
+    edupals::base64::decode(in,data);
+    
+    string ret(data.begin(),data.end());
+    
+    return ret;
+}
+
+string edupals::base64::encode(string& in)
+{
+    vector<uint8_t> data(in.begin(),in.end());
+    string out;
+    
+    edupals::base64::encode(data,out);
+    
+    return out;
 }

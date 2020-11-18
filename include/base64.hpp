@@ -45,9 +45,21 @@ namespace edupals
             
             class BadChar : public std::exception
             {
+                public:
+                
+                char character;
+                std::string msg;
+                
+                BadChar(char character)
+                {
+                    msg = "Invalid base64 character [";
+                    msg += character;
+                    msg += "] "+std::to_string((int)character);
+                }
+                
                 const char* what () const throw ()
                 {
-                    return "Invalid base64 character";
+                    return msg.c_str();
                 }
             };
         }
@@ -65,6 +77,16 @@ namespace edupals
             \param out output string filled with encoded base64 data
         */
         void encode(std::vector<uint8_t>& in,std::string& out);
+        
+        /*!
+            Simple decode function
+        */
+        std::string decode(std::string& in);
+        
+        /*!
+            Simple encode function
+        */
+        std::string encode(std::string& in);
     }
 }
 

@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <array>
 
 namespace edupals
 {
@@ -36,6 +37,10 @@ namespace edupals
     {
         namespace token
         {
+            bool is_num(char c);
+            bool is_alpha_lower(char c);
+            bool is_alpha_upper(char c);
+            
             class Word: public DFA
             {
                 private:
@@ -129,6 +134,24 @@ namespace edupals
                 
                 std::string get_string();
             };
+            
+            class IP4: public DFA
+            {
+                private:
+                
+                int dots;
+                int digits;
+                
+                int in;
+                
+                public:
+                
+                std::array<uint8_t,4> ip;
+                    
+                void start() override;
+                void step() override;
+            };
+            
         }
     }
 }

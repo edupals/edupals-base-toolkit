@@ -22,9 +22,25 @@
  */
  
 #include <token.hpp>
+#include <iostream>
 
 using namespace edupals::parser::token;
 using namespace std;
+
+bool edupals::parser::token::is_num(char c)
+{
+    return (c>='0' and c<='9');
+}
+
+bool edupals::parser::token::is_alpha_lower(char c)
+{
+    return (c>='a' and c<='z');
+}
+
+bool edupals::parser::token::is_alpha_upper(char c)
+{
+    return (c>='A' and c<='Z');
+}
 
 Word::Word(string match)
 {
@@ -190,7 +206,7 @@ void Integer::start()
         _accept=true;
     }
     
-    if (c>='0' and c<='9') {
+    if (is_num(c)) {
         _accept=true;
         _end=true;
     }
@@ -201,8 +217,9 @@ void Integer::step()
     if (!_accept) {
         return;
     }
+    char c = stack[cursor];
     
-    if (stack[cursor]>='0' and stack[cursor]<='9') {
+    if (is_num(c)) {
         _accept=true;
     }
     else {
@@ -231,7 +248,7 @@ void Float::start()
         _accept=true;
     }
     
-    if (c>='0' and c<='9') {
+    if (is_num(c)) {
         _accept=true;
     }
     
@@ -251,7 +268,7 @@ void Float::step()
     char c = stack[cursor];
     
     if (dot) {
-        if (c>='0' and c<='9') {
+        if (is_num(c)) {
             _accept=true;
             _end=true;
         }
@@ -265,7 +282,7 @@ void Float::step()
             dot=true;
         }
         else {
-            if (c>='0' and c<='9') {
+            if (is_num(c)) {
                 _accept=true;
             }
             else {
@@ -324,4 +341,69 @@ string String::get_string()
     tmp=value();
     
     return tmp.substr(1,tmp.size()-2);
+}
+
+void IP4::start()
+{
+    dots=0;
+    digits=0;
+    in=0;
+    
+    if (is_num(stack[0])) {
+        _accept=true;
+        in=stack[0]-'0';
+        digits++;
+        
+    }
+}
+
+void IP4::step()
+{
+    if (!_accept) {
+        return;
+    }
+    
+    char c = stack[cursor];
+    
+    if(is_num(c)) {
+        digits++;
+        in=(in*10)+(c-'0');
+        
+        if (in<256) {
+            if (dots==3) {
+                ip[dots]=in;
+                _end=true;
+            }
+        }
+        else {
+            _accept=false;
+        }
+        
+    }
+    else {
+        if (c=='.') {
+            
+            if (dots<3) {
+                if (digits==0) {
+                    _accept=false;
+                }
+                else {
+                    ip[dots]=in;
+                    
+                    in=0;
+                    digits=0;
+                    dots++;
+                }
+            }
+            else {
+                _accept=false;
+                _end=false;
+            }
+        }
+        else {
+            _accept=false;
+            _end=false;
+        }
+    }
+    
 }
