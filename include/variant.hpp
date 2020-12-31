@@ -614,11 +614,30 @@ namespace edupals
                 return (data and data.get()->type==Type::Struct);
             }
             
+            /*!
+                Converts to boolean if possible, may throw exception if not
+            */
             bool to_boolean();
             
+            /*!
+                Lossy conversion to int32, may throw exception if conversion is not possible
+            */
             int32_t to_int32();
             
+            /*!
+                Lossy conversion to float, may throw exception if conversion is not possible
+            */
             float to_float();
+            
+            /*!
+                Lossy conversion to double, may throw exception if conversion is not possible
+            */
+            double to_double();
+            
+            /*!
+                Lossy conversion to int64, may throw exception if conversion is not possible
+            */
+            int64_t to_int64();
         };
         
         /*!
