@@ -665,7 +665,7 @@ int32_t Variant::to_int32()
     switch(type) {
         
         case variant::Type::Boolean:
-            return (int32_t)get_boolean();
+            return ((int32_t)get_boolean());
         break;
         
         case variant::Type::Int32:
@@ -678,6 +678,10 @@ int32_t Variant::to_int32()
         
         case variant::Type::Float:
             return ((int32_t)get_float());
+        break;
+        
+        case variant::Type::Double:
+            return ((int32_t)get_double());
         break;
         
         default:
@@ -696,6 +700,10 @@ float Variant::to_float()
     
     switch (type) {
         
+        case variant::Type::Boolean:
+            return ((float)get_boolean());
+        break;
+        
         case variant::Type::Int32:
             return ((float)get_int32());
         break;
@@ -706,6 +714,80 @@ float Variant::to_float()
         
         case variant::Type::Float:
             return get_float();
+        break;
+        
+        case variant::Type::Double:
+            return ((float)get_double());
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+}
+
+double Variant::to_double()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch (type) {
+        
+        case variant::Type::Boolean:
+            return ((double)get_boolean());
+        break;
+        
+        case variant::Type::Int32:
+            return ((double)get_int32());
+        break;
+        
+        case variant::Type::Int64:
+            return ((double)get_int64());
+        break;
+        
+        case variant::Type::Float:
+            return ((double)get_float());
+        break;
+        
+        case variant::Type::Double:
+            return get_double();
+        break;
+        
+        default:
+            throw variant::exception::InvalidType();
+    }
+}
+
+int64_t Variant::to_int64()
+{
+    if (!data) {
+        throw variant::exception::Unitialized();
+    }
+    
+    Type type=(*data).type;
+    
+    switch(type) {
+        
+        case variant::Type::Boolean:
+            return ((int64_t)get_boolean());
+        break;
+        
+        case variant::Type::Int32:
+            return ((int64_t)get_int32());
+        break;
+        
+        case variant::Type::Int64:
+            return get_int64();
+        break;
+        
+        case variant::Type::Float:
+            return ((int64_t)get_float());
+        break;
+        
+        case variant::Type::Double:
+            return ((int64_t)get_double());
         break;
         
         default:

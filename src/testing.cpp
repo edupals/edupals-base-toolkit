@@ -462,6 +462,7 @@ bool test_variant()
     message[index]="A";
     message["beta"]=1;
     message["gamma"]=2.2f;
+    clog<<"p1"<<endl;
     message["delta"]=Variant::create_struct();
     message["delta"]["k1"]=32767;
     message["delta"]["k2"]=Variant({11,22,33,44});
@@ -503,6 +504,17 @@ bool test_variant()
             clog<<kv.second<<endl;
         }
     }
+    
+    Variant lima = Variant::create_struct();
+    Variant mike = lima;
+    Variant lima_a = lima["a"];
+    clog<<"lima:"<<lima<<endl;
+    lima["a"]=3;
+    lima["a"]=4;
+    clog<<"lima:"<<lima<<endl;
+    clog<<"lima_a:"<<lima_a<<endl;
+    clog<<"mike:"<<mike<<endl;
+    
     return true;
 }
 
