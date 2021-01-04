@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.1.1.0) focal; urgency=medium
+
+  * Master tag: fd89028c5e6d6ceed139c29515934457adb769a4
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 04 Jan 2021 10:37:28 +0100
+
 edupals-base-toolkit (2.1.0.0) focal; urgency=medium
 
   * Master tag: e7c64650bb612ca96c943b4463dc35bf8417e6e3 
