@@ -24,6 +24,9 @@
 #ifndef EDUPALS_NETWORK
 #define EDUPALS_NETWORK
 
+#include <sys/types.h>
+#include <ifaddrs.h>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -61,9 +64,14 @@ namespace edupals
         {
             public:
             /*! 6 byte address array */
-            std::array<uint8_t,6> address;
+            std::array<uint8_t,6> value;
             
             MAC(){};
+            
+            /*!
+                Create MAC from sockaddr struct
+            */
+            MAC(struct sockaddr addr);
             
             /*!
                 Create MAC from byte array
@@ -94,15 +102,17 @@ namespace edupals
             public:
             
             /*! 4 byte address */
-            std::array<uint8_t,4> address;
+            std::array<uint8_t,4> value;
             
             IP4()
             {
-                address[0]=0;
-                address[1]=0;
-                address[2]=0;
-                address[3]=0;
+                value[0]=0;
+                value[1]=0;
+                value[2]=0;
+                value[3]=0;
             };
+            
+            IP4(struct sockaddr addr);
             
             /*!
                 Create address from uint32 representation
@@ -134,6 +144,8 @@ namespace edupals
         {
             public:
             
+            Mask4(struct sockaddr addr);
+                
             Mask4(uint32_t address);
             
             Mask4(std::array<uint8_t,4> address);
@@ -155,6 +167,50 @@ namespace edupals
             bool in_range(IP4 subnet,IP4 ip);
         };
         
+        class Address
+        {
+            protected:
+            struct sockaddr _address;
+            struct sockaddr _netmask;
+            struct sockaddr _broadcast;
+                
+            public:
+            
+            Address(struct sockaddr address,
+                    struct sockaddr netmask,
+                    struct sockaddr broadcast) :
+                    _address(address),
+                    _netmask(netmask),
+                    _broadcast(broadcast)
+            {
+            }
+            
+            uint16_t family()
+            {
+                return _address.sa_family;
+            }
+            
+            struct sockaddr& address()
+            {
+                return _address;
+            }
+            
+            struct sockaddr& netmask()
+            {
+                return _netmask;
+            }
+            
+            struct sockaddr& broadcast()
+            {
+                return _broadcast;
+            }
+            
+            struct sockaddr& peer()
+            {
+                return _broadcast;
+            }
+        };
+        
         /*!
             This class represents a Linux network device (it may not be a 
             physical device, but a virtual one)
@@ -165,6 +221,12 @@ namespace edupals
             
             std::string read_str(std::string prop);
             uint32_t read_u32(std::string prop);
+            void push_address(struct ifaddrs* addr);
+            
+            uint32_t flags;
+            MAC _address;
+            MAC _broadcast;
+            std::vector<Address> _addresses;
             
             public:
             
@@ -191,24 +253,22 @@ namespace edupals
             uint32_t type();
             
             /*! Hardware MAC Address */
-            MAC address();
+            MAC address() {return _address;}
             
-            /*! Get IPv4 Address */
-            IP4 ip4();
-            
-            /*! Get IPv4 subnet mask */
-            Mask4 mask4();
-            
-            /*! Get IPv4 broadcast */
-            IP4 broadcast4();
+            /*! Hardware broadcast address */
+            MAC broadcast() {return _broadcast;}
             
             /*! whenever interface exists or not */
             bool exists();
             
+            std::vector<Address>& addresses();
+            
             /*!
                 gets a list of all avialable interfaces
             */
-            static std::vector<Interface> list();
+            static std::vector<Interface>& list();
+            
+            static void update();
         };
         
     }
