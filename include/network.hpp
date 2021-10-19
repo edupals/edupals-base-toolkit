@@ -71,7 +71,7 @@ namespace edupals
             /*!
                 Create MAC from sockaddr struct
             */
-            MAC(struct sockaddr addr);
+            MAC(struct sockaddr& addr);
             
             /*!
                 Create MAC from byte array
@@ -112,7 +112,7 @@ namespace edupals
                 value[3]=0;
             };
             
-            IP4(struct sockaddr addr);
+            IP4(struct sockaddr& addr);
             
             /*!
                 Create address from uint32 representation
@@ -144,7 +144,7 @@ namespace edupals
         {
             public:
             
-            Mask4(struct sockaddr addr);
+            Mask4(struct sockaddr& addr);
                 
             Mask4(uint32_t address);
             
@@ -211,6 +211,20 @@ namespace edupals
             }
         };
         
+        class CachedInterface
+        {
+            public:
+            
+            uint32_t update_id;
+            std::string name;
+            uint32_t flags;
+            MAC address;
+            MAC broadcast;
+            std::vector<Address> addresses;
+            
+            void push_address(struct ifaddrs* addr);
+        };
+        
         /*!
             This class represents a Linux network device (it may not be a 
             physical device, but a virtual one)
@@ -221,12 +235,8 @@ namespace edupals
             
             std::string read_str(std::string prop);
             uint32_t read_u32(std::string prop);
-            void push_address(struct ifaddrs* addr);
             
-            uint32_t flags;
-            MAC _address;
-            MAC _broadcast;
-            std::vector<Address> _addresses;
+            CachedInterface* cache;
             
             public:
             
@@ -252,21 +262,22 @@ namespace edupals
             */
             uint32_t type();
             
-            /*! Hardware MAC Address */
-            MAC address() {return _address;}
-            
-            /*! Hardware broadcast address */
-            MAC broadcast() {return _broadcast;}
-            
             /*! whenever interface exists or not */
             bool exists();
+
+            /*! Hardware MAC Address */
+            MAC address();
+            
+            /*! Hardware broadcast address */
+            MAC broadcast();
+            
             
             std::vector<Address>& addresses();
             
             /*!
                 gets a list of all avialable interfaces
             */
-            static std::vector<Interface>& list();
+            static std::vector<Interface> list();
             
             static void update();
         };

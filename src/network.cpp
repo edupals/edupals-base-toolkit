@@ -25,6 +25,7 @@
 #include <network.hpp>
 
 #include <sys/ioctl.h>
+#include <linux/if_packet.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -45,12 +46,16 @@ using namespace edupals::network::exception;
 using namespace std;
 namespace fs=std::experimental::filesystem;
 
-std::mutex data_mutex;
-std::vector<Interface> data;
+thread_local std::vector<CachedInterface> thread_cache;
+thread_local uint32_t update_count;
 
-MAC::MAC(struct sockaddr addr)
+MAC::MAC(struct sockaddr& addr)
 {
-    std::copy(&addr,&addr+6,value.begin());
+    struct sockaddr_ll* link=(struct sockaddr_ll*)&addr;
+
+    uint8_t* ptr = (uint8_t*)link->sll_addr;
+    std::copy(ptr,ptr+6,value.begin());
+
 }
 
 MAC::MAC(array<uint8_t,6> address) : value(address)
@@ -99,9 +104,10 @@ uint8_t MAC::operator [] (int n)
     return value[n];
 }
 
-IP4::IP4(struct sockaddr addr)
+IP4::IP4(struct sockaddr& addr)
 {
-    std::copy(&addr,&addr+4,value.begin());
+    uint8_t* ptr = (uint8_t*)addr.sa_data;
+    std::copy(ptr,ptr+4,value.begin());
 }
 
 IP4::IP4(uint32_t address)
@@ -127,7 +133,7 @@ string IP4::to_string()
 
 uint8_t IP4::operator [] (int n)
 {
-    return address[n];
+    return value[n];
 }
 
 uint32_t IP4::get_uint32()
@@ -139,7 +145,7 @@ uint32_t IP4::get_uint32()
     return tmp;
 }
 
-Mask4::Mask4(struct sockaddr addr) : IP4(addr)
+Mask4::Mask4(struct sockaddr& addr) : IP4(addr)
 {
 }
 
@@ -200,10 +206,37 @@ bool Mask4::in_range(IP4 subnet,IP4 ip)
     return true;
 }
 
+void CachedInterface::push_address(struct ifaddrs* addr)
+{
+    struct sockaddr nil = {0};
+    
+    if (addr->ifa_addr->sa_family == AF_PACKET) {
+        
+        this->flags = addr->ifa_flags;
+        this->address = MAC(*addr->ifa_addr);
+        this->broadcast = MAC(*addr->ifa_ifu.ifu_broadaddr);
+    }
+    else {
+        struct sockaddr* a = addr->ifa_addr!=nullptr ? addr->ifa_addr : &nil;
+        struct sockaddr* b = addr->ifa_netmask!=nullptr ? addr->ifa_netmask : &nil;
+        struct sockaddr* c = addr->ifa_ifu.ifu_broadaddr!=nullptr ? addr->ifa_ifu.ifu_broadaddr : &nil;
+        
+        this->addresses.push_back(Address(*a,*b,*c));
+    }
+}
+
 Interface::Interface(string name)
 {
     path="/sys/class/net/"+name;
     this->name=name;
+    this->cache=nullptr;
+    
+    for (CachedInterface& q : thread_cache) {
+        if (q.name==name) {
+            this->cache=&q;
+            break;
+        }
+    }
 }
 
 string Interface::read_str(string prop)
@@ -229,18 +262,6 @@ uint32_t Interface::read_u32(string prop)
 {
     string tmp = read_str(prop);
     return std::stoi(tmp);
-}
-
-void Interface::push_address(struct ifaddrs* addr)
-{
-    if (addr->ifa_addr->sa_family == AF_LINK) {
-        this->flags = addr->ifa_flags;
-        this->_address = MAC(*addr->ifa_addr);
-        this->_broadcast = MAC(*adr->ifa_ifu.ifu_broadaddr);
-    }
-    else {
-        _addresses.push_back(Address(*addr->ifa_addr,*addr->ifa_netmask,*adr->ifa_ifu.ifu_broadaddr));
-    }
 }
 
 bool Interface::carrier()
@@ -271,7 +292,34 @@ bool Interface::exists()
     return fs::exists(sysfs);
 }
 
-vector<Interface>& Interface::list()
+MAC Interface::address()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return cache->address;
+}
+
+MAC Interface::broadcast()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return cache->broadcast;
+}
+
+std::vector<Address>& Interface::addresses()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return cache->addresses;
+}
+
+vector<Interface> Interface::list()
 {
     vector<Interface> ifaces;
     
@@ -286,29 +334,39 @@ vector<Interface>& Interface::list()
 
 void Interface::update()
 {
-    std::lock_guard<std::mutex> lock(data_mutex);
+    update_count++;
 
-    data.clear();
-    fs::path sysfs("/sys/class/net");
-    
-    for (auto& dev: fs::directory_iterator(sysfs)) {
-        data.push_back(Interface(dev.path().filename()));
+    for (CachedInterface& q : thread_cache) {
+        q.addresses.clear();
     }
     
     struct ifaddrs* ifaces;
 
-	if (getifaddrs(&ifaces) == 0) {
+    if (getifaddrs(&ifaces) == 0) {
         
         struct ifaddrs* iface = ifaces;
 
+        bool found;
+
         while (iface!=nullptr) {
-            
+            found = false;
             /* suboptimal search */
-            for (Interface& q : data) {
-                if (q->name == string(iface->ifa_name)) {
+            for (CachedInterface& q : thread_cache) {
+                if (q.name == string(iface->ifa_name)) {
+                    q.update_id=update_count;
+                    found = true;
                     q.push_address(iface);
                     break;
                 }
+            }
+            
+            if (!found) {
+                CachedInterface q;
+                q.name = string(iface->ifa_name);
+                q.update_id=update_count;
+                q.push_address(iface);
+                
+                thread_cache.push_back(q);
             }
             
             iface=iface->ifa_next;

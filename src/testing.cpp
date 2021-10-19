@@ -70,6 +70,7 @@ bool test_network()
 {
     vector<network::Interface> ifaces;
     
+    network::Interface::update();
     ifaces = network::Interface::list();
     
     clog<<"Network interfaces:"<<endl;
@@ -83,11 +84,6 @@ bool test_network()
         clog<<"\tAddress:"<<iface.address().to_string()<<endl;
         clog<<"\tcarrier:"<<iface.carrier()<<endl;
         clog<<"\tmtu:"<<iface.mtu()<<endl;
-        clog<<"\tip4:"<<iface.ip4().to_string()<<endl;
-        clog<<"\tuint32 ip:"<<std::hex<<iface.ip4().get_uint32()<<std::dec<<endl;
-        clog<<"\tbroadcast:"<<iface.broadcast4().to_string()<<endl;
-        network::Mask4 mask=iface.mask4();
-        clog<<"\tmask:"<<mask.to_string()<<" ("<<mask.bits()<<")"<<endl;
         
     }
     
@@ -103,6 +99,7 @@ bool test_network()
     clog<<"ip b:"<<ip_b.to_string()<<endl;
     clog<<"a "<<mask.in_range(subnet,ip_a)<<endl;
     clog<<"b "<<mask.in_range(subnet,ip_b)<<endl;
+    
     return true;
 }
 
