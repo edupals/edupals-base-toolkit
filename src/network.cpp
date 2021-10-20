@@ -49,21 +49,74 @@ namespace fs=std::experimental::filesystem;
 thread_local std::vector<CachedInterface> thread_cache;
 thread_local uint32_t update_count;
 
-MAC::MAC(struct sockaddr& addr)
+RawAddress::RawAddress(struct sockaddr* addr)
 {
-    struct sockaddr_ll* link=(struct sockaddr_ll*)&addr;
-
-    uint8_t* ptr = (uint8_t*)link->sll_addr;
-    std::copy(ptr,ptr+6,value.begin());
-
+    family = AF_UNSPEC;
+    
+    if (addr!=nullptr) {
+        family = addr->sa_family;
+        
+        switch (family) {
+            case AF_PACKET: {
+                struct sockaddr_ll* link=(struct sockaddr_ll*)addr;
+                uint8_t* ptr = (uint8_t*)link->sll_addr;
+                for (size_t n = 0;n<6;n++) {
+                    value.push_back(ptr[n]);
+                }
+            }
+            break;
+            
+            case AF_INET: {
+                struct sockaddr_in* in=(struct sockaddr_in*)addr;
+                uint8_t* ptr = (uint8_t*)&in->sin_addr.s_addr;
+                for (size_t n = 0;n<4;n++) {
+                    value.push_back(ptr[n]);
+                }
+            }
+            
+        }
+    }
 }
 
-MAC::MAC(array<uint8_t,6> address) : value(address)
+uint8_t RawAddress::operator [] (int n)
 {
+    return value[n];
+}
+
+string RawAddress::to_string()
+{
+    stringstream s;
+    
+    size_t n = 0;
+    
+    while (true) {
+        s<<hex<<setw(2)<<setfill('0')<<(int)value[n];
+        n++;
+        
+        if (n==value.size()) {
+            break;
+        }
+        s<<":";
+    } 
+    
+    return s.str();
+}
+
+MAC::MAC(RawAddress& address)
+{
+    family=address.family;
+    value=address.value;
+}
+
+MAC::MAC(array<uint8_t,6> address)
+{
+    family = AF_PACKET;
+    std::copy(address.begin(),address.end(),value.begin());
 }
 
 MAC::MAC(string address)
 {
+    family = AF_PACKET;
 
     //TODO: check for errors!
 
@@ -72,7 +125,7 @@ MAC::MAC(string address)
     
     for (char c:address) {
         if (c==':') {
-            this->value[n]=stoi(hex,0,16);
+            value[n]=stoi(hex,0,16);
             n--;
             hex="";
         }
@@ -81,7 +134,7 @@ MAC::MAC(string address)
         }
     }
     
-    this->value[n]=stoi(hex,0,16);
+    value[n]=stoi(hex,0,16);
     
 }
 
@@ -89,37 +142,38 @@ string MAC::to_string()
 {
     stringstream s;
     
-    s<<hex<<setw(2)<<setfill('0')<<(int)value[5]<<":";
-    s<<hex<<setw(2)<<setfill('0')<<(int)value[4]<<":";
-    s<<hex<<setw(2)<<setfill('0')<<(int)value[3]<<":";
-    s<<hex<<setw(2)<<setfill('0')<<(int)value[2]<<":";
+    s<<hex<<setw(2)<<setfill('0')<<(int)value[0]<<":";
     s<<hex<<setw(2)<<setfill('0')<<(int)value[1]<<":";
-    s<<hex<<setw(2)<<setfill('0')<<(int)value[0];
+    s<<hex<<setw(2)<<setfill('0')<<(int)value[2]<<":";
+    s<<hex<<setw(2)<<setfill('0')<<(int)value[3]<<":";
+    s<<hex<<setw(2)<<setfill('0')<<(int)value[4]<<":";
+    s<<hex<<setw(2)<<setfill('0')<<(int)value[5];
     
     return s.str();
 }
 
-uint8_t MAC::operator [] (int n)
+IP4::IP4(RawAddress& address)
 {
-    return value[n];
-}
-
-IP4::IP4(struct sockaddr& addr)
-{
-    uint8_t* ptr = (uint8_t*)addr.sa_data;
-    std::copy(ptr,ptr+4,value.begin());
+    family=address.family;
+    value=address.value;
 }
 
 IP4::IP4(uint32_t address)
 {
+    family = AF_INET;
     value[0]=address & 0x000000FF;
     value[1]=(address & 0x0000FF00)>>8;
     value[2]=(address & 0x00FF0000)>>16;
     value[3]=(address & 0xFF000000)>>24;
 }
 
-IP4::IP4(array<uint8_t,4> address) : value(address)
+IP4::IP4(array<uint8_t,4> address)
 {
+    family = AF_INET;
+    
+    for (size_t n = 0;n<4;n++) {
+        value.push_back(address[n]);
+    }
 }
 
 string IP4::to_string()
@@ -131,11 +185,6 @@ string IP4::to_string()
     return s.str();
 }
 
-uint8_t IP4::operator [] (int n)
-{
-    return value[n];
-}
-
 uint32_t IP4::get_uint32()
 {
     uint32_t tmp;
@@ -145,7 +194,7 @@ uint32_t IP4::get_uint32()
     return tmp;
 }
 
-Mask4::Mask4(struct sockaddr& addr) : IP4(addr)
+Mask4::Mask4(RawAddress& address) : IP4(address)
 {
 }
 
@@ -208,20 +257,17 @@ bool Mask4::in_range(IP4 subnet,IP4 ip)
 
 void CachedInterface::push_address(struct ifaddrs* addr)
 {
-    struct sockaddr nil = {0};
     
     if (addr->ifa_addr->sa_family == AF_PACKET) {
         
         this->flags = addr->ifa_flags;
-        this->address = MAC(*addr->ifa_addr);
-        this->broadcast = MAC(*addr->ifa_ifu.ifu_broadaddr);
+        RawAddress tmp = RawAddress(addr->ifa_addr);
+        this->address = MAC(tmp);
+        tmp = RawAddress(addr->ifa_ifu.ifu_broadaddr);
+        this->broadcast = MAC(tmp);
     }
     else {
-        struct sockaddr* a = addr->ifa_addr!=nullptr ? addr->ifa_addr : &nil;
-        struct sockaddr* b = addr->ifa_netmask!=nullptr ? addr->ifa_netmask : &nil;
-        struct sockaddr* c = addr->ifa_ifu.ifu_broadaddr!=nullptr ? addr->ifa_ifu.ifu_broadaddr : &nil;
-        
-        this->addresses.push_back(Address(*a,*b,*c));
+        this->addresses.push_back(AddressSetup(addr->ifa_addr,addr->ifa_netmask,addr->ifa_ifu.ifu_broadaddr));
     }
 }
 
@@ -285,6 +331,33 @@ uint32_t Interface::type()
     return read_u32("type");
 }
 
+bool Interface::up()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return (cache->flags & IFF_UP != 0);
+}
+
+bool Interface::loopback()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return (cache->flags & IFF_LOOPBACK != 0);
+}
+
+bool Interface::point_to_point()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return (cache->flags & IFF_POINTOPOINT != 0);
+}
+
 bool Interface::exists()
 {
     fs::path sysfs = path;
@@ -310,7 +383,7 @@ MAC Interface::broadcast()
     return cache->broadcast;
 }
 
-std::vector<Address>& Interface::addresses()
+std::vector<AddressSetup>& Interface::addresses()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -376,4 +449,28 @@ void Interface::update()
         
     }
     
+}
+
+ostream& edupals::network::operator<<(ostream& os,edupals::network::MAC& addr)
+{
+    os<<addr.to_string();
+    return os;
+}
+
+ostream& edupals::network::operator<<(ostream& os,edupals::network::MAC addr)
+{
+    os<<addr.to_string();
+    return os;
+}
+
+ostream& edupals::network::operator<<(ostream& os,edupals::network::IP4& addr)
+{
+    os<<addr.to_string();
+    return os;
+}
+
+ostream& edupals::network::operator<<(ostream& os,edupals::network::IP4 addr)
+{
+    os<<addr.to_string();
+    return os;
 }

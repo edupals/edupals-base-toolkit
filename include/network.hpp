@@ -57,21 +57,35 @@ namespace edupals
             };
         }
         
+        class RawAddress
+        {
+            public:
+                
+            uint16_t family;
+            std::vector<uint8_t> value;
+            
+            RawAddress(){}
+            RawAddress(struct sockaddr* addr);
+            virtual ~RawAddress(){}
+            
+            virtual uint8_t operator [] (int n);
+            
+            virtual std::string to_string();
+        };
+        
         /*!
             MAC Address class
         */
-        class MAC
+        class MAC: public RawAddress
         {
             public:
-            /*! 6 byte address array */
-            std::array<uint8_t,6> value;
             
             MAC(){};
             
             /*!
                 Create MAC from sockaddr struct
             */
-            MAC(struct sockaddr& addr);
+            MAC(RawAddress& address);
             
             /*!
                 Create MAC from byte array
@@ -86,23 +100,16 @@ namespace edupals
             /*!
                 Returns a string representation of address
             */
-            std::string to_string();
+            std::string to_string() override;
             
-            /*!
-                Access to address byte n
-            */
-            uint8_t operator [] (int n);
         };
     
         /*!
             IP 4 Address
         */
-        class IP4
+        class IP4: public RawAddress
         {
             public:
-            
-            /*! 4 byte address */
-            std::array<uint8_t,4> value;
             
             IP4()
             {
@@ -112,7 +119,7 @@ namespace edupals
                 value[3]=0;
             };
             
-            IP4(struct sockaddr& addr);
+            IP4(RawAddress& address);
             
             /*!
                 Create address from uint32 representation
@@ -127,12 +134,7 @@ namespace edupals
             /*!
                 Create a string representation
             */
-            std::string to_string();
-            
-            /*!
-                Acces to address byte n
-            */
-            uint8_t operator [] (int n);
+            std::string to_string() override;
             
             /*!
                 Gets uint32 address representation
@@ -144,7 +146,7 @@ namespace edupals
         {
             public:
             
-            Mask4(struct sockaddr& addr);
+            Mask4(RawAddress& address);
                 
             Mask4(uint32_t address);
             
@@ -167,18 +169,19 @@ namespace edupals
             bool in_range(IP4 subnet,IP4 ip);
         };
         
-        class Address
+        class AddressSetup
         {
             protected:
-            struct sockaddr _address;
-            struct sockaddr _netmask;
-            struct sockaddr _broadcast;
-                
+            
+            RawAddress _address;
+            RawAddress _netmask;
+            RawAddress _broadcast;
+            
             public:
             
-            Address(struct sockaddr address,
-                    struct sockaddr netmask,
-                    struct sockaddr broadcast) :
+            AddressSetup(struct sockaddr* address,
+                    struct sockaddr* netmask,
+                    struct sockaddr* broadcast) :
                     _address(address),
                     _netmask(netmask),
                     _broadcast(broadcast)
@@ -187,25 +190,25 @@ namespace edupals
             
             uint16_t family()
             {
-                return _address.sa_family;
+                return _address.family;
             }
             
-            struct sockaddr& address()
+            RawAddress& address()
             {
                 return _address;
             }
             
-            struct sockaddr& netmask()
+            RawAddress& netmask()
             {
                 return _netmask;
             }
             
-            struct sockaddr& broadcast()
+            RawAddress& broadcast()
             {
                 return _broadcast;
             }
             
-            struct sockaddr& peer()
+            RawAddress& peer()
             {
                 return _broadcast;
             }
@@ -220,7 +223,7 @@ namespace edupals
             uint32_t flags;
             MAC address;
             MAC broadcast;
-            std::vector<Address> addresses;
+            std::vector<AddressSetup> addresses;
             
             void push_address(struct ifaddrs* addr);
         };
@@ -262,6 +265,13 @@ namespace edupals
             */
             uint32_t type();
             
+            bool up();
+            
+            bool loopback();
+            
+            bool point_to_point();
+            
+            
             /*! whenever interface exists or not */
             bool exists();
 
@@ -272,7 +282,7 @@ namespace edupals
             MAC broadcast();
             
             
-            std::vector<Address>& addresses();
+            std::vector<AddressSetup>& addresses();
             
             /*!
                 gets a list of all avialable interfaces
@@ -282,6 +292,10 @@ namespace edupals
             static void update();
         };
         
+        std::ostream& operator<<(std::ostream& os,MAC& addr);
+        std::ostream& operator<<(std::ostream& os,MAC addr);
+        std::ostream& operator<<(std::ostream& os,IP4& addr);
+        std::ostream& operator<<(std::ostream& os,IP4 addr);
     }
 }
 

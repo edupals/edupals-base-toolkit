@@ -81,9 +81,24 @@ bool test_network()
         clog<<"\tName:"<<iface.name<<endl;
         clog<<"\tDevice:"<<iface.path<<endl;
         clog<<"\tType:"<<iface.type()<<endl;
-        clog<<"\tAddress:"<<iface.address().to_string()<<endl;
-        clog<<"\tcarrier:"<<iface.carrier()<<endl;
-        clog<<"\tmtu:"<<iface.mtu()<<endl;
+        clog<<"\tUp:"<<iface.up()<<endl;
+        clog<<"\tLoopback:"<<iface.loopback()<<endl;
+        clog<<"\tP2P:"<<iface.point_to_point()<<endl;
+        clog<<"\tAddress:"<<iface.address()<<endl;
+        clog<<"\tBroadcast:"<<iface.broadcast()<<endl;
+        clog<<"\tCarrier:"<<iface.carrier()<<endl;
+        clog<<"\tMTU:"<<iface.mtu()<<endl;
+        
+        clog<<endl;
+        clog<<"\tAddresses:"<<endl;
+        for (network::AddressSetup& setup : iface.addresses()) {
+            switch (setup.family()) {
+                case AF_INET:
+                    clog<<"\t\t* ip4: "<<network::IP4(setup.address())<<endl;        
+                break;
+            }
+            
+        }
         
     }
     
