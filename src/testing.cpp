@@ -50,6 +50,7 @@
 
 using namespace edupals;
 using namespace edupals::variant;
+using namespace edupals::network;
 using namespace std;
 
 struct Test
@@ -113,12 +114,12 @@ bool test_network()
     network::IP4 ip_b({192,168,4,1});
     
     clog<<endl;
-    clog<<"mask:"<<mask.to_string()<<endl;
-    clog<<"subnet:"<<subnet.to_string()<<endl;
-    clog<<"ip a:"<<ip_a.to_string()<<endl;
-    clog<<"ip b:"<<ip_b.to_string()<<endl;
-    clog<<"a "<<mask.in_range(subnet,ip_a)<<endl;
-    clog<<"b "<<mask.in_range(subnet,ip_b)<<endl;
+    clog<<"mask:" <<(network::Mask4)mask<<endl;
+    clog<<"subnet: "<<(network::IP4)subnet<<endl;
+    clog<<"ip a: "<<(network::IP4)ip_a<<endl;
+    clog<<"ip b: "<<(network::IP4)ip_b<<endl;
+    clog<<"is a on subnet?: "<<mask.in_range(subnet,ip_a)<<endl;
+    clog<<"is b on subnet?: "<<mask.in_range(subnet,ip_b)<<endl;
     
     return true;
 }

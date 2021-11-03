@@ -152,33 +152,6 @@ namespace edupals
             }
         };
         
-        class Mask4 : public IP4
-        {
-            public:
-            
-            Mask4(RawAddress& address);
-                
-            Mask4(uint32_t address);
-            
-            Mask4(std::array<uint8_t,4> address);
-            
-            /*!
-                Get number of bits mask representation
-                return -1 if mask is not valid 1 sequence
-            */
-            int32_t bits();
-            
-            /*!
-                Whenever the mask is valid or not
-            */
-            bool valid();
-            
-            /*!
-                Checks if ip is in range for the subnet/mask
-            */
-            bool in_range(IP4 subnet,IP4 ip);
-        };
-        
         /*!
             IP 6 Address
         */
@@ -195,7 +168,6 @@ namespace edupals
             
             IP6(RawAddress& address);
             
-            
             /*!
                 Create address from array representation
             */
@@ -209,6 +181,67 @@ namespace edupals
             virtual uint16_t operator [] (int n);
             
         };
+        
+        class Mask4 : public IP4
+        {
+            public:
+            
+            Mask4(RawAddress& address);
+            
+            Mask4(std::array<uint8_t,4> address);
+            
+            Mask4(IP4& address);
+            
+            Mask4 (uint32_t bits);
+            
+            /*!
+                Get number of bits mask representation
+                return -1 if mask is not valid 1 sequence
+            */
+            int32_t bits();
+            
+            /*!
+                Whenever the mask is valid or not
+            */
+            bool valid();
+            
+            /*!
+                Checks if ip is in range for the subnet/mask
+            */
+            bool in_range(IP4& subnet,IP4& ip);
+            
+        };
+        
+        class Mask6 : public IP6
+        {
+            public:
+            
+            Mask6 (RawAddress& address);
+            
+            Mask6 (std::array<uint16_t,8> address);
+            
+            Mask6 (IP6& address);
+            
+            Mask6 (uint32_t bits);
+            
+            /*!
+                Get number of bits mask representation
+                return -1 if mask is not valid 1 sequence
+            */
+            int32_t bits();
+            
+            /*!
+                Whenever the mask is valid or not
+            */
+            bool valid();
+            
+            /*!
+                Checks if ip is in range for the subnet/mask
+            */
+            bool in_range(IP6& subnet,IP6& ip);
+            
+        };
+
         
         class AddressSetup
         {

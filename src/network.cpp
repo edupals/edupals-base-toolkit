@@ -77,12 +77,9 @@ RawAddress::RawAddress(struct sockaddr* addr)
             case AF_INET6: {
                 struct sockaddr_in6* in=(struct sockaddr_in6*)addr;
                 uint8_t* ptr = (uint8_t*)&in->sin6_addr.s6_addr;
-                clog<<"ipv6:";
                 for (size_t n = 0;n<16;n++) {
-                    clog<<std::hex<<(int)ptr[n]<<" ";
                     value.push_back(ptr[n]);
                 }
-                clog<<endl;
             }
         }
     }
@@ -204,16 +201,85 @@ uint32_t IP4::get_uint32()
     return tmp;
 }
 
-Mask4::Mask4(RawAddress& address) : IP4(address)
+IP6::IP6(RawAddress& address)
 {
+    family=address.family;
+    value=address.value;
 }
 
-Mask4::Mask4(uint32_t address) : IP4(address)
+IP6::IP6(array<uint16_t,8> address)
+{
+    family = AF_INET6;
+    
+    for (size_t n = 0;n<8;n++) {
+        value.push_back((address[n] & 0xff00)>>8);
+        value.push_back(address[n] & 0x00ff);
+    }
+}
+
+string IP6::to_string()
+{
+    stringstream s;
+    
+
+    s<<std::hex;
+    uint16_t tmp;
+    size_t n = 0;
+    
+    l1:
+    tmp = value[n*2]<<8 | value[(n*2)+1];
+    s<<tmp;
+    n++;
+    if (n<8) {
+        s<<":";
+        goto l1;
+    }
+    
+    return s.str();
+}
+
+uint16_t IP6::operator [] (int n)
+{
+    uint16_t tmp = value[n*2]<<8 | value[(n*2)+1];
+    return tmp;
+}
+
+Mask4::Mask4(RawAddress& address) : IP4(address)
 {
 }
 
 Mask4::Mask4(array<uint8_t,4> address) : IP4(address)
 {
+}
+
+Mask4::Mask4 (IP4& address)
+{
+    family = AF_INET;
+    value = address.value;
+}
+
+Mask4::Mask4 (uint32_t bits)
+{
+    if (bits>32) {
+        //TODO: throw something bad
+    }
+    
+    family = AF_INET;
+    value.reserve(4);
+    
+    size_t bytes = bits / 8;
+    bits = bits % 8;
+    
+    for (size_t n=0;n<bytes;n++) {
+        value[n]=0xff;
+    }
+    
+    uint8_t mask = 1;
+    for (size_t b=0;b<bits;b++) {
+        value[bytes] = value[bytes] | mask;
+        mask=mask<<1;
+    }
+    
 }
 
 int32_t Mask4::bits()
@@ -252,9 +318,9 @@ bool Mask4::valid()
     return (v!=-1);
 }
 
-bool Mask4::in_range(IP4 subnet,IP4 ip)
+bool Mask4::in_range(IP4& subnet,IP4& ip)
 {
-    for (int n=0;n<3;n++) {
+    for (int n=0;n<4;n++) {
         uint8_t v = ~(subnet[n] ^ ip[n]);
         v = value[n] & v;
         if (v!=0xff) {
@@ -265,50 +331,91 @@ bool Mask4::in_range(IP4 subnet,IP4 ip)
     return true;
 }
 
-IP6::IP6(RawAddress& address)
+Mask6::Mask6 (RawAddress& address) : IP6(address)
 {
-    family=address.family;
-    value=address.value;
 }
 
-IP6::IP6(array<uint16_t,8> address)
+Mask6::Mask6 (array<uint16_t,8> address) : IP6(address)
+{
+}
+
+Mask6::Mask6 (IP6& address)
 {
     family = AF_INET6;
-    
-    for (size_t n = 0;n<8;n++) {
-        value.push_back((address[n] & 0xff00)>>8);
-        value.push_back(address[n] & 0x00ff);
+    value = address.value;
+}
 
+Mask6::Mask6 (uint32_t bits)
+{
+    if (bits>128) {
+        //TODO: throw something bad
+    }
+    
+    family = AF_INET6;
+    value.reserve(16);
+    
+    size_t bytes = bits / 8;
+    bits = bits % 8;
+    
+    for (size_t n=0;n<bytes;n++) {
+        value[n]=0xff;
+    }
+    
+    uint8_t mask = 1;
+    for (size_t b=0;b<bits;b++) {
+        value[bytes] = value[bytes] | mask;
+        mask=mask<<1;
     }
 }
 
-string IP6::to_string()
+int32_t Mask6::bits()
 {
-    stringstream s;
+    int32_t num=0;
+    bool knee=false;
     
-
-    s<<std::hex;
-    uint16_t tmp;
-    size_t n = 0;
-    
-    l1:
-    tmp = value[n*2]<<8 | value[(n*2)+1];
-    s<<tmp;
-    n++;
-    if (n<8) {
-        s<<":";
-        goto l1;
+    for (int n=15;n>=0;n--) {
+        for (int b=0;b<8;b++) {
+            uint8_t m = 1<<b;
+            uint8_t v = value[n] & m;
+            
+            if (knee) {
+                if (v==0) {
+                    return -1;
+                }
+            }
+            else {
+                if (v==0) {
+                    num++;
+                }
+                else {
+                    knee=true;
+                }
+            }
+        }
     }
     
-    return s.str();
+    return 128-num;
 }
 
-uint16_t IP6::operator [] (int n)
+bool Mask6::valid()
 {
-    uint16_t tmp = value[n*2]<<8 | value[(n*2)+1];
-    return tmp;
+    int32_t v=bits();
+    
+    return (v!=-1);
 }
 
+bool Mask6::in_range(IP6& subnet,IP6& ip)
+{
+    for (int n=0;n<16;n++) {
+        uint8_t v = ~(subnet[n] ^ ip[n]);
+        v = value[n] & v;
+        if (v!=0xff) {
+            return false;
+        }
+    }
+    
+    return true;
+}
 
 void CachedInterface::push_address(struct ifaddrs* addr)
 {
