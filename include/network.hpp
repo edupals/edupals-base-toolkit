@@ -68,7 +68,7 @@ namespace edupals
             RawAddress(struct sockaddr* addr);
             virtual ~RawAddress(){}
             
-            virtual uint8_t operator [] (int n);
+            virtual uint8_t data (int n);
             
             virtual std::string to_string();
         };
@@ -101,6 +101,11 @@ namespace edupals
                 Returns a string representation of address
             */
             std::string to_string() override;
+            
+            virtual uint8_t operator [] (int n)
+            {
+                return value[n];
+            }
             
         };
     
@@ -140,6 +145,11 @@ namespace edupals
                 Gets uint32 address representation
             */
             uint32_t get_uint32();
+            
+            virtual uint8_t operator [] (int n)
+            {
+                return value[n];
+            }
         };
         
         class Mask4 : public IP4
@@ -167,6 +177,37 @@ namespace edupals
                 Checks if ip is in range for the subnet/mask
             */
             bool in_range(IP4 subnet,IP4 ip);
+        };
+        
+        /*!
+            IP 6 Address
+        */
+        class IP6: public RawAddress
+        {
+            public:
+            
+            IP6()
+            {
+                for (size_t n=0;n<16;n++) {
+                    value[n] = 0;
+                }
+            };
+            
+            IP6(RawAddress& address);
+            
+            
+            /*!
+                Create address from array representation
+            */
+            IP6(std::array<uint16_t,8> address);
+            
+            /*!
+                Create a string representation
+            */
+            std::string to_string() override;
+            
+            virtual uint16_t operator [] (int n);
+            
         };
         
         class AddressSetup
@@ -265,12 +306,15 @@ namespace edupals
             */
             uint32_t type();
             
-            bool up();
+            bool is_up();
             
-            bool loopback();
+            bool is_loopback();
             
-            bool point_to_point();
+            bool is_p2p();
             
+            bool is_broadcast();
+            
+            bool is_multicast();
             
             /*! whenever interface exists or not */
             bool exists();
@@ -296,6 +340,8 @@ namespace edupals
         std::ostream& operator<<(std::ostream& os,MAC addr);
         std::ostream& operator<<(std::ostream& os,IP4& addr);
         std::ostream& operator<<(std::ostream& os,IP4 addr);
+        std::ostream& operator<<(std::ostream& os,IP6& addr);
+        std::ostream& operator<<(std::ostream& os,IP6 addr);
     }
 }
 

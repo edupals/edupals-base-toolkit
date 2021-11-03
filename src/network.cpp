@@ -74,11 +74,21 @@ RawAddress::RawAddress(struct sockaddr* addr)
                 }
             }
             
+            case AF_INET6: {
+                struct sockaddr_in6* in=(struct sockaddr_in6*)addr;
+                uint8_t* ptr = (uint8_t*)&in->sin6_addr.s6_addr;
+                clog<<"ipv6:";
+                for (size_t n = 0;n<16;n++) {
+                    clog<<std::hex<<(int)ptr[n]<<" ";
+                    value.push_back(ptr[n]);
+                }
+                clog<<endl;
+            }
         }
     }
 }
 
-uint8_t RawAddress::operator [] (int n)
+uint8_t RawAddress::data(int n)
 {
     return value[n];
 }
@@ -255,6 +265,51 @@ bool Mask4::in_range(IP4 subnet,IP4 ip)
     return true;
 }
 
+IP6::IP6(RawAddress& address)
+{
+    family=address.family;
+    value=address.value;
+}
+
+IP6::IP6(array<uint16_t,8> address)
+{
+    family = AF_INET6;
+    
+    for (size_t n = 0;n<8;n++) {
+        value.push_back((address[n] & 0xff00)>>8);
+        value.push_back(address[n] & 0x00ff);
+
+    }
+}
+
+string IP6::to_string()
+{
+    stringstream s;
+    
+
+    s<<std::hex;
+    uint16_t tmp;
+    size_t n = 0;
+    
+    l1:
+    tmp = value[n*2]<<8 | value[(n*2)+1];
+    s<<tmp;
+    n++;
+    if (n<8) {
+        s<<":";
+        goto l1;
+    }
+    
+    return s.str();
+}
+
+uint16_t IP6::operator [] (int n)
+{
+    uint16_t tmp = value[n*2]<<8 | value[(n*2)+1];
+    return tmp;
+}
+
+
 void CachedInterface::push_address(struct ifaddrs* addr)
 {
     
@@ -331,7 +386,7 @@ uint32_t Interface::type()
     return read_u32("type");
 }
 
-bool Interface::up()
+bool Interface::is_up()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -340,7 +395,7 @@ bool Interface::up()
     return (cache->flags & IFF_UP != 0);
 }
 
-bool Interface::loopback()
+bool Interface::is_loopback()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -349,13 +404,31 @@ bool Interface::loopback()
     return (cache->flags & IFF_LOOPBACK != 0);
 }
 
-bool Interface::point_to_point()
+bool Interface::is_p2p()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
     }
     
     return (cache->flags & IFF_POINTOPOINT != 0);
+}
+
+bool Interface::is_broadcast()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return (cache->flags & IFF_BROADCAST != 0);
+}
+
+bool Interface::is_multicast()
+{
+    if (cache==nullptr or cache->update_id!=update_count) {
+        throw exception::InterfaceNotFound(name);
+    }
+    
+    return (cache->flags & IFF_MULTICAST != 0);
 }
 
 bool Interface::exists()
@@ -470,6 +543,18 @@ ostream& edupals::network::operator<<(ostream& os,edupals::network::IP4& addr)
 }
 
 ostream& edupals::network::operator<<(ostream& os,edupals::network::IP4 addr)
+{
+    os<<addr.to_string();
+    return os;
+}
+
+ostream& edupals::network::operator<<(ostream& os,edupals::network::IP6& addr)
+{
+    os<<addr.to_string();
+    return os;
+}
+
+ostream& edupals::network::operator<<(ostream& os,edupals::network::IP6 addr)
 {
     os<<addr.to_string();
     return os;
