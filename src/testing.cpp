@@ -95,13 +95,16 @@ bool test_network()
         clog<<"\tAddresses:"<<endl;
         for (network::AddressSetup& setup : iface.addresses()) {
             switch (setup.family()) {
-                case AF_INET:
-                    clog<<"\t\t* ip4: "<<network::IP4(setup.address())<<endl;        
+                case AF_INET: {
+                    network::IP4 tmp(setup.address());
+                    clog<<"\t\t* ip4: "<<tmp<<endl;        
                 break;
-                
-                case AF_INET6:
-                    clog<<"\t\t* ip6: "<<network::IP6(setup.address())<<endl;        
+                }
+                case AF_INET6: {
+                    network::IP6 tmp(setup.address());
+                    clog<<"\t\t* ip6: "<<tmp<<endl;        
                 break;
+                }
             }
             
         }
@@ -114,10 +117,10 @@ bool test_network()
     network::IP4 ip_b({192,168,4,1});
     
     clog<<endl;
-    clog<<"mask:" <<(network::Mask4)mask<<endl;
-    clog<<"subnet: "<<(network::IP4)subnet<<endl;
-    clog<<"ip a: "<<(network::IP4)ip_a<<endl;
-    clog<<"ip b: "<<(network::IP4)ip_b<<endl;
+    clog<<"mask:" <<mask<<endl;
+    clog<<"subnet: "<<subnet<<endl;
+    clog<<"ip a: "<<ip_a<<endl;
+    clog<<"ip b: "<<ip_b<<endl;
     clog<<"is a on subnet?: "<<mask.in_range(subnet,ip_a)<<endl;
     clog<<"is b on subnet?: "<<mask.in_range(subnet,ip_b)<<endl;
     

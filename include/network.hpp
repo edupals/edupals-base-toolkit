@@ -85,7 +85,7 @@ namespace edupals
             /*!
                 Create MAC from sockaddr struct
             */
-            MAC(RawAddress& address);
+            explicit MAC(RawAddress& address);
             
             /*!
                 Create MAC from byte array
@@ -124,7 +124,7 @@ namespace edupals
                 value[3]=0;
             };
             
-            IP4(RawAddress& address);
+            explicit IP4(RawAddress& address);
             
             /*!
                 Create address from uint32 representation
@@ -166,7 +166,7 @@ namespace edupals
                 }
             };
             
-            IP6(RawAddress& address);
+            explicit IP6(RawAddress& address);
             
             /*!
                 Create address from array representation
@@ -186,11 +186,11 @@ namespace edupals
         {
             public:
             
-            Mask4(RawAddress& address);
+            explicit Mask4(RawAddress& address);
             
             Mask4(std::array<uint8_t,4> address);
             
-            Mask4(IP4& address);
+            explicit Mask4(IP4& address);
             
             Mask4 (uint32_t bits);
             
@@ -216,11 +216,11 @@ namespace edupals
         {
             public:
             
-            Mask6 (RawAddress& address);
+            explicit Mask6 (RawAddress& address);
             
             Mask6 (std::array<uint16_t,8> address);
             
-            Mask6 (IP6& address);
+            explicit Mask6 (IP6& address);
             
             Mask6 (uint32_t bits);
             
@@ -353,10 +353,10 @@ namespace edupals
             bool exists();
 
             /*! Hardware MAC Address */
-            MAC address();
+            MAC& address();
             
             /*! Hardware broadcast address */
-            MAC broadcast();
+            MAC& broadcast();
             
             
             std::vector<AddressSetup>& addresses();
@@ -368,15 +368,11 @@ namespace edupals
             
             static void update();
         };
-        
-        std::ostream& operator<<(std::ostream& os,MAC& addr);
-        std::ostream& operator<<(std::ostream& os,MAC addr);
-        std::ostream& operator<<(std::ostream& os,IP4& addr);
-        std::ostream& operator<<(std::ostream& os,IP4 addr);
-        std::ostream& operator<<(std::ostream& os,IP6& addr);
-        std::ostream& operator<<(std::ostream& os,IP6 addr);
     }
 }
 
+std::ostream& operator<<(std::ostream& os,edupals::network::MAC& addr);
+std::ostream& operator<<(std::ostream& os,edupals::network::IP4& addr);
+std::ostream& operator<<(std::ostream& os,edupals::network::IP6& addr);
 
 #endif

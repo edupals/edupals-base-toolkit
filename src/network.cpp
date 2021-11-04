@@ -545,7 +545,7 @@ bool Interface::exists()
     return fs::exists(sysfs);
 }
 
-MAC Interface::address()
+MAC& Interface::address()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -554,7 +554,7 @@ MAC Interface::address()
     return cache->address;
 }
 
-MAC Interface::broadcast()
+MAC& Interface::broadcast()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -631,37 +631,19 @@ void Interface::update()
     
 }
 
-ostream& edupals::network::operator<<(ostream& os,edupals::network::MAC& addr)
+ostream& operator<<(ostream& os,edupals::network::MAC& addr)
 {
     os<<addr.to_string();
     return os;
 }
 
-ostream& edupals::network::operator<<(ostream& os,edupals::network::MAC addr)
+ostream& operator<<(ostream& os,edupals::network::IP4& addr)
 {
     os<<addr.to_string();
     return os;
 }
 
-ostream& edupals::network::operator<<(ostream& os,edupals::network::IP4& addr)
-{
-    os<<addr.to_string();
-    return os;
-}
-
-ostream& edupals::network::operator<<(ostream& os,edupals::network::IP4 addr)
-{
-    os<<addr.to_string();
-    return os;
-}
-
-ostream& edupals::network::operator<<(ostream& os,edupals::network::IP6& addr)
-{
-    os<<addr.to_string();
-    return os;
-}
-
-ostream& edupals::network::operator<<(ostream& os,edupals::network::IP6 addr)
+ostream& operator<<(ostream& os,edupals::network::IP6& addr)
 {
     os<<addr.to_string();
     return os;
