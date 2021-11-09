@@ -536,7 +536,7 @@ bool test_json()
     
     stringstream input;
 
-    input<<" { \"alfa\" : 33 , \"beta\": 4.325, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
+    input<<" { \"alfa\" : 33 , \"bravo\": 4.325, \"charlie\":[7,8,9,[11,22,33]],\"delta\" : 1.0e1, \"status\":false,\"utf8\":\"¡ñ!\"}";
     
     Variant parsed=json::load(input);
     
@@ -548,8 +548,12 @@ bool test_json()
         if (tmp.get_int32()!=33) {
             status = false;
         }
-        tmp = parsed/"beta"/Type::Float;
+        tmp = parsed/"bravo"/Type::Float;
         if (tmp.get_float()<4.0f or tmp.get_float()>5.0f) {
+            status = false;
+        }
+        tmp = parsed/"delta"/Type::Float;
+        if (tmp.get_float()!=10.0f) {
             status = false;
         }
         tmp = parsed/"status"/Type::Boolean;
@@ -558,7 +562,7 @@ bool test_json()
             status = false;
         }
         
-        status = true;
+        //status = true;
     }
     catch(...) {
         status = false;

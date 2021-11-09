@@ -22,7 +22,9 @@
  */
  
 #include <token.hpp>
+
 #include <iostream>
+#include <sstream>
 
 using namespace edupals::parser::token;
 using namespace std;
@@ -242,7 +244,11 @@ Float::Float()
 void Float::start()
 {
     char c = stack[0];
+    integral=true;
     dot=false;
+    fraction=false;
+    e=false;
+    e_sign=false;
     
     if (c=='+' or c=='-') {
         _accept=true;
@@ -250,10 +256,12 @@ void Float::start()
     
     if (is_num(c)) {
         _accept=true;
+        integral=true;
     }
     
     if (c=='.') {
         _accept=true;
+        integral=true;
         dot=true;
     }
 
@@ -267,14 +275,57 @@ void Float::step()
     
     char c = stack[cursor];
     
+    if (e) {
+        
+        if (!e_sign) {
+            if (c=='+' or c=='-') {
+                e_sign=true;
+                _accept=true;
+                _end=false;
+            }
+            else {
+                if (is_num(c)) {
+                    //assume positive sign
+                    e_sign=true;
+                    _accept=true;
+                    _end=true;
+                }
+                else {
+                    _accept=false;
+                    _end=false;
+                }
+            }
+        }
+        else {
+            if (is_num(c)) {
+                _accept=true;
+                _end=true;
+            }
+            else {
+                _accept=false;
+                _end=false;
+            }
+        }
+        
+        return;
+    }
+    
     if (dot) {
         if (is_num(c)) {
             _accept=true;
             _end=true;
+            fraction=true;
         }
         else {
-            _accept=false;
-            _end=false;
+            if (fraction and (c=='e' or c=='E')) {
+                e=true;
+                _accept=true;
+                _end=false;
+            }
+            else {
+                _accept=false;
+                _end=false;
+            }
         }
     }
     else {
@@ -284,9 +335,16 @@ void Float::step()
         else {
             if (is_num(c)) {
                 _accept=true;
+                integral=true;
             }
             else {
-                _accept=false;
+                if (integral and (c=='e' or c=='E')) {
+                    e=true;
+                    _accept=true;
+                }
+                else {
+                    _accept=false;
+                }
             }
         }
     }
@@ -295,11 +353,22 @@ void Float::step()
 
 float Float::get_float()
 {
-    float f;
+    float f=0.0f;
+    is.clear();
     is.str(value());
     is>>f;
     
     return f;
+}
+
+double Float::get_double()
+{
+    double d;
+    is.clear();
+    is.str(value());
+    is>>d;
+    
+    return d;
 }
 
 void String::start()
