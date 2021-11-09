@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.1.2.0) focal; urgency=medium
+
+  * Fixed float token not parsing scientific notation
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 09 Nov 2021 10:29:01 +0100
+
 edupals-base-toolkit (2.1.1.0) focal; urgency=medium
 
   * Master tag: fd89028c5e6d6ceed139c29515934457adb769a4
