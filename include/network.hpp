@@ -137,6 +137,11 @@ namespace edupals
             IP4(std::array<uint8_t,4> address);
             
             /*!
+                Create address from string representation
+            */
+            IP4(std::string address);
+
+            /*!
                 Create a string representation
             */
             std::string to_string() override;

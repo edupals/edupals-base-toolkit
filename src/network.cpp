@@ -23,6 +23,8 @@
  
  
 #include <network.hpp>
+#include <lexer.hpp>
+#include <token.hpp>
 
 #include <sys/ioctl.h>
 #include <linux/if_packet.h>
@@ -43,6 +45,8 @@
 
 using namespace edupals::network;
 using namespace edupals::network::exception;
+using namespace edupals::parser;
+
 using namespace std;
 namespace fs=std::experimental::filesystem;
 
@@ -181,6 +185,53 @@ IP4::IP4(array<uint8_t,4> address)
     for (size_t n = 0;n<4;n++) {
         value.push_back(address[n]);
     }
+}
+
+IP4::IP4(string address)
+{
+    family = AF_INET;
+
+    token::Integer number;
+    token::Char dot('.');
+
+    Lexer lexer;
+
+    lexer.add_token("NUMBER",&number);
+    lexer.add_token("DOT",&dot);
+
+    stringstream is(address);
+
+    lexer.set_input(&is);
+
+    int n=0;
+    array<uint8_t,4> values;
+
+    while(lexer.step()) {
+        DFA* dfa = lexer.get_dfa();
+
+        if (n%2==0) {
+            if (dfa==&number) {
+                int v = number.get_int();
+
+                if (v<0 or v>255) {
+                    throw runtime_error("parse error: integer out of range");
+                }
+
+                value.push_back(v);
+            }
+            else {
+                throw runtime_error("parse error: expected integer");
+            }
+        }
+        else {
+            if (dfa!=&dot) {
+                throw runtime_error("parse error: expected dot");
+            }
+        }
+
+        n++;
+    }
+
 }
 
 string IP4::to_string()
