@@ -82,12 +82,12 @@ bool test_network()
         clog<<"\tName:"<<iface.name<<endl;
         clog<<"\tDevice:"<<iface.path<<endl;
         clog<<"\tType:"<<iface.type()<<endl;
-        clog<<"\tUp:"<<iface.is_up()<<endl;
-        clog<<"\tLoopback:"<<iface.is_loopback()<<endl;
-        clog<<"\tBroadcast/p2p:"<<iface.is_broadcast()<<"/"<<iface.is_p2p()<<endl;
-        clog<<"\tMulticast:"<<iface.is_multicast()<<endl;
-        clog<<"\tAddress:"<<iface.address()<<endl;
-        clog<<"\tBroadcast:"<<iface.broadcast()<<endl;
+        clog<<"\tUp:"<<iface.up()<<endl;
+        clog<<"\tLoopback:"<<iface.loopback()<<endl;
+        clog<<"\tBroadcast/p2p:"<<iface.broadcast()<<"/"<<iface.p2p()<<endl;
+        clog<<"\tMulticast:"<<iface.multicast()<<endl;
+        clog<<"\tAddress:"<<iface.hwaddress()<<endl;
+        clog<<"\tBroadcast:"<<iface.hwbroadcast()<<endl;
         clog<<"\tCarrier:"<<iface.carrier()<<endl;
         clog<<"\tMTU:"<<iface.mtu()<<endl;
         

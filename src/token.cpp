@@ -343,6 +343,39 @@ string String::get_string()
     return tmp.substr(1,tmp.size()-2);
 }
 
+void Hex::start()
+{
+    char c = stack[0];
+
+    if ( (c>='0' and c<='9') or (c>='a' and c<='f') or (c>='A' and c<='F')) {
+        _accept=true;
+        _end=true;
+    }
+}
+
+void Hex::step()
+{
+    if (!_accept) {
+        return;
+    }
+
+    char c = stack[cursor];
+
+    if ( (c>='0' and c<='9') or (c>='a' and c<='f') or (c>='A' and c<='F')) {
+        _accept=true;
+        _end=true;
+    }
+    else {
+        _accept=false;
+        _end=false;
+    }
+}
+
+int Hex::get_int()
+{
+    return std::stoi(value(),nullptr,16);
+}
+
 void IP4::start()
 {
     dots=0;

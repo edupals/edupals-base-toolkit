@@ -493,7 +493,7 @@ uint32_t Interface::type()
     return read_u32("type");
 }
 
-bool Interface::is_up()
+bool Interface::up()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -502,7 +502,7 @@ bool Interface::is_up()
     return (cache->flags & IFF_UP != 0);
 }
 
-bool Interface::is_loopback()
+bool Interface::loopback()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -511,7 +511,7 @@ bool Interface::is_loopback()
     return (cache->flags & IFF_LOOPBACK != 0);
 }
 
-bool Interface::is_p2p()
+bool Interface::p2p()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -520,7 +520,7 @@ bool Interface::is_p2p()
     return (cache->flags & IFF_POINTOPOINT != 0);
 }
 
-bool Interface::is_broadcast()
+bool Interface::broadcast()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -529,7 +529,7 @@ bool Interface::is_broadcast()
     return (cache->flags & IFF_BROADCAST != 0);
 }
 
-bool Interface::is_multicast()
+bool Interface::multicast()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -545,7 +545,7 @@ bool Interface::exists()
     return fs::exists(sysfs);
 }
 
-MAC& Interface::address()
+MAC& Interface::hwaddress()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -554,7 +554,7 @@ MAC& Interface::address()
     return cache->address;
 }
 
-MAC& Interface::broadcast()
+MAC& Interface::hwbroadcast()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);

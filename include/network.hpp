@@ -339,24 +339,24 @@ namespace edupals
             */
             uint32_t type();
             
-            bool is_up();
+            bool up();
             
-            bool is_loopback();
+            bool loopback();
             
-            bool is_p2p();
+            bool p2p();
             
-            bool is_broadcast();
+            bool broadcast();
             
-            bool is_multicast();
+            bool multicast();
             
             /*! whenever interface exists or not */
             bool exists();
 
             /*! Hardware MAC Address */
-            MAC& address();
+            MAC& hwaddress();
             
             /*! Hardware broadcast address */
-            MAC& broadcast();
+            MAC& hwbroadcast();
             
             
             std::vector<AddressSetup>& addresses();
