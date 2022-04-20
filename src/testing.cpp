@@ -114,7 +114,7 @@ bool test_network()
     network::Mask4 mask({255,255,255,0});
     network::IP4 subnet({192,168,0,0});
     network::IP4 ip_a({192,168,0,1});
-    network::IP4 ip_b({192,168,4,1});
+    network::IP4 ip_b = network::IP4::from_string("192.168.4.1");
     
     clog<<endl;
     clog<<"mask:" <<mask<<endl;

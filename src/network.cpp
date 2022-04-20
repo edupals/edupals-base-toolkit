@@ -125,9 +125,9 @@ MAC::MAC(array<uint8_t,6> address)
     std::copy(address.begin(),address.end(),value.begin());
 }
 
-MAC::MAC(string address)
+MAC MAC::from_string(string address)
 {
-    family = AF_PACKET;
+    array<uint8_t,6> values;
 
     //TODO: check for errors!
 
@@ -136,7 +136,7 @@ MAC::MAC(string address)
     
     for (char c:address) {
         if (c==':') {
-            value[n]=stoi(hex,0,16);
+            values[n]=stoi(hex,0,16);
             n--;
             hex="";
         }
@@ -145,8 +145,9 @@ MAC::MAC(string address)
         }
     }
     
-    value[n]=stoi(hex,0,16);
+    values[n]=stoi(hex,0,16);
     
+    return MAC(values);
 }
 
 string MAC::to_string()
@@ -181,15 +182,14 @@ IP4::IP4(uint32_t address)
 IP4::IP4(array<uint8_t,4> address)
 {
     family = AF_INET;
-    
+
     for (size_t n = 0;n<4;n++) {
         value.push_back(address[n]);
     }
 }
 
-IP4::IP4(string address)
+IP4 IP4::from_string(string address)
 {
-    family = AF_INET;
 
     token::Integer number;
     token::Char dot('.');
@@ -217,7 +217,7 @@ IP4::IP4(string address)
                     throw runtime_error("parse error: integer out of range");
                 }
 
-                value.push_back(v);
+                values[n/2]=v;
             }
             else {
                 throw runtime_error("parse error: expected integer");
@@ -232,6 +232,7 @@ IP4::IP4(string address)
         n++;
     }
 
+    return IP4(values);
 }
 
 string IP4::to_string()
@@ -266,6 +267,36 @@ IP6::IP6(array<uint16_t,8> address)
         value.push_back((address[n] & 0xff00)>>8);
         value.push_back(address[n] & 0x00ff);
     }
+}
+
+IP6 IP6::from_string(string address)
+{
+    vector<uint16_t> left;
+    vector<uint16_t> right;
+    bool dcolon = false;
+    int step = 0;
+
+    token::Hex number;
+    token::Char colon(':');
+    token::String double_colon("::");
+
+    Lexer lexer;
+
+    lexer.add_token("NUMBER",&number);
+    lexer.add_token("COLON",&colon);
+    lexer.add_token("DOUBLE_COLON",&double_colon);
+
+    stringstream is(address);
+
+    lexer.set_input(&is);
+
+    while(lexer.step()) {
+        DFA* dfa = lexer.get_dfa();
+        //TODO
+
+    }
+
+    return IP6();
 }
 
 string IP6::to_string()

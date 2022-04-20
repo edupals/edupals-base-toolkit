@@ -95,7 +95,7 @@ namespace edupals
             /*!
                 Create MAC from string representation
             */
-            MAC(std::string address);
+            static MAC from_string(std::string address);
             
             /*!
                 Returns a string representation of address
@@ -130,7 +130,7 @@ namespace edupals
                 Create address from uint32 representation
             */
             IP4(uint32_t address);
-            
+
             /*!
                 Create address from array representation
             */
@@ -139,7 +139,7 @@ namespace edupals
             /*!
                 Create address from string representation
             */
-            IP4(std::string address);
+            static IP4 from_string(std::string address);
 
             /*!
                 Create a string representation
@@ -177,6 +177,8 @@ namespace edupals
                 Create address from array representation
             */
             IP6(std::array<uint16_t,8> address);
+
+            static IP6 from_string(std::string address);
             
             /*!
                 Create a string representation
