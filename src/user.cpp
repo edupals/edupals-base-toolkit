@@ -130,7 +130,7 @@ vector<Group> User::groups()
     
     if (!gr) {
         if (errno!=0) {
-            throw runtime_error("Error reading group database");
+            throw exception::GroupDatabaseError(errno);
         }
         endgrent();
     }

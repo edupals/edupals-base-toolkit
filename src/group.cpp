@@ -83,7 +83,7 @@ vector<Group> Group::list()
     
     if(!gr) {
         if (errno!=0) {
-            throw runtime_error("Error reading group database");
+            throw exception::GroupDatabaseError(errno);
         }
         
         endgrent();

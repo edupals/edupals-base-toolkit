@@ -27,7 +27,9 @@
 #include <grp.h>
 
 #include <string>
+#include <sstream>
 #include <vector>
+#include <map>
 
 namespace edupals
 {
@@ -42,6 +44,32 @@ namespace edupals
                 const char* what() const throw()
                 {
                     return "Group not found";
+                }
+            };
+
+            class GroupDatabaseError : public std::exception
+            {
+                public:
+                std::string message;
+
+                int errnum;
+
+                GroupDatabaseError(int error) : errnum(error)
+                {
+                    std::stringstream ss;
+                    std::map<int,std::string> enames;
+                    enames[EAGAIN] = "EAGAIN";
+                    enames[ERANGE] = "ERANGE";
+                    enames[ENOENT] = "ENOENT";
+
+                    ss<<"Group database error: "<<errnum<<" ("<<enames[errnum]<<")";
+
+                    message = ss.str();
+                }
+
+                const char* what() const throw()
+                {
+                    message.c_str();
                 }
             };
         }
