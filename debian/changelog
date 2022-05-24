@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.2.0.0) focal; urgency=medium
+
+  * Improved User/Group exceptions
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 24 May 2022 12:19:53 +0200
+
 edupals-base-toolkit (2.1.2.0) focal; urgency=medium
 
   * Fixed float token not parsing scientific notation
