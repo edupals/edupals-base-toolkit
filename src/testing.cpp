@@ -223,6 +223,17 @@ bool test_group()
     for (system::Group& group:groups) {
         clog<<"* "<<group.gid<<":"<<group.name<<endl;
     }
+
+    try {
+        system::Group group("potato");
+        vector<system::User> users = group.users();
+    }
+    catch (system::exception::GroupNotFound& e) {
+        clog<<e.what()<<endl;
+    }
+    catch (system::exception::GroupDatabaseError& e) {
+        clog<<e.what()<<endl;
+    }
     
     return true;
 }

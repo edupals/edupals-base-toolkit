@@ -33,15 +33,18 @@ using namespace std;
 
 User::User(struct passwd* pw)
 {
-    build(pw);
+    if (pw) {
+        build(pw);
+    }
 }
 
 User::User(uid_t uid)
 {
+    errno=0;
     struct passwd* pw=getpwuid(uid);
     
-    if(pw==nullptr) {
-        throw exception::UserNotFound();
+    if(!pw) {
+        throw exception::UserNotFound(uid,errno);
     }
     
     build(pw);
@@ -49,10 +52,11 @@ User::User(uid_t uid)
 
 User::User(const char* name)
 {
+    errno=0;
     struct passwd* pw=getpwnam(name);
     
-    if(pw==nullptr) {
-        throw exception::UserNotFound();
+    if(!pw) {
+        throw exception::UserNotFound(name,errno);
     }
     
     build(pw);
@@ -92,7 +96,7 @@ vector<User> User::list()
     
     if(!pw) {
         if (errno!=0) {
-            throw runtime_error("Error reading passwd database");
+            throw exception::UserDatabaseError(errno);
         }
         
         endpwent();

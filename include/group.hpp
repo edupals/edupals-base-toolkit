@@ -37,16 +37,6 @@ namespace edupals
     {
         namespace exception
         {
-            class GroupNotFound : public std::exception
-            {
-                public:
-                
-                const char* what() const throw()
-                {
-                    return "Group not found";
-                }
-            };
-
             class GroupDatabaseError : public std::exception
             {
                 public:
@@ -69,7 +59,28 @@ namespace edupals
 
                 const char* what() const throw()
                 {
-                    message.c_str();
+                    return message.c_str();
+                }
+            };
+
+            class GroupNotFound : public GroupDatabaseError
+            {
+                public:
+
+                GroupNotFound(int gid, int error = ENOENT) : GroupDatabaseError(error)
+                {
+                    std::stringstream ss;
+
+                    ss<<"Group "<<gid<<" not found:\n"<<message;
+                    message = ss.str();
+                }
+
+                GroupNotFound(const char* name, int error = ENOENT) : GroupDatabaseError(error)
+                {
+                    std::stringstream ss;
+
+                    ss<<"Group "<<name<<" not found:\n"<<message;
+                    message = ss.str();
                 }
             };
         }
