@@ -27,8 +27,10 @@
 #include <pwd.h>
 
 #include <string>
+#include <sstream>
 #include <exception>
 #include <vector>
+#include <map>
 
 namespace edupals
 {
@@ -36,13 +38,51 @@ namespace edupals
     {
         namespace exception
         {
-            class UserNotFound : public std::exception
+
+            class UserDatabaseError : public std::exception
             {
                 public:
-                
+                std::string message;
+
+                int errnum;
+
+                UserDatabaseError(int error) : errnum(error)
+                {
+                    std::stringstream ss;
+                    std::map<int,std::string> enames;
+                    enames[EAGAIN] = "EAGAIN";
+                    enames[ERANGE] = "ERANGE";
+                    enames[ENOENT] = "ENOENT";
+
+                    ss<<"User database error: "<<errnum<<" ("<<enames[errnum]<<")";
+
+                    message = ss.str();
+                }
+
                 const char* what() const throw()
                 {
-                    return "User not found";
+                    return message.c_str();
+                }
+            };
+
+            class UserNotFound : public UserDatabaseError
+            {
+                public:
+
+                UserNotFound(int uid, int error = ENOENT) : UserDatabaseError(error)
+                {
+                    std::stringstream ss;
+
+                    ss<<"User "<<uid<<" not found:\n"<<message;
+                    message = ss.str();
+                }
+
+                UserNotFound(const char* name, int error = ENOENT) : UserDatabaseError(error)
+                {
+                    std::stringstream ss;
+
+                    ss<<"User "<<name<<" not found:\n"<<message;
+                    message = ss.str();
                 }
             };
         }
