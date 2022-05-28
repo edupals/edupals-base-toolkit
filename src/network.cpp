@@ -278,7 +278,7 @@ IP6 IP6::from_string(string address)
 
     token::Hex number;
     token::Char colon(':');
-    token::String double_colon("::");
+    token::Word double_colon("::");
 
     Lexer lexer;
 
@@ -290,20 +290,63 @@ IP6 IP6::from_string(string address)
 
     lexer.set_input(&is);
 
+    int double_pos = -1;
+    vector<int> values;
+    int step = 0;
+
     while(lexer.step()) {
         DFA* dfa = lexer.get_dfa();
-        //TODO
 
+        switch(step) {
+            case 0:
+
+                if (dfa == number) {
+                    values.push_back(number.get_int());
+                    step = 1;
+                }
+                else {
+                    if (dfa == double_colon) {
+                        if (double_pos == -1) {
+                            double_pos = values.size();
+                        }
+                        else {
+                            throw runtime_error("ipv6 parse error: unexpected ::");
+                        }
+                    }
+                    else {
+                        throw runtime_error("ipv6 parse error: unexpected :");
+                    }
+                }
+            break;
+
+            case 1:
+                if (dfa == colon) {
+                    step = 0;
+                }
+                else {
+                    throw runtime_error("ipv6 parse error: expected :");
+                }
+            break;
+        }
     }
 
-    return IP6();
+    std::array<uint16_t,8> address;
+
+    if (values.size()>8 or (values.size()==8 and double_pos>0)) {
+        throw runtime_error("ipv6 parse error: bad number of elements");
+    }
+
+    for (int n=0;n<8;n++) {
+        //TODO
+    }
+
+    return IP6(address);
 }
 
 string IP6::to_string()
 {
     stringstream s;
     
-
     s<<std::hex;
     uint16_t tmp;
     size_t n = 0;
