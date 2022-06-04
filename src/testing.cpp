@@ -39,6 +39,7 @@
 #include <bson.hpp>
 #include <base64.hpp>
 #include <uri.hpp>
+#include <dmi.hpp>
 
 #include <iostream>
 #include <thread>
@@ -691,6 +692,20 @@ bool test_uri()
     return true;
 }
 
+bool test_dmi()
+{
+    clog<<"system vendor:["<<system::dmi::system_vendor()<<"]"<<endl;
+    clog<<"product family:["<<system::dmi::product_family()<<"]"<<endl;
+    clog<<"product name:["<<system::dmi::product_name()<<"]"<<endl;
+    clog<<"product serial:["<<system::dmi::product_serial()<<"]"<<endl;
+    clog<<"product sku:["<<system::dmi::product_sku()<<"]"<<endl;
+    clog<<"product uuid:["<<system::dmi::product_uuid()<<"]"<<endl;
+    clog<<"product version:["<<system::dmi::product_version()<<"]"<<endl;
+    clog<<"board name:["<<system::dmi::board_name()<<"]"<<endl;
+
+    return true;
+}
+
 bool evaluate(std::function<bool()> test_function)
 {
     try {
@@ -747,6 +762,9 @@ int main (int argc,char* argv[])
     //uri
     tests["uri"].push_back(Test("uri",test_uri));
     
+    //test
+    tests["dmi"].push_back(Test("dmi",test_dmi));
+
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     

@@ -5,7 +5,7 @@ add_definitions(-std=c++1z )
 set(libname edupals-base)
 
 set(stable log.cpp cmd.cpp system.cpp variant.cpp process.cpp filesystem.cpp dfa.cpp token.cpp lexer.cpp json.cpp bson.cpp base64.cpp user.cpp group.cpp uri.cpp)
-set(unstable network.cpp )
+set(unstable network.cpp dmi.cpp)
 set(source ${stable} ${unstable})
 
 add_library(${libname} SHARED ${source})
