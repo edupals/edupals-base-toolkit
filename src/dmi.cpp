@@ -24,12 +24,41 @@
 #include <dmi.hpp>
 
 #include <fstream>
+#include <map>
 
-#define SYSFS_DMI "/sys/devices/virtual/dmi/id"
+#define SYSFS_DMI "/sys/devices/virtual/dmi/id/"
 
 using namespace edupals::system::dmi;
 
 using namespace std;
+
+std::map<Key,string> endpoint = {
+    { SystemVendor , "sys_vendor" },
+
+    { ProductFamily , "product_family" },
+    { ProductName , "product_name" },
+    { ProductSerial , "product_serial" },
+    { ProductSKU , "product_sku" },
+    { ProductUUID , "product_uuid" },
+    { ProductVersion , "product_version" },
+
+    { BiosDate , "bios_date" },
+    { BiosRelease , "bios_release" },
+    { BiosVendor , "bios_vendor" },
+    { BiosVersion , "bios_version" },
+
+    { BoardAssetTag , "board_asset_tag" },
+    { BoardName , "board_name" },
+    { BoardSerial , "board_serial" },
+    { BoardVendor , "board_vendor" },
+    { BoardVersion , "board_version" },
+
+    { ChassisAssetTag , "chassis_asset_tag" },
+    { ChassisSerial , "chassis_serial" },
+    { ChassisType , "chassis_type" },
+    { ChassisVendor , "chassis_vendor" },
+    { ChassisVersion , "chassis_version" }
+};
 
 static void read_single_line(string path,string& dest)
 {
@@ -40,74 +69,14 @@ static void read_single_line(string path,string& dest)
     file.close();
 }
 
-string edupals::system::dmi::system_vendor()
+string edupals::system::dmi::get(Key key)
 {
-    string tmp;
+    string path = SYSFS_DMI;
 
-    read_single_line(SYSFS_DMI"/sys_vendor",tmp);
+    string tmp = endpoint[key];
 
-    return tmp;
-}
-
-string edupals::system::dmi::product_family()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/product_family",tmp);
-
-    return tmp;
-}
-
-string edupals::system::dmi::product_name()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/product_name",tmp);
-
-    return tmp;
-}
-
-string edupals::system::dmi::product_serial()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/product_serial",tmp);
-
-    return tmp;
-}
-
-string edupals::system::dmi::product_sku()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/product_sku",tmp);
-
-    return tmp;
-}
-
-string edupals::system::dmi::product_uuid()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/product_uuid",tmp);
-
-    return tmp;
-}
-
-string edupals::system::dmi::product_version()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/product_version",tmp);
-
-    return tmp;
-}
-
-string edupals::system::dmi::board_name()
-{
-    string tmp;
-
-    read_single_line(SYSFS_DMI"/board_name",tmp);
+    path = path + tmp;
+    read_single_line(path,tmp);
 
     return tmp;
 }

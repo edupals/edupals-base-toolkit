@@ -32,16 +32,39 @@ namespace edupals
     {
         namespace dmi
         {
-            std::string system_vendor();
+            enum Key
+            {
+                SystemVendor = 0,
 
-            std::string product_family();
-            std::string product_name();
-            std::string product_serial();
-            std::string product_sku();
-            std::string product_uuid();
-            std::string product_version();
+                ProductFamily,
+                ProductName,
+                ProductSerial,
+                ProductSKU,
+                ProductUUID,
+                ProductVersion,
 
-            std::string board_name();
+                BiosDate,
+                BiosRelease,
+                BiosVendor,
+                BiosVersion,
+
+                BoardAssetTag,
+                BoardName,
+                BoardSerial,
+                BoardVendor,
+                BoardVersion,
+
+                ChassisAssetTag,
+                ChassisSerial,
+                ChassisType,
+                ChassisVendor,
+                ChassisVersion
+            };
+
+            /*!
+                Gets a DMI value from given key
+            */
+            std::string get(Key key);
         }
     }
 }

@@ -694,14 +694,10 @@ bool test_uri()
 
 bool test_dmi()
 {
-    clog<<"system vendor:["<<system::dmi::system_vendor()<<"]"<<endl;
-    clog<<"product family:["<<system::dmi::product_family()<<"]"<<endl;
-    clog<<"product name:["<<system::dmi::product_name()<<"]"<<endl;
-    clog<<"product serial:["<<system::dmi::product_serial()<<"]"<<endl;
-    clog<<"product sku:["<<system::dmi::product_sku()<<"]"<<endl;
-    clog<<"product uuid:["<<system::dmi::product_uuid()<<"]"<<endl;
-    clog<<"product version:["<<system::dmi::product_version()<<"]"<<endl;
-    clog<<"board name:["<<system::dmi::board_name()<<"]"<<endl;
+    clog<<"system vendor:["<<system::dmi::get(system::dmi::SystemVendor)<<"]"<<endl;
+    clog<<"product name:["<<system::dmi::get(system::dmi::ProductName)<<"]"<<endl;
+    clog<<"product version:["<<system::dmi::get(system::dmi::ProductVersion)<<"]"<<endl;
+    clog<<"board name:["<<system::dmi::get(system::dmi::BoardName)<<"]"<<endl;
 
     return true;
 }
