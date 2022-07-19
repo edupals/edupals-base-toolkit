@@ -39,6 +39,7 @@
 #include <bson.hpp>
 #include <base64.hpp>
 #include <uri.hpp>
+#include <dmi.hpp>
 
 #include <iostream>
 #include <thread>
@@ -691,6 +692,16 @@ bool test_uri()
     return true;
 }
 
+bool test_dmi()
+{
+    clog<<"system vendor:["<<system::dmi::get(system::dmi::SystemVendor)<<"]"<<endl;
+    clog<<"product name:["<<system::dmi::get(system::dmi::ProductName)<<"]"<<endl;
+    clog<<"product version:["<<system::dmi::get(system::dmi::ProductVersion)<<"]"<<endl;
+    clog<<"board name:["<<system::dmi::get(system::dmi::BoardName)<<"]"<<endl;
+
+    return true;
+}
+
 bool evaluate(std::function<bool()> test_function)
 {
     try {
@@ -747,6 +758,9 @@ int main (int argc,char* argv[])
     //uri
     tests["uri"].push_back(Test("uri",test_uri));
     
+    //test
+    tests["dmi"].push_back(Test("dmi",test_dmi));
+
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     
