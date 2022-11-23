@@ -27,7 +27,6 @@
 #include <token.hpp>
 
 #include <sys/ioctl.h>
-#include <linux/if_packet.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -41,6 +40,7 @@
 #include <cstring>
 #include <mutex>
 #include <map>
+#include <string>
 #include <experimental/filesystem>
 
 using namespace edupals::network;
@@ -292,7 +292,6 @@ IP6 IP6::from_string(string address)
 
     int double_pos = -1;
     vector<int> values;
-    int step = 0;
 
     while(lexer.step()) {
         DFA* dfa = lexer.get_dfa();
@@ -300,12 +299,12 @@ IP6 IP6::from_string(string address)
         switch(step) {
             case 0:
 
-                if (dfa == number) {
+                if (dfa == &number) {
                     values.push_back(number.get_int());
                     step = 1;
                 }
                 else {
-                    if (dfa == double_colon) {
+                    if (dfa == &double_colon) {
                         if (double_pos == -1) {
                             double_pos = values.size();
                         }
@@ -320,7 +319,7 @@ IP6 IP6::from_string(string address)
             break;
 
             case 1:
-                if (dfa == colon) {
+                if (dfa == &colon) {
                     step = 0;
                 }
                 else {
@@ -330,7 +329,7 @@ IP6 IP6::from_string(string address)
         }
     }
 
-    std::array<uint16_t,8> address;
+    std::array<uint16_t,8> ret;
 
     if (values.size()>8 or (values.size()==8 and double_pos>0)) {
         throw runtime_error("ipv6 parse error: bad number of elements");
@@ -340,7 +339,7 @@ IP6 IP6::from_string(string address)
         //TODO
     }
 
-    return IP6(address);
+    return IP6(ret);
 }
 
 string IP6::to_string()
@@ -544,18 +543,16 @@ bool Mask6::in_range(IP6& subnet,IP6& ip)
 
 void CachedInterface::push_address(struct ifaddrs* addr)
 {
-    
+    IFAddress ifa(addr->ifa_addr,addr->ifa_netmask,addr->ifa_ifu.ifu_broadaddr);
+    this->addresses.push_back(ifa);
+
     if (addr->ifa_addr->sa_family == AF_PACKET) {
         
         this->flags = addr->ifa_flags;
-        RawAddress tmp = RawAddress(addr->ifa_addr);
-        this->address = MAC(tmp);
-        tmp = RawAddress(addr->ifa_ifu.ifu_broadaddr);
-        this->broadcast = MAC(tmp);
+        std::memcpy(&this->address,&addr->ifa_addr,sizeof(struct sockaddr));
+        std::memcpy(&this->broadcast,&addr->ifa_ifu.ifu_broadaddr,sizeof(struct sockaddr));
     }
-    else {
-        this->addresses.push_back(AddressSetup(addr->ifa_addr,addr->ifa_netmask,addr->ifa_ifu.ifu_broadaddr));
-    }
+
 }
 
 Interface::Interface(string name)
@@ -771,5 +768,48 @@ ostream& operator<<(ostream& os,edupals::network::IP4& addr)
 ostream& operator<<(ostream& os,edupals::network::IP6& addr)
 {
     os<<addr.to_string();
+    return os;
+}
+
+ostream& operator<<(ostream& os,struct in_addr& addr)
+{
+    char buffer[INET_ADDRSTRLEN];
+    const char* ret = inet_ntop(AF_INET,&addr,buffer,INET_ADDRSTRLEN);
+    os<<"IPv4 "<<buffer;
+
+    return os;
+}
+
+ostream& operator<<(ostream& os,struct sockaddr& addr)
+{
+    switch (addr.sa_family) {
+        case AF_PACKET: {
+            sockaddr_ll* ll = (sockaddr_ll*)&addr;
+            stringstream s;
+            int n = 0;
+            L1:
+                s<<hex<<setw(2)<<setfill('0')<<(int)ll->sll_addr[n];
+
+                n++;
+                if (n != ll->sll_halen) {
+                    s<<":";
+                    goto L1;
+                }
+
+            os<<"MAC address:"<<s.str();
+        }
+        break;
+
+        case AF_INET6: {
+        }
+        break;
+        case AF_INET: {
+            sockaddr_in* in = (sockaddr_in*)&addr;
+
+            os<<in->sin_addr;
+        }
+        break;
+    }
+
     return os;
 }

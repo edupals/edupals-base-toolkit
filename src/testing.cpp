@@ -96,13 +96,29 @@ bool test_network()
         for (network::AddressSetup& setup : iface.addresses()) {
             switch (setup.family()) {
                 case AF_INET: {
-                    network::IP4 tmp(setup.address());
-                    clog<<"\t\t* ip4: "<<tmp<<endl;        
+                    network::IP4 addr(setup.address());
+                    network::IP4 netmask(setup.netmask());
+
+                    clog<<"\t\t* ip4: "<<addr<<endl;
+                    clog<<"\t\t* netmask: "<<netmask<<endl;
+                    if (setup.broadcast()) {
+                        network::IP4 broadcast(setup.broadcast());
+                        clog<<"\t\t* broadcast: "<<broadcast<<endl;
+                    }
+                    clog<<endl;
                 break;
                 }
                 case AF_INET6: {
-                    network::IP6 tmp(setup.address());
-                    clog<<"\t\t* ip6: "<<tmp<<endl;        
+                    network::IP6 addr(setup.address());
+                    network::IP6 netmask(setup.netmask());
+
+                    clog<<"\t\t* ip6: "<<addr<<endl;
+                    clog<<"\t\t* netmask: "<<netmask<<endl;
+                    if (setup.broadcast) {
+                        network::IP6 broadcast(setup.broadcast());
+                        clog<<"\t\t* broadcast: "<<broadcast<<endl;
+                    }
+                    clog<<endl;
                 break;
                 }
             }

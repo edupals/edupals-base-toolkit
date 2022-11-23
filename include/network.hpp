@@ -25,6 +25,7 @@
 #define EDUPALS_NETWORK
 
 #include <sys/types.h>
+#include <linux/if_packet.h>
 #include <ifaddrs.h>
 
 #include <cstdint>
@@ -32,6 +33,7 @@
 #include <vector>
 #include <array>
 #include <exception>
+#include <cstring>
 
 namespace edupals
 {
@@ -50,6 +52,23 @@ namespace edupals
                     msg="interface not found:"+iface;
                 }
                 
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
+            };
+
+            class ParseError: public std::exception
+            {
+                public:
+
+                std::string msg;
+
+                ParseError(std::string& value)
+                {
+                    msg="Failed to parse address:"+value;
+                }
+
                 const char* what() const throw()
                 {
                     return msg.c_str();
@@ -249,7 +268,46 @@ namespace edupals
             
         };
 
-        
+        class IFAddress
+        {
+            protected:
+
+            struct sockaddr _address;
+            struct sockaddr _netmask;
+            struct sockaddr _broadcast;
+
+            public:
+
+            IFAddress(struct sockaddr* address,
+                    struct sockaddr* netmask,
+                    struct sockaddr* broadcast)
+            {
+                std::memcpy(&_address,address,sizeof(_address));
+                std::memcpy(&_netmask,netmask,sizeof(_netmask));
+                std::memcpy(&_broadcast,broadcast,sizeof(_broadcast));
+            }
+
+            uint32_t family() const
+            {
+                return _address.sa_family;
+            }
+
+            struct sockaddr address() const
+            {
+                return _address;
+            }
+
+            struct sockaddr netmask() const
+            {
+                return _netmask;
+            }
+
+            struct sockaddr broadcast() const
+            {
+                return _broadcast;
+            }
+        };
+
         class AddressSetup
         {
             protected:
@@ -302,9 +360,9 @@ namespace edupals
             uint32_t update_id;
             std::string name;
             uint32_t flags;
-            MAC address;
-            MAC broadcast;
-            std::vector<AddressSetup> addresses;
+            struct sockaddr_ll address;
+            struct sockaddr_ll broadcast;
+            std::vector<IFAddress> addresses;
             
             void push_address(struct ifaddrs* addr);
         };
@@ -366,7 +424,7 @@ namespace edupals
             MAC& hwbroadcast();
             
             
-            std::vector<AddressSetup>& addresses();
+            std::vector<IFAddress>& addresses();
             
             /*!
                 gets a list of all avialable interfaces
@@ -381,5 +439,8 @@ namespace edupals
 std::ostream& operator<<(std::ostream& os,edupals::network::MAC& addr);
 std::ostream& operator<<(std::ostream& os,edupals::network::IP4& addr);
 std::ostream& operator<<(std::ostream& os,edupals::network::IP6& addr);
+
+std::ostream& operator<<(std::ostream& os,struct in_addr& addr);
+std::ostream& operator<<(std::ostream& os,struct sockaddr& addr);
 
 #endif
