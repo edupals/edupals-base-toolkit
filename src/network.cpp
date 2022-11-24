@@ -685,7 +685,7 @@ MAC& Interface::hwbroadcast()
     return cache->broadcast;
 }
 
-std::vector<AddressSetup>& Interface::addresses()
+std::vector<IFAddress>& Interface::addresses()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
