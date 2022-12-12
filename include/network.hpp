@@ -77,202 +77,21 @@ namespace edupals
             };
         }
         
-        class RawAddress
-        {
-            public:
-                
-            uint16_t family;
-            std::vector<uint8_t> value;
-            
-            RawAddress(){}
-            RawAddress(struct sockaddr* addr);
-            virtual ~RawAddress(){}
-            
-            virtual uint8_t data (int n);
-            
-            virtual std::string to_string();
-        };
         
-        /*!
-            MAC Address class
-        */
-        class MAC: public RawAddress
-        {
-            public:
-            
-            MAC(){};
-            
-            /*!
-                Create MAC from sockaddr struct
-            */
-            explicit MAC(RawAddress& address);
-            
-            /*!
-                Create MAC from byte array
-            */
-            MAC(std::array<uint8_t,6> address);
-            
-            /*!
-                Create MAC from string representation
-            */
-            static MAC from_string(std::string address);
-            
-            /*!
-                Returns a string representation of address
-            */
-            std::string to_string() override;
-            
-            virtual uint8_t operator [] (int n)
-            {
-                return value[n];
-            }
-            
-        };
-    
-        /*!
-            IP 4 Address
-        */
-        class IP4: public RawAddress
-        {
-            public:
-            
-            IP4()
-            {
-                value[0]=0;
-                value[1]=0;
-                value[2]=0;
-                value[3]=0;
-            };
-            
-            explicit IP4(RawAddress& address);
-            
-            /*!
-                Create address from uint32 representation
-            */
-            IP4(uint32_t address);
-
-            /*!
-                Create address from array representation
-            */
-            IP4(std::array<uint8_t,4> address);
-            
-            /*!
-                Create address from string representation
-            */
-            static IP4 from_string(std::string address);
-
-            /*!
-                Create a string representation
-            */
-            std::string to_string() override;
-            
-            /*!
-                Gets uint32 address representation
-            */
-            uint32_t get_uint32();
-            
-            virtual uint8_t operator [] (int n)
-            {
-                return value[n];
-            }
-        };
-        
-        /*!
-            IP 6 Address
-        */
-        class IP6: public RawAddress
-        {
-            public:
-            
-            IP6()
-            {
-                for (size_t n=0;n<16;n++) {
-                    value[n] = 0;
-                }
-            };
-            
-            explicit IP6(RawAddress& address);
-            
-            /*!
-                Create address from array representation
-            */
-            IP6(std::array<uint16_t,8> address);
-
-            static IP6 from_string(std::string address);
-            
-            /*!
-                Create a string representation
-            */
-            std::string to_string() override;
-            
-            virtual uint16_t operator [] (int n);
-            
-        };
-        
-        class Mask4 : public IP4
-        {
-            public:
-            
-            explicit Mask4(RawAddress& address);
-            
-            Mask4(std::array<uint8_t,4> address);
-            
-            explicit Mask4(IP4& address);
-            
-            Mask4 (uint32_t bits);
-            
-            /*!
-                Get number of bits mask representation
-                return -1 if mask is not valid 1 sequence
-            */
-            int32_t bits();
-            
-            /*!
-                Whenever the mask is valid or not
-            */
-            bool valid();
-            
-            /*!
-                Checks if ip is in range for the subnet/mask
-            */
-            bool in_range(IP4& subnet,IP4& ip);
-            
-        };
-        
-        class Mask6 : public IP6
-        {
-            public:
-            
-            explicit Mask6 (RawAddress& address);
-            
-            Mask6 (std::array<uint16_t,8> address);
-            
-            explicit Mask6 (IP6& address);
-            
-            Mask6 (uint32_t bits);
-            
-            /*!
-                Get number of bits mask representation
-                return -1 if mask is not valid 1 sequence
-            */
-            int32_t bits();
-            
-            /*!
-                Whenever the mask is valid or not
-            */
-            bool valid();
-            
-            /*!
-                Checks if ip is in range for the subnet/mask
-            */
-            bool in_range(IP6& subnet,IP6& ip);
-            
-        };
-
         int maskbits(struct in_addr& addr);
         int maskbits(struct in6_addr& addr);
+
+        /*!
+            Gets number of bits from a mask ipv4/6 address
+        */
         int maskbits(struct sockaddr* addr);
 
+        /*!
+            Rrepresents an interface address setup:
+            - address
+            - netmask
+            - broadcast
+        */
         class IFAddress
         {
             protected:
@@ -298,6 +117,10 @@ namespace edupals
                 }
             }
 
+            /*!
+                Gets the address family, using socket.h constants, typically:
+                AF_PACKET, AF_INET, AF_INET6...
+            */
             uint32_t family() const
             {
                 return _address.ss_family;
@@ -319,51 +142,6 @@ namespace edupals
             }
         };
 
-        class AddressSetup
-        {
-            protected:
-            
-            RawAddress _address;
-            RawAddress _netmask;
-            RawAddress _broadcast;
-            
-            public:
-            
-            AddressSetup(struct sockaddr* address,
-                    struct sockaddr* netmask,
-                    struct sockaddr* broadcast) :
-                    _address(address),
-                    _netmask(netmask),
-                    _broadcast(broadcast)
-            {
-            }
-            
-            uint16_t family()
-            {
-                return _address.family;
-            }
-            
-            RawAddress& address()
-            {
-                return _address;
-            }
-            
-            RawAddress& netmask()
-            {
-                return _netmask;
-            }
-            
-            RawAddress& broadcast()
-            {
-                return _broadcast;
-            }
-            
-            RawAddress& peer()
-            {
-                return _broadcast;
-            }
-        };
-        
         class CachedInterface
         {
             public:
@@ -434,7 +212,9 @@ namespace edupals
             /*! Hardware broadcast address */
             struct sockaddr_ll& hwbroadcast();
             
-            
+            /*!
+                Gets a list of current interface addresses
+            */
             std::vector<IFAddress>& addresses();
             
             /*!
@@ -446,10 +226,6 @@ namespace edupals
         };
     }
 }
-
-std::ostream& operator<<(std::ostream& os,edupals::network::MAC& addr);
-std::ostream& operator<<(std::ostream& os,edupals::network::IP4& addr);
-std::ostream& operator<<(std::ostream& os,edupals::network::IP6& addr);
 
 std::ostream& operator<<(std::ostream& os,struct in6_addr& addr);
 std::ostream& operator<<(std::ostream& os,struct in_addr& addr);
