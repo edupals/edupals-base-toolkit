@@ -90,56 +90,20 @@ bool test_network()
         clog<<"\tBroadcast:"<<iface.hwbroadcast()<<endl;
         clog<<"\tCarrier:"<<iface.carrier()<<endl;
         clog<<"\tMTU:"<<iface.mtu()<<endl;
-        
+
         clog<<endl;
         clog<<"\tAddresses:"<<endl;
-        for (network::AddressSetup& setup : iface.addresses()) {
-            switch (setup.family()) {
-                case AF_INET: {
-                    network::IP4 addr(setup.address());
-                    network::IP4 netmask(setup.netmask());
 
-                    clog<<"\t\t* ip4: "<<addr<<endl;
-                    clog<<"\t\t* netmask: "<<netmask<<endl;
-                    if (setup.broadcast()) {
-                        network::IP4 broadcast(setup.broadcast());
-                        clog<<"\t\t* broadcast: "<<broadcast<<endl;
-                    }
-                    clog<<endl;
-                break;
-                }
-                case AF_INET6: {
-                    network::IP6 addr(setup.address());
-                    network::IP6 netmask(setup.netmask());
+        map<int,string> family = {
+            {AF_PACKET,"link"},
+            {AF_INET,"ipv4"},
+            {AF_INET6,"ipv6"}
+        };
 
-                    clog<<"\t\t* ip6: "<<addr<<endl;
-                    clog<<"\t\t* netmask: "<<netmask<<endl;
-                    if (setup.broadcast) {
-                        network::IP6 broadcast(setup.broadcast());
-                        clog<<"\t\t* broadcast: "<<broadcast<<endl;
-                    }
-                    clog<<endl;
-                break;
-                }
-            }
-            
+        for (network::IFAddress& address : iface.addresses()) {
+            clog<<"\t\t* "<<family[address.family()]<<" "<<address.address()<<"/"<<network::maskbits(address.netmask())<<endl;
         }
-        
     }
-    
-    network::Mask4 mask({255,255,255,0});
-    network::IP4 subnet({192,168,0,0});
-    network::IP4 ip_a({192,168,0,1});
-    network::IP4 ip_b = network::IP4::from_string("192.168.4.1");
-    
-    clog<<endl;
-    clog<<"mask:" <<mask<<endl;
-    clog<<"subnet: "<<subnet<<endl;
-    clog<<"ip a: "<<ip_a<<endl;
-    clog<<"ip b: "<<ip_b<<endl;
-    clog<<"is a on subnet?: "<<mask.in_range(subnet,ip_a)<<endl;
-    clog<<"is b on subnet?: "<<mask.in_range(subnet,ip_b)<<endl;
-    
     return true;
 }
 

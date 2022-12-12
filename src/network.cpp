@@ -541,6 +541,86 @@ bool Mask6::in_range(IP6& subnet,IP6& ip)
     return true;
 }
 
+int edupals::network::maskbits(in_addr& addr)
+{
+    int32_t num=0;
+    bool knee=false;
+    uint8_t* value = (uint8_t*)&addr.s_addr;
+
+    for (int n=3;n>=0;n--) {
+        for (int b=0;b<8;b++) {
+            uint8_t m = 1<<b;
+            uint8_t v = value[n] & m;
+
+            if (knee) {
+                if (v==0) {
+                    return -1;
+                }
+            }
+            else {
+                if (v==0) {
+                    num++;
+                }
+                else {
+                    knee=true;
+                }
+            }
+        }
+    }
+
+    return 32-num;
+}
+
+int edupals::network::maskbits(in6_addr& addr)
+{
+    int32_t num=0;
+    bool knee=false;
+    uint8_t* value = (uint8_t*)&addr.s6_addr;
+
+    for (int n=15;n>=0;n--) {
+        for (int b=0;b<8;b++) {
+            uint8_t m = 1<<b;
+            uint8_t v = value[n] & m;
+
+            if (knee) {
+                if (v==0) {
+                    return -1;
+                }
+            }
+            else {
+                if (v==0) {
+                    num++;
+                }
+                else {
+                    knee=true;
+                }
+            }
+        }
+    }
+
+    return 128-num;
+}
+
+int edupals::network::maskbits(struct sockaddr* addr)
+{
+    switch (addr->sa_family) {
+
+        case AF_INET: {
+            struct sockaddr_in* in = (struct sockaddr_in*)addr;
+            return network::maskbits(in->sin_addr);
+        }
+        break;
+
+        case AF_INET6: {
+            struct sockaddr_in6* in6 = (struct sockaddr_in6*)addr;
+            return network::maskbits(in6->sin6_addr);
+        }
+
+        default:
+            return 0;
+    }
+}
+
 void CachedInterface::push_address(struct ifaddrs* addr)
 {
     IFAddress ifa(addr->ifa_addr,addr->ifa_netmask,addr->ifa_ifu.ifu_broadaddr);
@@ -549,8 +629,8 @@ void CachedInterface::push_address(struct ifaddrs* addr)
     if (addr->ifa_addr->sa_family == AF_PACKET) {
         
         this->flags = addr->ifa_flags;
-        std::memcpy(&this->address,&addr->ifa_addr,sizeof(struct sockaddr));
-        std::memcpy(&this->broadcast,&addr->ifa_ifu.ifu_broadaddr,sizeof(struct sockaddr));
+        std::memcpy(&this->address, addr->ifa_addr,sizeof(struct sockaddr_ll));
+        std::memcpy(&this->broadcast, addr->ifa_ifu.ifu_broadaddr,sizeof(struct sockaddr_ll));
     }
 
 }
@@ -667,7 +747,7 @@ bool Interface::exists()
     return fs::exists(sysfs);
 }
 
-MAC& Interface::hwaddress()
+struct sockaddr_ll& Interface::hwaddress()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -676,7 +756,7 @@ MAC& Interface::hwaddress()
     return cache->address;
 }
 
-MAC& Interface::hwbroadcast()
+struct sockaddr_ll& Interface::hwbroadcast()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
         throw exception::InterfaceNotFound(name);
@@ -771,12 +851,38 @@ ostream& operator<<(ostream& os,edupals::network::IP6& addr)
     return os;
 }
 
+ostream& operator<<(ostream& os,struct in6_addr& addr)
+{
+    char buffer[INET6_ADDRSTRLEN];
+    const char* ret = inet_ntop(AF_INET6,&addr,buffer,INET6_ADDRSTRLEN);
+    os<<buffer;
+
+    return os;
+}
+
 ostream& operator<<(ostream& os,struct in_addr& addr)
 {
     char buffer[INET_ADDRSTRLEN];
     const char* ret = inet_ntop(AF_INET,&addr,buffer,INET_ADDRSTRLEN);
-    os<<"IPv4 "<<buffer;
+    os<<buffer;
 
+    return os;
+}
+
+ostream& operator<<(ostream& os,struct sockaddr_ll& addr)
+{
+    stringstream s;
+    int n = 0;
+    L1:
+        s<<hex<<setw(2)<<setfill('0')<<(int)addr.sll_addr[n];
+
+        n++;
+        if (n != addr.sll_halen) {
+            s<<":";
+            goto L1;
+        }
+
+    os<<s.str();
     return os;
 }
 
@@ -785,24 +891,16 @@ ostream& operator<<(ostream& os,struct sockaddr& addr)
     switch (addr.sa_family) {
         case AF_PACKET: {
             sockaddr_ll* ll = (sockaddr_ll*)&addr;
-            stringstream s;
-            int n = 0;
-            L1:
-                s<<hex<<setw(2)<<setfill('0')<<(int)ll->sll_addr[n];
-
-                n++;
-                if (n != ll->sll_halen) {
-                    s<<":";
-                    goto L1;
-                }
-
-            os<<"MAC address:"<<s.str();
+            os<<*ll;
         }
         break;
 
         case AF_INET6: {
+            sockaddr_in6* in = (sockaddr_in6*)&addr;
+            os<<in->sin6_addr;
         }
         break;
+
         case AF_INET: {
             sockaddr_in* in = (sockaddr_in*)&addr;
 
@@ -811,5 +909,11 @@ ostream& operator<<(ostream& os,struct sockaddr& addr)
         break;
     }
 
+    return os;
+}
+
+ostream& operator<<(ostream& os,struct sockaddr* addr)
+{
+    os<<*addr;
     return os;
 }

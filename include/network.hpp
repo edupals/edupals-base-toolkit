@@ -26,6 +26,7 @@
 
 #include <sys/types.h>
 #include <linux/if_packet.h>
+#include <netinet/ip.h>
 #include <ifaddrs.h>
 
 #include <cstdint>
@@ -268,13 +269,17 @@ namespace edupals
             
         };
 
+        int maskbits(struct in_addr& addr);
+        int maskbits(struct in6_addr& addr);
+        int maskbits(struct sockaddr* addr);
+
         class IFAddress
         {
             protected:
 
-            struct sockaddr _address;
-            struct sockaddr _netmask;
-            struct sockaddr _broadcast;
+            struct sockaddr_storage _address;
+            struct sockaddr_storage _netmask;
+            struct sockaddr_storage _broadcast;
 
             public:
 
@@ -282,29 +287,35 @@ namespace edupals
                     struct sockaddr* netmask,
                     struct sockaddr* broadcast)
             {
-                std::memcpy(&_address,address,sizeof(_address));
-                std::memcpy(&_netmask,netmask,sizeof(_netmask));
-                std::memcpy(&_broadcast,broadcast,sizeof(_broadcast));
+                if (address) {
+                    std::memcpy(&_address,address,sizeof(_address));
+                }
+                if (netmask) {
+                    std::memcpy(&_netmask,netmask,sizeof(_netmask));
+                }
+                if (broadcast) {
+                    std::memcpy(&_broadcast,broadcast,sizeof(_broadcast));
+                }
             }
 
             uint32_t family() const
             {
-                return _address.sa_family;
+                return _address.ss_family;
             }
 
-            struct sockaddr address() const
+            struct sockaddr* address() const
             {
-                return _address;
+                return (struct sockaddr*)(&_address);
             }
 
-            struct sockaddr netmask() const
+            struct sockaddr* netmask() const
             {
-                return _netmask;
+                return (struct sockaddr*)(&_netmask);
             }
 
-            struct sockaddr broadcast() const
+            struct sockaddr* broadcast() const
             {
-                return _broadcast;
+                return (struct sockaddr*)(&_broadcast);
             }
         };
 
@@ -418,10 +429,10 @@ namespace edupals
             bool exists();
 
             /*! Hardware MAC Address */
-            MAC& hwaddress();
+            struct sockaddr_ll& hwaddress();
             
             /*! Hardware broadcast address */
-            MAC& hwbroadcast();
+            struct sockaddr_ll& hwbroadcast();
             
             
             std::vector<IFAddress>& addresses();
@@ -440,7 +451,10 @@ std::ostream& operator<<(std::ostream& os,edupals::network::MAC& addr);
 std::ostream& operator<<(std::ostream& os,edupals::network::IP4& addr);
 std::ostream& operator<<(std::ostream& os,edupals::network::IP6& addr);
 
+std::ostream& operator<<(std::ostream& os,struct in6_addr& addr);
 std::ostream& operator<<(std::ostream& os,struct in_addr& addr);
+std::ostream& operator<<(std::ostream& os,struct sockaddr_ll& addr);
 std::ostream& operator<<(std::ostream& os,struct sockaddr& addr);
+std::ostream& operator<<(std::ostream& os,struct sockaddr* addr);
 
 #endif
