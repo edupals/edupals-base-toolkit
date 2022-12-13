@@ -373,24 +373,6 @@ void Interface::update()
     
 }
 
-ostream& operator<<(ostream& os,edupals::network::MAC& addr)
-{
-    os<<addr.to_string();
-    return os;
-}
-
-ostream& operator<<(ostream& os,edupals::network::IP4& addr)
-{
-    os<<addr.to_string();
-    return os;
-}
-
-ostream& operator<<(ostream& os,edupals::network::IP6& addr)
-{
-    os<<addr.to_string();
-    return os;
-}
-
 ostream& operator<<(ostream& os,struct in6_addr& addr)
 {
     char buffer[INET6_ADDRSTRLEN];

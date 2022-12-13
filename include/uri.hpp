@@ -26,6 +26,8 @@
 
 #include "network.hpp"
 
+#include <sys/socket.h>
+
 #include <string>
 
 namespace edupals
@@ -71,8 +73,8 @@ namespace edupals
             /*! Host address, both hostname based or ip4 */
             std::string host;
             
-            /*! IP4 object if hostname is defined as ip address, 0.0.0.0 otherwise */
-            network::IP4 ip;
+            /*! IP4 in_addr if hostname is defined as ip address, 0.0.0.0 otherwise */
+            struct in_addr ip;
             
             /*! Port number, or 0 if not defined */
             int port;

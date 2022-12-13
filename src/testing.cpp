@@ -657,7 +657,7 @@ bool test_uri()
     clog<<"scheme:"<<url.scheme<<endl;
     clog<<"user:"<<url.user<<endl;
     clog<<"host:"<<url.host<<endl;
-    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"ip:"<<url.ip<<endl;
     clog<<"port:"<<url.port<<endl;
     clog<<"path:"<<url.path<<endl;
     
@@ -670,7 +670,7 @@ bool test_uri()
     clog<<"scheme:"<<url.scheme<<endl;
     clog<<"user:"<<url.user<<endl;
     clog<<"host:"<<url.host<<endl;
-    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"ip:"<<url.ip<<endl;
     clog<<"port:"<<url.port<<endl;
     clog<<"path:"<<url.path<<endl;
     

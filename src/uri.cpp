@@ -197,7 +197,8 @@ Uri::Uri(string uri)
             }
             if (dfa==ip4) {
                 this->host=dfa->value();
-                this->ip=network::IP4(static_cast<token::IP4*>(dfa)->ip);
+                std::array<uint8_t,4> tmp = static_cast<token::IP4*>(dfa)->ip;
+                this->ip.s_addr = tmp[0] | (tmp[1]<<8) | (tmp[2]<<16) | (tmp[3]<<24);
                 
                 rule=7;
                 continue;
@@ -236,7 +237,8 @@ Uri::Uri(string uri)
             
             if (dfa==ip4) {
                 this->host=dfa->value();
-                this->ip=network::IP4(static_cast<token::IP4*>(dfa)->ip);
+                std::array<uint8_t,4> tmp = static_cast<token::IP4*>(dfa)->ip;
+                this->ip.s_addr = tmp[0] | (tmp[1]<<8) | (tmp[2]<<16) | (tmp[3]<<24);
                 rule++;
                 continue;
             }
