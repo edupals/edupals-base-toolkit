@@ -81,6 +81,33 @@ bool Mask6::in_range(IP6& subnet,IP6& ip)
 }
 */
 
+struct in_addr edupals::network::ip4(string addr)
+{
+    struct in_addr ret;
+
+    int status = inet_pton(AF_INET,addr.c_str(),&ret);
+
+    if (status !=1) {
+        throw exception::ParseError("Can not parse IPv4 address");
+    }
+
+    return ret;
+}
+
+
+struct in6_addr edupals::network::ip6(string addr)
+{
+    struct in6_addr ret;
+
+    int status = inet_pton(AF_INET6,addr.c_str(),&ret);
+
+    if (status !=1) {
+        throw exception::ParseError("Can not parse IPv6 address");
+    }
+
+    return ret;
+}
+
 int edupals::network::maskbits(in_addr& addr)
 {
     int32_t num=0;
@@ -159,6 +186,13 @@ int edupals::network::maskbits(struct sockaddr* addr)
         default:
             return 0;
     }
+}
+
+bool edupals::network::in_range(struct in_addr& addr,struct in_addr& subnet,struct in_addr& mask)
+{
+    //TODO
+
+    return false;
 }
 
 void CachedInterface::push_address(struct ifaddrs* addr)

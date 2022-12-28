@@ -48,7 +48,7 @@ namespace edupals
                 
                 std::string msg;
                 
-                InterfaceNotFound(std::string& iface)
+                InterfaceNotFound(std::string iface)
                 {
                     msg="interface not found:"+iface;
                 }
@@ -65,7 +65,7 @@ namespace edupals
 
                 std::string msg;
 
-                ParseError(std::string& value)
+                ParseError(std::string value)
                 {
                     msg="Failed to parse address:"+value;
                 }
@@ -77,6 +77,8 @@ namespace edupals
             };
         }
         
+        struct in_addr ip4(std::string addr);
+        struct in6_addr ip6(std::string addr);
         
         int maskbits(struct in_addr& addr);
         int maskbits(struct in6_addr& addr);
@@ -85,6 +87,8 @@ namespace edupals
             Gets number of bits from a mask ipv4/6 address
         */
         int maskbits(struct sockaddr* addr);
+
+        bool in_range(struct in_addr& addr,struct in_addr& subnet,struct in_addr& mask);
 
         /*!
             Rrepresents an interface address setup:
