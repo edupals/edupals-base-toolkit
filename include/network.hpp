@@ -79,6 +79,10 @@ namespace edupals
         
         struct in_addr ip4(std::string addr);
         struct in6_addr ip6(std::string addr);
+
+        std::vector<uint8_t> to_bytes(struct in_addr& addr);
+        std::vector<uint8_t> to_bytes(struct in6_addr& addr);
+        std::vector<uint16_t> to_words(struct in6_addr& addr);
         
         int maskbits(struct in_addr& addr);
         int maskbits(struct in6_addr& addr);

@@ -108,6 +108,45 @@ struct in6_addr edupals::network::ip6(string addr)
     return ret;
 }
 
+vector<uint8_t> edupals::network::to_bytes(struct in_addr& addr)
+{
+    vector<uint8_t> ret;
+
+    uint8_t* value = (uint8_t*)&addr.s_addr;
+
+    for (int n=0;n<4;n++) {
+        ret.push_back(value[n]);
+    }
+
+    return ret;
+}
+
+vector<uint8_t> edupals::network::to_bytes(struct in6_addr& addr)
+{
+    vector<uint8_t> ret;
+
+    uint8_t* value = (uint8_t*)&addr.s6_addr;
+
+    for (int n=0;n<16;n++) {
+        ret.push_back(value[n]);
+    }
+
+    return ret;
+}
+
+vector<uint16_t> edupals::network::to_words(struct in6_addr& addr)
+{
+    vector<uint16_t> ret;
+
+    uint16_t* value = (uint16_t*)&addr.s6_addr;
+
+    for (int n=0;n<8;n++) {
+        ret.push_back(value[n]);
+    }
+
+    return ret;
+}
+
 int edupals::network::maskbits(in_addr& addr)
 {
     int32_t num=0;
