@@ -227,11 +227,17 @@ int edupals::network::maskbits(struct sockaddr* addr)
     }
 }
 
-bool edupals::network::in_range(struct in_addr& addr,struct in_addr& subnet,struct in_addr& mask)
+bool edupals::network::in_range(struct in_addr& ip,struct in_addr& subnet,struct in_addr& mask)
 {
-    //TODO
+    for (int n=0;n<4;n++) {
+        uint8_t v = ~(subnet.s_addr[n] ^ ip.s_addr[n]);
+        v = mask.s_addr[n] & v;
+        if (v!=0xff) {
+            return false;
+        }
+    }
 
-    return false;
+    return true;
 }
 
 void CachedInterface::push_address(struct ifaddrs* addr)
