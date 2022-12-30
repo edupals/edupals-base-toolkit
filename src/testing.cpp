@@ -104,6 +104,14 @@ bool test_network()
             clog<<"\t\t* "<<family[address.family()]<<" "<<address.address()<<"/"<<network::maskbits(address.netmask())<<endl;
         }
     }
+
+    struct in_addr ip1 = network::ip4("192.168.0.32");
+    struct in_addr ip2 = network::ip4("192.168.1.31");
+    struct in_addr m1 = network::ip4("255.255.255.0");
+    struct in_addr s1 = network::ip4("192.168.0.0");
+
+
+
     return true;
 }
 

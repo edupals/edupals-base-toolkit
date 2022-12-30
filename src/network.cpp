@@ -53,34 +53,6 @@ namespace fs=std::experimental::filesystem;
 thread_local std::vector<CachedInterface> thread_cache;
 thread_local uint32_t update_count;
 
-/*
-bool Mask4::in_range(IP4& subnet,IP4& ip)
-{
-    for (int n=0;n<4;n++) {
-        uint8_t v = ~(subnet[n] ^ ip[n]);
-        v = value[n] & v;
-        if (v!=0xff) {
-            return false;
-        }
-    }
-    
-    return true;
-}
-
-bool Mask6::in_range(IP6& subnet,IP6& ip)
-{
-    for (int n=0;n<16;n++) {
-        uint8_t v = ~(subnet[n] ^ ip[n]);
-        v = value[n] & v;
-        if (v!=0xff) {
-            return false;
-        }
-    }
-    
-    return true;
-}
-*/
-
 struct in_addr edupals::network::ip4(string addr)
 {
     struct in_addr ret;
@@ -93,7 +65,6 @@ struct in_addr edupals::network::ip4(string addr)
 
     return ret;
 }
-
 
 struct in6_addr edupals::network::ip6(string addr)
 {
@@ -229,9 +200,26 @@ int edupals::network::maskbits(struct sockaddr* addr)
 
 bool edupals::network::in_range(struct in_addr& ip,struct in_addr& subnet,struct in_addr& mask)
 {
+    uint8_t* s = (uint8_t*) &subnet.s_addr;
+    uint8_t* i = (uint8_t*) &ip.s_addr;
+    uint8_t* m = (uint8_t*) &mask.s_addr;
+
     for (int n=0;n<4;n++) {
-        uint8_t v = ~(subnet.s_addr[n] ^ ip.s_addr[n]);
-        v = mask.s_addr[n] & v;
+        uint8_t v = ~(s[n] ^ i[n]);
+        v = m[n] & v;
+        if (v!=0xff) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool edupals::network::in_range(struct in6_addr& ip,struct in6_addr& subnet,struct in6_addr& mask)
+{
+    for (int n=0;n<16;n++) {
+        uint8_t v = ~(subnet.s6_addr[n] ^ ip.s6_addr[n]);
+        v = mask.s6_addr[n] & v;
         if (v!=0xff) {
             return false;
         }

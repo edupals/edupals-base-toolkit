@@ -76,23 +76,36 @@ namespace edupals
                 }
             };
         }
-        
+
+        /*! Initializes an in_addr from a string. Raises an exception if parsing fails */
         struct in_addr ip4(std::string addr);
+
+        /*! Initializes an in6_addr from a string. Raises an exception if parsing fails */
         struct in6_addr ip6(std::string addr);
 
+        /*! Returns a vector of bytes from a in_addr */
         std::vector<uint8_t> to_bytes(struct in_addr& addr);
+
+        /*! Returns a vector of bytes from a in6_addr */
         std::vector<uint8_t> to_bytes(struct in6_addr& addr);
+
+        /*! Returns a vector of words (uint16_t) from a in6_addr */
         std::vector<uint16_t> to_words(struct in6_addr& addr);
-        
+
+        /*! Returns number of mask bits or -1 if bad-formed */
         int maskbits(struct in_addr& addr);
+
+        /*! Returns number of mask bits or -1 if bad-formed */
         int maskbits(struct in6_addr& addr);
 
         /*!
-            Gets number of bits from a mask ipv4/6 address
+            Gets number of bits from a mask ipv4/6 address or -1 if bad-formed
         */
         int maskbits(struct sockaddr* addr);
 
         bool in_range(struct in_addr& addr,struct in_addr& subnet,struct in_addr& mask);
+
+        bool in_range(struct in6_addr& addr,struct in6_addr& subnet,struct in6_addr& mask);
 
         /*!
             Rrepresents an interface address setup:
