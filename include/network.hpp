@@ -103,16 +103,22 @@ namespace edupals
         */
         int maskbits(struct sockaddr* addr);
 
-        bool in_range(struct in_addr& addr,struct in_addr& subnet,struct in_addr& mask);
+        /*! Checks if address belongs to given subnet  */
+        bool in_range(struct in_addr& addr,struct in_addr& mask,struct in_addr& subnet);
 
-        bool in_range(struct in6_addr& addr,struct in6_addr& subnet,struct in6_addr& mask);
+        /*! Checks if address belongs to given subnet. Ipv6 version */
+        bool in_range(struct in6_addr& addr,struct in6_addr& mask,struct in6_addr& subnet);
 
+        /*! Creates an ipv4 mask address given a number of bits */
         struct in_addr mask4(int bits);
 
+        /*! Creates an ipv6 mask address given a number of bits */
         struct in6_addr mask6(int bits);
 
+        /*! Creates an ipv4 subnet address given an ip/mask */
         struct in_addr subnet(struct in_addr& addr, struct in_addr& mask);
 
+        /*! Creates an ipv6 address given an ip/mask */
         struct in6_addr subnet(struct in6_addr& addr, struct in6_addr& mask);
 
         /*!

@@ -117,8 +117,8 @@ bool test_network()
 
     clog<<endl;
 
-    clog<<"ip1 in range: "<<network::in_range(ip1,s1,m1)<<endl;
-    clog<<"ip2 in range: "<<network::in_range(ip2,s1,m1)<<endl;
+    clog<<"ip1 in range: "<<network::in_range(ip1,m1,s1)<<endl;
+    clog<<"ip2 in range: "<<network::in_range(ip2,m1,s1)<<endl;
 
     clog<<endl;
 

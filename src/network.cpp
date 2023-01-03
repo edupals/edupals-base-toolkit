@@ -198,10 +198,10 @@ int edupals::network::maskbits(struct sockaddr* addr)
     }
 }
 
-bool edupals::network::in_range(struct in_addr& ip,struct in_addr& subnet,struct in_addr& mask)
+bool edupals::network::in_range(struct in_addr& addr,struct in_addr& mask,struct in_addr& subnet)
 {
     uint8_t* s = (uint8_t*) &subnet.s_addr;
-    uint8_t* i = (uint8_t*) &ip.s_addr;
+    uint8_t* i = (uint8_t*) &addr.s_addr;
     uint8_t* m = (uint8_t*) &mask.s_addr;
 
     for (int n=0;n<4;n++) {
@@ -216,10 +216,10 @@ bool edupals::network::in_range(struct in_addr& ip,struct in_addr& subnet,struct
     return true;
 }
 
-bool edupals::network::in_range(struct in6_addr& ip,struct in6_addr& subnet,struct in6_addr& mask)
+bool edupals::network::in_range(struct in6_addr& addr,struct in6_addr& mask,struct in6_addr& subnet)
 {
     for (int n=0;n<16;n++) {
-        uint8_t v = mask.s6_addr[n] & ip.s6_addr[n];
+        uint8_t v = mask.s6_addr[n] & addr.s6_addr[n];
 
         if (v!=subnet.s6_addr[n]) {
             return false;
