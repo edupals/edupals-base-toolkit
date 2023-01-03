@@ -27,7 +27,9 @@
 #include <grp.h>
 
 #include <string>
+#include <sstream>
 #include <vector>
+#include <map>
 
 namespace edupals
 {
@@ -35,13 +37,50 @@ namespace edupals
     {
         namespace exception
         {
-            class GroupNotFound : public std::exception
+            class GroupDatabaseError : public std::exception
             {
                 public:
-                
+                std::string message;
+
+                int errnum;
+
+                GroupDatabaseError(int error) : errnum(error)
+                {
+                    std::stringstream ss;
+                    std::map<int,std::string> enames;
+                    enames[EAGAIN] = "EAGAIN";
+                    enames[ERANGE] = "ERANGE";
+                    enames[ENOENT] = "ENOENT";
+
+                    ss<<"Group database error: "<<errnum<<" ("<<enames[errnum]<<")";
+
+                    message = ss.str();
+                }
+
                 const char* what() const throw()
                 {
-                    return "Group not found";
+                    return message.c_str();
+                }
+            };
+
+            class GroupNotFound : public GroupDatabaseError
+            {
+                public:
+
+                GroupNotFound(int gid, int error = ENOENT) : GroupDatabaseError(error)
+                {
+                    std::stringstream ss;
+
+                    ss<<"Group "<<gid<<" not found:\n"<<message;
+                    message = ss.str();
+                }
+
+                GroupNotFound(const char* name, int error = ENOENT) : GroupDatabaseError(error)
+                {
+                    std::stringstream ss;
+
+                    ss<<"Group "<<name<<" not found:\n"<<message;
+                    message = ss.str();
                 }
             };
         }

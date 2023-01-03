@@ -111,7 +111,11 @@ namespace edupals
             {
                 private:
                 
+                bool integral;
                 bool dot;
+                bool fraction;
+                bool e;
+                bool e_sign;
                 
                 std::istringstream is;
                 
@@ -123,6 +127,7 @@ namespace edupals
                 void step() override;
                 
                 float get_float();
+                double get_double();
             };
             
             class String: public DFA

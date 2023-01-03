@@ -39,6 +39,7 @@
 #include <bson.hpp>
 #include <base64.hpp>
 #include <uri.hpp>
+#include <dmi.hpp>
 
 #include <iostream>
 #include <thread>
@@ -245,6 +246,17 @@ bool test_group()
     for (system::Group& group:groups) {
         clog<<"* "<<group.gid<<":"<<group.name<<endl;
     }
+
+    try {
+        system::Group group("potato");
+        vector<system::User> users = group.users();
+    }
+    catch (system::exception::GroupNotFound& e) {
+        clog<<e.what()<<endl;
+    }
+    catch (system::exception::GroupDatabaseError& e) {
+        clog<<e.what()<<endl;
+    }
     
     return true;
 }
@@ -284,7 +296,6 @@ bool test_threading()
        
     });
     
-    
     producer.join();
     consumer.join();
     
@@ -293,7 +304,7 @@ bool test_threading()
 
 bool test_filesystem()
 {
-    auto files=filesystem::glob("/dev/tty*");
+    auto files=edupals::filesystem::glob("/dev/tty*");
     
     clog<<"* filesystem: "<<endl;
     
@@ -558,7 +569,7 @@ bool test_json()
     
     stringstream input;
 
-    input<<" { \"alfa\" : 33 , \"beta\": 4.325, \"gamma\":[7,8,9,[11,22,33]],\"status\":false,\"utf8\":\"¡ñ!\"}";
+    input<<" { \"alfa\" : 33 , \"bravo\": 4.325, \"charlie\":[7,8,9,[11,22,33]],\"delta\" : 1.0e1, \"status\":false,\"utf8\":\"¡ñ!\"}";
     
     Variant parsed=json::load(input);
     
@@ -570,8 +581,12 @@ bool test_json()
         if (tmp.get_int32()!=33) {
             status = false;
         }
-        tmp = parsed/"beta"/Type::Float;
+        tmp = parsed/"bravo"/Type::Float;
         if (tmp.get_float()<4.0f or tmp.get_float()>5.0f) {
+            status = false;
+        }
+        tmp = parsed/"delta"/Type::Float;
+        if (tmp.get_float()!=10.0f) {
             status = false;
         }
         tmp = parsed/"status"/Type::Boolean;
@@ -580,7 +595,7 @@ bool test_json()
             status = false;
         }
         
-        status = true;
+        //status = true;
     }
     catch(...) {
         status = false;
@@ -698,6 +713,16 @@ bool test_uri()
     return true;
 }
 
+bool test_dmi()
+{
+    clog<<"system vendor:["<<system::dmi::get(system::dmi::SystemVendor)<<"]"<<endl;
+    clog<<"product name:["<<system::dmi::get(system::dmi::ProductName)<<"]"<<endl;
+    clog<<"product version:["<<system::dmi::get(system::dmi::ProductVersion)<<"]"<<endl;
+    clog<<"board name:["<<system::dmi::get(system::dmi::BoardName)<<"]"<<endl;
+
+    return true;
+}
+
 bool evaluate(std::function<bool()> test_function)
 {
     try {
@@ -733,6 +758,8 @@ int main (int argc,char* argv[])
     
     tests["group"].push_back(Test("group",test_group));
     
+    tests["filesystem"].push_back(Test("filesystem",test_filesystem));
+
     //parser
     tests["parser"].push_back(Test("parser",test_parser));
     
@@ -754,6 +781,9 @@ int main (int argc,char* argv[])
     //uri
     tests["uri"].push_back(Test("uri",test_uri));
     
+    //test
+    tests["dmi"].push_back(Test("dmi",test_dmi));
+
     cmd::ArgumentParser parser;
     cmd::ParseResult result;
     

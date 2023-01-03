@@ -31,29 +31,32 @@ using namespace std;
 
 Group::Group(struct group* gr)
 {
-    build(gr);
+    if (gr) {
+        build(gr);
+    }
 }
 
 Group::Group(gid_t gid)
 {
+    errno=0;
     struct group* gr=getgrgid(gid);
     
-    if (gr==nullptr) {
-        this->gid=gid;
+    if (!gr) {
+        throw exception::GroupNotFound(gid,errno);
     }
     else {
         build(gr);
     }
     
-    
 }
 
 Group::Group(const char* name)
 {
+    errno=0;
     struct group* gr=getgrnam(name);
     
-    if (gr==nullptr) {
-        throw exception::GroupNotFound();
+    if (!gr) {
+        throw exception::GroupNotFound(name,errno);
     }
     
     build(gr);
@@ -83,7 +86,7 @@ vector<Group> Group::list()
     
     if(!gr) {
         if (errno!=0) {
-            throw runtime_error("Error reading group database");
+            throw exception::GroupDatabaseError(errno);
         }
         
         endgrent();
@@ -103,7 +106,7 @@ vector<User> Group::users()
     struct group* gr = getgrgid(gid);
     
     if(!gr) {
-        throw runtime_error("Error reading group database");
+        throw exception::GroupDatabaseError(errno);
     }
     
     size_t n=0;
