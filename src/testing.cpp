@@ -274,7 +274,6 @@ bool test_threading()
        
     });
     
-    
     producer.join();
     consumer.join();
     
@@ -283,7 +282,7 @@ bool test_threading()
 
 bool test_filesystem()
 {
-    auto files=filesystem::glob("/dev/tty*");
+    auto files=edupals::filesystem::glob("/dev/tty*");
     
     clog<<"* filesystem: "<<endl;
     
@@ -737,6 +736,8 @@ int main (int argc,char* argv[])
     
     tests["group"].push_back(Test("group",test_group));
     
+    tests["filesystem"].push_back(Test("filesystem",test_filesystem));
+
     //parser
     tests["parser"].push_back(Test("parser",test_parser));
     
