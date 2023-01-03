@@ -205,9 +205,10 @@ bool edupals::network::in_range(struct in_addr& ip,struct in_addr& subnet,struct
     uint8_t* m = (uint8_t*) &mask.s_addr;
 
     for (int n=0;n<4;n++) {
-        uint8_t v = ~(s[n] ^ i[n]);
-        v = m[n] & v;
-        if (v!=0xff) {
+
+        uint8_t v = m[n] & i[n];
+
+        if (v!=s[n]) {
             return false;
         }
     }
@@ -218,14 +219,68 @@ bool edupals::network::in_range(struct in_addr& ip,struct in_addr& subnet,struct
 bool edupals::network::in_range(struct in6_addr& ip,struct in6_addr& subnet,struct in6_addr& mask)
 {
     for (int n=0;n<16;n++) {
-        uint8_t v = ~(subnet.s6_addr[n] ^ ip.s6_addr[n]);
-        v = mask.s6_addr[n] & v;
-        if (v!=0xff) {
+        uint8_t v = mask.s6_addr[n] & ip.s6_addr[n];
+
+        if (v!=subnet.s6_addr[n]) {
             return false;
         }
     }
 
     return true;
+}
+
+struct in_addr edupals::network::mask4(int bits)
+{
+    struct in_addr value = {0};
+    uint32_t mask = 1;
+
+    for (int n=0;n<bits;n++) {
+        value.s_addr = value.s_addr | mask;
+
+        mask = mask << 1;
+    }
+
+    return value;
+}
+
+struct in6_addr edupals::network::mask6(int bits)
+{
+    struct in6_addr value = {0};
+    size_t bytes = bits / 8;
+
+    bits = bits % 8;
+
+    for (size_t n=0;n<bytes;n++) {
+        value.s6_addr[n] = 0xff;
+    }
+
+    uint8_t mask = 1;
+    for (size_t n=0;n<bits;n++) {
+        value.s6_addr[bytes] = value.s6_addr[bytes] | mask;
+        mask = mask << 1;
+    }
+
+    return value;
+}
+
+struct in_addr edupals::network::subnet(struct in_addr& addr, struct in_addr& mask)
+{
+    struct in_addr value;
+
+    value.s_addr = addr.s_addr & mask.s_addr;
+
+    return value;
+}
+
+struct in6_addr edupals::network::subnet(struct in6_addr& addr, struct in6_addr& mask)
+{
+    struct in6_addr value;
+
+    for (int n=0;n<16;n++) {
+        value.s6_addr[n] = addr.s6_addr[n] & mask.s6_addr[n];
+    }
+
+    return value;
 }
 
 void CachedInterface::push_address(struct ifaddrs* addr)

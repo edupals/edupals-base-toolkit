@@ -107,10 +107,23 @@ bool test_network()
 
     struct in_addr ip1 = network::ip4("192.168.0.32");
     struct in_addr ip2 = network::ip4("192.168.1.31");
-    struct in_addr m1 = network::ip4("255.255.255.0");
+    struct in_addr m1 = network::mask4(24);
     struct in_addr s1 = network::ip4("192.168.0.0");
 
+    clog<<"ip1 "<<ip1<<endl;
+    clog<<"ip2 "<<ip2<<endl;
+    clog<<"mask "<<m1<<" ("<<network::maskbits(m1)<<")"<<endl;
+    clog<<"subnet "<<s1<<endl;
 
+    clog<<endl;
+
+    clog<<"ip1 in range: "<<network::in_range(ip1,s1,m1)<<endl;
+    clog<<"ip2 in range: "<<network::in_range(ip2,s1,m1)<<endl;
+
+    clog<<endl;
+
+    struct in6_addr m2 = network::mask6(64);
+    clog<<"mask ipv6 "<<m2<<endl;
 
     return true;
 }

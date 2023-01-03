@@ -107,6 +107,14 @@ namespace edupals
 
         bool in_range(struct in6_addr& addr,struct in6_addr& subnet,struct in6_addr& mask);
 
+        struct in_addr mask4(int bits);
+
+        struct in6_addr mask6(int bits);
+
+        struct in_addr subnet(struct in_addr& addr, struct in_addr& mask);
+
+        struct in6_addr subnet(struct in6_addr& addr, struct in6_addr& mask);
+
         /*!
             Rrepresents an interface address setup:
             - address
