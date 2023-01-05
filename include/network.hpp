@@ -24,11 +24,17 @@
 #ifndef EDUPALS_NETWORK
 #define EDUPALS_NETWORK
 
+#include <sys/types.h>
+#include <linux/if_packet.h>
+#include <netinet/ip.h>
+#include <ifaddrs.h>
+
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <array>
 #include <exception>
+#include <cstring>
 
 namespace edupals
 {
@@ -42,7 +48,7 @@ namespace edupals
                 
                 std::string msg;
                 
-                InterfaceNotFound(std::string& iface)
+                InterfaceNotFound(std::string iface)
                 {
                     msg="interface not found:"+iface;
                 }
@@ -52,107 +58,137 @@ namespace edupals
                     return msg.c_str();
                 }
             };
-        }
-        
-        /*!
-            MAC Address class
-        */
-        class MAC
-        {
-            public:
-            /*! 6 byte address array */
-            std::array<uint8_t,6> address;
-            
-            MAC(){};
-            
-            /*!
-                Create MAC from byte array
-            */
-            MAC(std::array<uint8_t,6> address);
-            
-            /*!
-                Create MAC from string representation
-            */
-            MAC(std::string address);
-            
-            /*!
-                Returns a string representation of address
-            */
-            std::string to_string();
-            
-            /*!
-                Access to address byte n
-            */
-            uint8_t operator [] (int n);
-        };
-    
-        /*!
-            IP 4 Address
-        */
-        class IP4
-        {
-            public:
-            
-            /*! 4 byte address */
-            std::array<uint8_t,4> address;
-            
-            IP4()
+
+            class ParseError: public std::exception
             {
-                address[0]=0;
-                address[1]=0;
-                address[2]=0;
-                address[3]=0;
+                public:
+
+                std::string msg;
+
+                ParseError(std::string value)
+                {
+                    msg="Failed to parse address:"+value;
+                }
+
+                const char* what() const throw()
+                {
+                    return msg.c_str();
+                }
             };
-            
+        }
+
+        /*! Initializes an in_addr from a string. Raises an exception if parsing fails */
+        struct in_addr ip4(std::string addr);
+
+        /*! Initializes an in6_addr from a string. Raises an exception if parsing fails */
+        struct in6_addr ip6(std::string addr);
+
+        /*! Returns a vector of bytes from a in_addr */
+        std::vector<uint8_t> to_bytes(struct in_addr& addr);
+
+        /*! Returns a vector of bytes from a in6_addr */
+        std::vector<uint8_t> to_bytes(struct in6_addr& addr);
+
+        /*! Returns a vector of words (uint16_t) from a in6_addr */
+        std::vector<uint16_t> to_words(struct in6_addr& addr);
+
+        /*! Returns number of mask bits or -1 if bad-formed */
+        int maskbits(struct in_addr& addr);
+
+        /*! Returns number of mask bits or -1 if bad-formed */
+        int maskbits(struct in6_addr& addr);
+
+        /*!
+            Gets number of bits from a mask ipv4/6 address or -1 if bad-formed
+        */
+        int maskbits(struct sockaddr* addr);
+
+        /*! Checks if address belongs to given subnet  */
+        bool in_range(struct in_addr& addr,struct in_addr& mask,struct in_addr& subnet);
+
+        /*! Checks if address belongs to given subnet. Ipv6 version */
+        bool in_range(struct in6_addr& addr,struct in6_addr& mask,struct in6_addr& subnet);
+
+        /*! Creates an ipv4 mask address given a number of bits */
+        struct in_addr mask4(int bits);
+
+        /*! Creates an ipv6 mask address given a number of bits */
+        struct in6_addr mask6(int bits);
+
+        /*! Creates an ipv4 subnet address given an ip/mask */
+        struct in_addr subnet(struct in_addr& addr, struct in_addr& mask);
+
+        /*! Creates an ipv6 address given an ip/mask */
+        struct in6_addr subnet(struct in6_addr& addr, struct in6_addr& mask);
+
+        /*!
+            Rrepresents an interface address setup:
+            - address
+            - netmask
+            - broadcast
+        */
+        class IFAddress
+        {
+            protected:
+
+            struct sockaddr_storage _address;
+            struct sockaddr_storage _netmask;
+            struct sockaddr_storage _broadcast;
+
+            public:
+
+            IFAddress(struct sockaddr* address,
+                    struct sockaddr* netmask,
+                    struct sockaddr* broadcast)
+            {
+                if (address) {
+                    std::memcpy(&_address,address,sizeof(_address));
+                }
+                if (netmask) {
+                    std::memcpy(&_netmask,netmask,sizeof(_netmask));
+                }
+                if (broadcast) {
+                    std::memcpy(&_broadcast,broadcast,sizeof(_broadcast));
+                }
+            }
+
             /*!
-                Create address from uint32 representation
+                Gets the address family, using socket.h constants, typically:
+                AF_PACKET, AF_INET, AF_INET6...
             */
-            IP4(uint32_t address);
-            
-            /*!
-                Create address from array representation
-            */
-            IP4(std::array<uint8_t,4> address);
-            
-            /*!
-                Create a string representation
-            */
-            std::string to_string();
-            
-            /*!
-                Acces to address byte n
-            */
-            uint8_t operator [] (int n);
-            
-            /*!
-                Gets uint32 address representation
-            */
-            uint32_t get_uint32();
+            uint32_t family() const
+            {
+                return _address.ss_family;
+            }
+
+            struct sockaddr* address() const
+            {
+                return (struct sockaddr*)(&_address);
+            }
+
+            struct sockaddr* netmask() const
+            {
+                return (struct sockaddr*)(&_netmask);
+            }
+
+            struct sockaddr* broadcast() const
+            {
+                return (struct sockaddr*)(&_broadcast);
+            }
         };
-        
-        class Mask4 : public IP4
+
+        class CachedInterface
         {
             public:
             
-            Mask4(uint32_t address);
+            uint32_t update_id;
+            std::string name;
+            uint32_t flags;
+            struct sockaddr_ll address;
+            struct sockaddr_ll broadcast;
+            std::vector<IFAddress> addresses;
             
-            Mask4(std::array<uint8_t,4> address);
-            
-            /*!
-                Get number of bits mask representation
-                return -1 if mask is not valid 1 sequence
-            */
-            int32_t bits();
-            
-            /*!
-                Whenever the mask is valid or not
-            */
-            bool valid();
-            
-            /*!
-                Checks if ip is in range for the subnet/mask
-            */
-            bool in_range(IP4 subnet,IP4 ip);
+            void push_address(struct ifaddrs* addr);
         };
         
         /*!
@@ -165,6 +201,8 @@ namespace edupals
             
             std::string read_str(std::string prop);
             uint32_t read_u32(std::string prop);
+            
+            CachedInterface* cache;
             
             public:
             
@@ -190,29 +228,44 @@ namespace edupals
             */
             uint32_t type();
             
-            /*! Hardware MAC Address */
-            MAC address();
+            bool up();
             
-            /*! Get IPv4 Address */
-            IP4 ip4();
+            bool loopback();
             
-            /*! Get IPv4 subnet mask */
-            Mask4 mask4();
+            bool p2p();
             
-            /*! Get IPv4 broadcast */
-            IP4 broadcast4();
+            bool broadcast();
+            
+            bool multicast();
             
             /*! whenever interface exists or not */
             bool exists();
+
+            /*! Hardware MAC Address */
+            struct sockaddr_ll& hwaddress();
+            
+            /*! Hardware broadcast address */
+            struct sockaddr_ll& hwbroadcast();
+            
+            /*!
+                Gets a list of current interface addresses
+            */
+            std::vector<IFAddress>& addresses();
             
             /*!
                 gets a list of all avialable interfaces
             */
             static std::vector<Interface> list();
+            
+            static void update();
         };
-        
     }
 }
 
+std::ostream& operator<<(std::ostream& os,struct in6_addr& addr);
+std::ostream& operator<<(std::ostream& os,struct in_addr& addr);
+std::ostream& operator<<(std::ostream& os,struct sockaddr_ll& addr);
+std::ostream& operator<<(std::ostream& os,struct sockaddr& addr);
+std::ostream& operator<<(std::ostream& os,struct sockaddr* addr);
 
 #endif

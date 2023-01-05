@@ -51,6 +51,7 @@
 
 using namespace edupals;
 using namespace edupals::variant;
+using namespace edupals::network;
 using namespace std;
 
 struct Test
@@ -71,6 +72,7 @@ bool test_network()
 {
     vector<network::Interface> ifaces;
     
+    network::Interface::update();
     ifaces = network::Interface::list();
     
     clog<<"Network interfaces:"<<endl;
@@ -81,29 +83,49 @@ bool test_network()
         clog<<"\tName:"<<iface.name<<endl;
         clog<<"\tDevice:"<<iface.path<<endl;
         clog<<"\tType:"<<iface.type()<<endl;
-        clog<<"\tAddress:"<<iface.address().to_string()<<endl;
-        clog<<"\tcarrier:"<<iface.carrier()<<endl;
-        clog<<"\tmtu:"<<iface.mtu()<<endl;
-        clog<<"\tip4:"<<iface.ip4().to_string()<<endl;
-        clog<<"\tuint32 ip:"<<std::hex<<iface.ip4().get_uint32()<<std::dec<<endl;
-        clog<<"\tbroadcast:"<<iface.broadcast4().to_string()<<endl;
-        network::Mask4 mask=iface.mask4();
-        clog<<"\tmask:"<<mask.to_string()<<" ("<<mask.bits()<<")"<<endl;
-        
+        clog<<"\tUp:"<<iface.up()<<endl;
+        clog<<"\tLoopback:"<<iface.loopback()<<endl;
+        clog<<"\tBroadcast/p2p:"<<iface.broadcast()<<"/"<<iface.p2p()<<endl;
+        clog<<"\tMulticast:"<<iface.multicast()<<endl;
+        clog<<"\tAddress:"<<iface.hwaddress()<<endl;
+        clog<<"\tBroadcast:"<<iface.hwbroadcast()<<endl;
+        clog<<"\tCarrier:"<<iface.carrier()<<endl;
+        clog<<"\tMTU:"<<iface.mtu()<<endl;
+
+        clog<<endl;
+        clog<<"\tAddresses:"<<endl;
+
+        map<int,string> family = {
+            {AF_PACKET,"link"},
+            {AF_INET,"ipv4"},
+            {AF_INET6,"ipv6"}
+        };
+
+        for (network::IFAddress& address : iface.addresses()) {
+            clog<<"\t\t* "<<family[address.family()]<<" "<<address.address()<<"/"<<network::maskbits(address.netmask())<<endl;
+        }
     }
-    
-    network::Mask4 mask({255,255,255,0});
-    network::IP4 subnet({192,168,0,0});
-    network::IP4 ip_a({192,168,0,1});
-    network::IP4 ip_b({192,168,4,1});
-    
+
+    struct in_addr ip1 = network::ip4("192.168.0.32");
+    struct in_addr ip2 = network::ip4("192.168.1.31");
+    struct in_addr m1 = network::mask4(24);
+    struct in_addr s1 = network::ip4("192.168.0.0");
+
+    clog<<"ip1 "<<ip1<<endl;
+    clog<<"ip2 "<<ip2<<endl;
+    clog<<"mask "<<m1<<" ("<<network::maskbits(m1)<<")"<<endl;
+    clog<<"subnet "<<s1<<endl;
+
     clog<<endl;
-    clog<<"mask:"<<mask.to_string()<<endl;
-    clog<<"subnet:"<<subnet.to_string()<<endl;
-    clog<<"ip a:"<<ip_a.to_string()<<endl;
-    clog<<"ip b:"<<ip_b.to_string()<<endl;
-    clog<<"a "<<mask.in_range(subnet,ip_a)<<endl;
-    clog<<"b "<<mask.in_range(subnet,ip_b)<<endl;
+
+    clog<<"ip1 in range: "<<network::in_range(ip1,m1,s1)<<endl;
+    clog<<"ip2 in range: "<<network::in_range(ip2,m1,s1)<<endl;
+
+    clog<<endl;
+
+    struct in6_addr m2 = network::mask6(64);
+    clog<<"mask ipv6 "<<m2<<endl;
+
     return true;
 }
 
@@ -274,7 +296,6 @@ bool test_threading()
        
     });
     
-    
     producer.join();
     consumer.join();
     
@@ -283,7 +304,7 @@ bool test_threading()
 
 bool test_filesystem()
 {
-    auto files=filesystem::glob("/dev/tty*");
+    auto files=edupals::filesystem::glob("/dev/tty*");
     
     clog<<"* filesystem: "<<endl;
     
@@ -672,7 +693,7 @@ bool test_uri()
     clog<<"scheme:"<<url.scheme<<endl;
     clog<<"user:"<<url.user<<endl;
     clog<<"host:"<<url.host<<endl;
-    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"ip:"<<url.ip<<endl;
     clog<<"port:"<<url.port<<endl;
     clog<<"path:"<<url.path<<endl;
     
@@ -685,7 +706,7 @@ bool test_uri()
     clog<<"scheme:"<<url.scheme<<endl;
     clog<<"user:"<<url.user<<endl;
     clog<<"host:"<<url.host<<endl;
-    clog<<"ip:"<<url.ip.to_string()<<endl;
+    clog<<"ip:"<<url.ip<<endl;
     clog<<"port:"<<url.port<<endl;
     clog<<"path:"<<url.path<<endl;
     
@@ -737,6 +758,8 @@ int main (int argc,char* argv[])
     
     tests["group"].push_back(Test("group",test_group));
     
+    tests["filesystem"].push_back(Test("filesystem",test_filesystem));
+
     //parser
     tests["parser"].push_back(Test("parser",test_parser));
     

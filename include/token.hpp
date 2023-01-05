@@ -140,6 +140,16 @@ namespace edupals
                 std::string get_string();
             };
             
+            class Hex: public DFA
+            {
+                public:
+
+                void start() override;
+                void step() override;
+
+                int get_int();
+            };
+
             class IP4: public DFA
             {
                 private:
