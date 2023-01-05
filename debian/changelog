@@ -1,3 +1,12 @@
+edupals-base-toolkit (2.4.0.0) lliurex22; urgency=medium
+
+  * This is a big refactor on network module:
+  * a device can have several ip address, even from same type
+  * using posix/unix address structures (in_addr) instead of Wrapping with custom ones
+  * lib compiles on newer gcc versions, but filesystem namespace collides with something on std chrono, be careful
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 05 Jan 2023 10:20:11 +0100
+
 edupals-base-toolkit (2.3.0.0) lliurex22; urgency=medium
 
   * Added a DMI query module
