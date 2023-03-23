@@ -1,3 +1,10 @@
+edupals-base-toolkit (2.4.1.0) focal; urgency=medium
+
+  * Fixed some several bugs on bson module in both loading and dumping methods
+  * Added float and i64 to bson
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 23 Mar 2023 17:05:33 +0100
+
 edupals-base-toolkit (2.4.0.0) lliurex22; urgency=medium
 
   * This is a big refactor on network module:
