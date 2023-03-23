@@ -27,6 +27,8 @@
 #include <vector>
 #include <string>
 
+#include <iostream>
+
 using namespace edupals;
 using namespace edupals::variant;
 using namespace std;
@@ -36,8 +38,9 @@ static size_t dump_element(string& key,Variant& value,ostream& stream);
 static size_t dump_document(Variant& value,ostream& stream);
 
 static string load_name(istream& stream);
-static uint8_t load_element(Variant& parent,istream& stream);
+static uint8_t load_element(string& name, Variant& value,istream& stream);
 static Variant load_document(istream& stream);
+static Variant load_array(istream& stream);
 
 static size_t dump_name(string& name,ostream& stream)
 {
@@ -53,10 +56,20 @@ static size_t dump_element(string& key,Variant& value,ostream& stream)
 {
     size_t size=0;
     int32_t i32;
+    int64_t i64;
     double f64;
     
     switch (value.type()) {
         
+        case Type::Float:
+            stream.put(0x01);
+            size=1;
+            size+=dump_name(key,stream);
+            f64=(double)value.get_float();
+            stream.write((char*)&f64,8);
+            size+=8;
+        break;
+
         case Type::Double:
             stream.put(0x01);
             size=1;
@@ -116,6 +129,15 @@ static size_t dump_element(string& key,Variant& value,ostream& stream)
             stream.write((char*)&i32,4);
             size+=4;
         break;
+
+        case Type::Int64:
+            stream.put(0x12);
+            size=1;
+            size+=dump_name(key,stream);
+            i64=value.get_int64();
+            stream.write((char*)&i64,8);
+            size+=8;
+        break;
         
         default:
             throw bson::exception::UnsupportedExport(value.type());
@@ -127,6 +149,7 @@ static size_t dump_element(string& key,Variant& value,ostream& stream)
 
 static size_t dump_document(Variant& value,ostream& stream)
 {
+
     bool is_array=false;
     
     if (value.type()==Type::Array) {
@@ -144,8 +167,17 @@ static size_t dump_document(Variant& value,ostream& stream)
     
     size_t size=4;
     
-    //jump 4 bytes
-    stream.seekp(4,ios_base::cur);
+    /*
+        jump 4 bytes
+        old: stream.seekp(4,ios_base::cur);
+
+        As we may not jump forward on stringstream based ostream, it is better to just zeroed
+        and come back later
+    */
+    stream.put(0x00);
+    stream.put(0x00);
+    stream.put(0x00);
+    stream.put(0x00);
     
     if (is_array) {
         for (int n=0;n<value.count();n++) {
@@ -175,6 +207,18 @@ static size_t dump_document(Variant& value,ostream& stream)
 void edupals::bson::dump(Variant& value,ostream& stream)
 {
     dump_document(value,stream);
+}
+
+static int64_t read_i64(istream& stream)
+{
+    int64_t value;
+    stream.read((char*)&value,8);
+
+    if (!stream) {
+        throw bson::exception::UnexpectedEOF();
+    }
+
+    return value;
 }
 
 static int32_t read_i32(istream& stream)
@@ -228,31 +272,37 @@ static string load_name(istream& stream)
     return ret;
 }
 
-static uint8_t load_element(Variant& parent,istream& stream)
+static uint8_t load_element(string& name, Variant& value,istream& stream)
 {
-    uint8_t u8=0;
-    string name;
+    uint8_t u8;
     double f64;
     int32_t i32;
+    int64_t i64;
     string str;
     Variant tmp1;
     Variant tmp2;
     vector<string> keys;
     
-    u8 = read_i8(stream);
-    
-    switch (u8) {
-        
+    uint8_t btype = 0;
+
+    btype = read_i8(stream);
+
+    if (btype == 0) {
+        return 0;
+    }
+
+    name = load_name(stream);
+
+    switch (btype) {
+
         /* double */
         case 0x01:
-            name=load_name(stream);
             f64 = read_double(stream);
-            parent[name]=f64;
+            value = f64;
         break;
         
         /* string */
         case 0x02:
-            name=load_name(stream);
             i32 = read_i32(stream);
             str="";
             
@@ -265,51 +315,40 @@ static uint8_t load_element(Variant& parent,istream& stream)
             u8 = read_i8(stream);
             // check for 0x00
             
-            parent[name]=str;
+            value = str;
             
         break;
         
         /* document */
         case 0x03:
-            name=load_name(stream);
-            parent[name]=load_document(stream);
+            value = load_document(stream);
         break;
         
         /* array */
         case 0x04:
-            name=load_name(stream);
-            //load array as a document
-            tmp1=load_document(stream);
-            
-            //convert it to array
-            keys=tmp1.keys();
-            
-            tmp2=Variant::create_array(keys.size());
-            for (string& key:keys) {
-                int index = std::stoi(key);
-                tmp2[index]=tmp1[key];
-            }
-            
-            parent[name]=tmp2;
-            
+            value = load_array(stream);
         break;
         
         /* bool */
         case 0x08:
-            name=load_name(stream);
             u8 = read_i8(stream);
-            parent[name]=(bool)u8;
+            value = (bool)u8;
         break;
         
         /* int32 */
         case 0x10:
-            name=load_name(stream);
             i32 = read_i32(stream);
-            parent[name]=i32;
+            value = (int32_t) i32;
+        break;
+
+        /* int64 */
+        case 0x12:
+            i64 = read_i64(stream);
+            value = (int64_t) i64;
         break;
     }
     
-    return u8;
+    return btype;
 }
 
 static Variant load_document(istream& stream)
@@ -319,11 +358,33 @@ static Variant load_document(istream& stream)
     Variant document=Variant::create_struct();
     
     i32 = read_i32(stream);
-    
-    while (load_element(document,stream)>0) {
+    string name;
+    Variant value;
+
+    while (load_element(name,value,stream)>0) {
+
+        document[name] = value;
     }
-    
+
     return document;
+}
+
+static Variant load_array(istream& stream)
+{
+    int32_t i32;
+
+    Variant array = Variant::create_array(0);
+
+    i32 = read_i32(stream);
+    string name;
+    Variant value;
+
+    while (load_element(name,value,stream)>0) {
+
+        array.append(value);
+    }
+
+    return array;
 }
 
 Variant edupals::bson::load(istream& stream)
@@ -331,6 +392,6 @@ Variant edupals::bson::load(istream& stream)
     Variant ret;
     
     ret = load_document(stream);
-    
+
     return ret;
 }
