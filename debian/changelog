@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.4.1.1) jammy; urgency=medium
+
+  * Master tag:2a7ab8059da8cc3a93f72ad3077420739b4ec884
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 30 Aug 2023 13:53:32 +0200
+
 edupals-base-toolkit (2.4.1.0) focal; urgency=medium
 
   * Fixed some several bugs on bson module in both loading and dumping methods

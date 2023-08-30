@@ -14,7 +14,7 @@ Conflicts: libedupals-base
 Replaces: libedupals-base
 Description: Edupals C++ toolkit
  A C++ toolkit providing some features (network, parsing, json,...) without 
- using any thir-party libs
+ using any third-party libs
 
 Package: libedupals-base-dev
 Architecture: any
