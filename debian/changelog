@@ -1,3 +1,10 @@
+edupals-base-toolkit (2.4.1.2) noble; urgency=medium
+
+  * Noble release
+  * Updated package 
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Thu, 16 May 2024 12:00:24 +0200
+
 edupals-base-toolkit (2.4.1.1) jammy; urgency=medium
 
   * Master tag:2a7ab8059da8cc3a93f72ad3077420739b4ec884

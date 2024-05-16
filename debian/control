@@ -1,9 +1,10 @@
 Source: edupals-base-toolkit
 Section: libs
 Priority: optional
-Maintainer: Enrique Medina Gremaldos <quiqueiii@gmail.com>
-Build-Depends: debhelper (>=9), cmake, make, g++
-Standards-Version: 3.9.7
+Maintainer: Enrique Medina Gremaldos <quique@necos.es>
+Build-Depends: debhelper-compat (= 13), cmake, make, g++
+Standards-Version: 4.6.0
+Rules-Requires-Root: no
 Homepage: https://github.com/edupals/edupals-base-toolkit
 
 Package: libedupals-base2
