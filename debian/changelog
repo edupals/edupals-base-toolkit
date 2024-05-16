@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.4.2.0) noble; urgency=medium
+
+  * Added needed cstdint
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Thu, 16 May 2024 12:14:37 +0200
+
 edupals-base-toolkit (2.4.1.2) noble; urgency=medium
 
   * Noble release
