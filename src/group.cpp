@@ -85,10 +85,6 @@ vector<Group> Group::list()
     gr=getgrent();
     
     if(!gr) {
-        if (errno!=0) {
-            throw exception::GroupDatabaseError(errno);
-        }
-        
         endgrent();
     }
     else {
@@ -103,6 +99,7 @@ vector<User> Group::users()
 {
     vector<User> ret;
     
+    errno = 0;
     struct group* gr = getgrgid(gid);
     
     if(!gr) {
