@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.4.3.0) noble; urgency=medium
+
+  * Do not throw an exception listing groups
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Thu, 14 Nov 2024 10:31:27 +0100
+
 edupals-base-toolkit (2.4.2.0) noble; urgency=medium
 
   * Added needed cstdint
