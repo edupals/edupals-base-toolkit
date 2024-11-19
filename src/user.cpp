@@ -95,10 +95,6 @@ vector<User> User::list()
     pw=getpwent();
     
     if(!pw) {
-        if (errno!=0) {
-            throw exception::UserDatabaseError(errno);
-        }
-        
         endpwent();
     }
     else {
@@ -133,9 +129,6 @@ vector<Group> User::groups()
     gr=getgrent();
     
     if (!gr) {
-        if (errno!=0) {
-            throw exception::GroupDatabaseError(errno);
-        }
         endgrent();
     }
     else {
