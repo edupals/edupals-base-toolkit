@@ -1,3 +1,10 @@
+edupals-base-toolkit (2.4.4.0) jammy; urgency=medium
+
+  * Master tag: ec184364cd530406a33daef56ae7542fb7b35038
+  * Fixed some un-needed exceptions at user/group modules
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Fri, 31 Jan 2025 14:01:24 +0100
+
 edupals-base-toolkit (2.4.1.1) jammy; urgency=medium
 
   * Master tag:2a7ab8059da8cc3a93f72ad3077420739b4ec884
