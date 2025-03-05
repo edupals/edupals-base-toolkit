@@ -96,6 +96,12 @@ namespace edupals
                 Check if the process exists
             */
             bool exists();
+
+
+            static Process spawn(std::string filename, std::vector<std::string> args);
+
+            int wait();
+
         };
     }
 }

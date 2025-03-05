@@ -32,6 +32,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <stdexception>
 
 using namespace edupals::system;
 using namespace std;
@@ -170,7 +171,41 @@ int32_t Process::ppid()
 
 bool Process::exists()
 {
-    int ret=kill(m_pid,0);
+    int ret = kill(m_pid, 0);
     
-    return (ret==0);
+    return (ret == 0);
+}
+
+Process Process::spawn(string filename, vector<string> args)
+{
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        throw std::runtime_error("Failed to fork process");
+    }
+
+    if (pid == 0) {
+        //ToDo
+    }
+    else {
+        return Process(pid);
+    }
+}
+
+int Process::wait()
+{
+    int status;
+    int value;
+
+    waitpid(m_pid, &status, 0);
+
+    if (WIFEXITED(status)) {
+        value = WEXITSTATUS(status);
+    }
+
+    if (WIFSIGNALED(status)) {
+        value = -WTERMSIG(status);
+    }
+
+    return value;
 }
