@@ -97,9 +97,16 @@ namespace edupals
             */
             bool exists();
 
+            /*!
+                Spawns a process, with given executable and argument list
+                out,in and err pipes are redirected if not null
+            */
+            static Process spawn(std::string filename, std::vector<std::string> args, int* outfd = nullptr, int* infd = nullptr, int* errfd = nullptr);
 
-            static Process spawn(std::string filename, std::vector<std::string> args);
-
+            /*!
+                Waits for the process to end
+                returns status, if less than zero the process died by that signal value
+            */
             int wait();
 
         };
