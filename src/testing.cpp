@@ -195,6 +195,11 @@ bool test_process()
     clog<<"    - state: ["<<p.state()<<"]"<<endl;
     clog<<"    - ppid: ["<<p.ppid()<<"]"<<endl;
     
+    clog<<"\nrunning:/usr/bin/ls"<<endl;
+    system::Process child = system::Process::spawn("/usr/bin/ls",{"-lah","/lib/"});
+    int status = child.wait();
+    clog<<"\nOutput status:"<<status<<endl;
+
     return true;
 }
 

@@ -27,12 +27,13 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <stdexception>
+#include <exception>
 
 using namespace edupals::system;
 using namespace std;
@@ -185,11 +186,24 @@ Process Process::spawn(string filename, vector<string> args)
     }
 
     if (pid == 0) {
-        //ToDo
+        char* argv[32];
+        argv[0] = (char*)filename.c_str();
+        int n = 1;
+        int argc = std::min((size_t)31,args.size() + 1);
+
+        while (n<argc) {
+            argv[n] = (char*)args[n-1].c_str();
+            n++;
+        }
+        argv[n] = nullptr;
+
+        execvp(filename.c_str(),argv);
     }
     else {
         return Process(pid);
     }
+
+    return Process(0); // just here to fool compiler
 }
 
 int Process::wait()
