@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.5.0.0) noble; urgency=medium
+
+  * Added support for Process spawn, wait and get outputs
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Fri, 07 Mar 2025 12:16:47 +0100
+
 edupals-base-toolkit (2.4.4.0) noble; urgency=medium
 
   * Do not throw exceptions on user module
