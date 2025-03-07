@@ -1,3 +1,9 @@
+edupals-base-toolkit (2.5.0.0) jammy; urgency=medium
+
+  * Added Process spawn, wait and get outputs 
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Fri, 07 Mar 2025 12:23:12 +0100
+
 edupals-base-toolkit (2.4.4.0) jammy; urgency=medium
 
   * Master tag: ec184364cd530406a33daef56ae7542fb7b35038
