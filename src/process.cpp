@@ -27,11 +27,13 @@
 
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <exception>
 
 using namespace edupals::system;
 using namespace std;
@@ -170,7 +172,111 @@ int32_t Process::ppid()
 
 bool Process::exists()
 {
-    int ret=kill(m_pid,0);
+    int ret = kill(m_pid, 0);
     
-    return (ret==0);
+    return (ret == 0);
+}
+
+Process Process::spawn(string filename, vector<string> args, int* outfd, int* infd, int* errfd)
+{
+    int outpipe[2];
+    int inpipe[2];
+    int errpipe[2];
+
+    if (outfd) {
+        if (pipe(outpipe) == -1) {
+            throw std::runtime_error("Failed to create output pipe");
+        }
+    }
+
+    if (infd) {
+        if (pipe(inpipe) == -1) {
+            throw std::runtime_error("Failed to create input pipe");
+        }
+    }
+
+    if (errfd) {
+        if (pipe(errpipe) == -1) {
+            throw std::runtime_error("Failed to create error pipe");
+        }
+    }
+
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        throw std::runtime_error("Failed to fork process");
+    }
+
+    if (pid == 0) {
+        /* prepare args */
+        char* argv[32];
+        argv[0] = (char*)filename.c_str();
+        int n = 1;
+        int argc = std::min((size_t)31,args.size() + 1);
+
+        while (n<argc) {
+            argv[n] = (char*)args[n-1].c_str();
+            n++;
+        }
+        argv[n] = nullptr;
+
+        /* connect pipes */
+        if (outfd) {
+            dup2(outpipe[1], STDOUT_FILENO);
+            close(outpipe[0]);
+            close(outpipe[1]);
+        }
+
+        if (errfd) {
+            dup2(errpipe[1], STDERR_FILENO);
+            close(errpipe[0]);
+            close(errpipe[1]);
+        }
+
+        if (infd) {
+            dup2(inpipe[0], STDIN_FILENO);
+            close(inpipe[0]);
+            close(inpipe[1]);
+        }
+
+        execvp(filename.c_str(),argv);
+    }
+    else {
+        if (outfd) {
+            close(outpipe[1]);
+            *outfd = outpipe[0];
+        }
+
+        if (errfd) {
+            close(errpipe[1]);
+            *errfd = errpipe[0];
+        }
+
+        if (infd) {
+            close(inpipe[0]);
+            *infd = inpipe[1];
+        }
+
+        return Process(pid);
+    }
+
+    return Process(0); // just here to fool compiler
+}
+
+int Process::wait()
+{
+    int status;
+    int value;
+
+    waitpid(m_pid, &status, 0);
+
+    if (WIFEXITED(status)) {
+        value = WEXITSTATUS(status);
+    }
+
+    if (WIFSIGNALED(status)) {
+        value = -WTERMSIG(status);
+    }
+
+    return value;
 }
