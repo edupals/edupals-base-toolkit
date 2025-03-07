@@ -41,6 +41,8 @@
 #include <uri.hpp>
 #include <dmi.hpp>
 
+#include <unistd.h>
+
 #include <iostream>
 #include <thread>
 #include <mutex>
@@ -195,6 +197,45 @@ bool test_process()
     clog<<"    - state: ["<<p.state()<<"]"<<endl;
     clog<<"    - ppid: ["<<p.ppid()<<"]"<<endl;
     
+    clog<<"\nrunning:/usr/bin/ls"<<endl;
+    system::Process child = system::Process::spawn("/usr/bin/ls",{"-lah","/lib/"});
+    int status = child.wait();
+    clog<<"\nOutput status:"<<status<<endl;
+
+    clog<<"\noutput from:/usr/bin/ls"<<endl;
+    int outfd;
+    child = system::Process::spawn("/usr/bin/ls",{"/sys/devices"},&outfd);
+    char buffer;
+    size_t count;
+
+    while (read(outfd,&buffer,1) > 0) {
+        clog<<buffer;
+    }
+    clog.flush();
+    close(outfd);
+
+    status = child.wait();
+    clog<<"\nOutput status:"<<status<<endl;
+
+    clog<<"\noutput from: grep"<<endl;
+    int infd;
+
+    child = system::Process::spawn("/usr/bin/grep", {"bravo"}, &outfd, &infd, nullptr);
+    string phrase = "alpha\nbravo\ncharlie";
+    for (char c:phrase) {
+        write(infd,&c,1);
+    }
+    close(infd);
+
+    while (read(outfd,&buffer,1) > 0) {
+        clog<<buffer;
+    }
+    clog.flush();
+    close(outfd);
+
+    status = child.wait();
+    clog<<"\nOutput status:"<<status<<endl;
+
     return true;
 }
 
