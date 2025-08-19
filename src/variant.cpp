@@ -312,6 +312,32 @@ Variant Variant::find(int index)
     return Variant();
 }
 
+void Variant::remove(int index)
+{
+    if (data) {
+        if ((*data).type == variant::Type::Array) {
+            container::Array* cast = static_cast<container::Array*>(data.get());
+
+            cast->value.erase(cast->value.begin() + index);
+
+        }
+    }
+}
+
+void Variant::remove(string key)
+{
+    if (data) {
+        if ((*data).type == variant::Type::Struct) {
+            container::Struct* cast = static_cast<container::Struct*>(data.get());
+            map<string ,Variant>::iterator it = cast->value.find(key);
+
+            if (it != cast->value.end()) {
+                cast->value.erase(it);
+            }
+        }
+    }
+}
+
 size_t Variant::size()
 {
     if (data) {

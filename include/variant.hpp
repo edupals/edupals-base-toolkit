@@ -438,6 +438,16 @@ namespace edupals
             Variant find(int index);
             
             /*!
+             *  Removes index from Array
+             */
+            void remove(int index);
+
+            /*!
+             *  Removes key from Struct
+             */
+            void remove(std::string key);
+
+            /*!
                 Compute size (in bytes) of Variant container, included children
             */
             size_t size();
