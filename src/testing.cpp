@@ -93,6 +93,8 @@ bool test_network()
         clog<<"\tBroadcast:"<<iface.hwbroadcast()<<endl;
         clog<<"\tCarrier:"<<iface.carrier()<<endl;
         clog<<"\tMTU:"<<iface.mtu()<<endl;
+        clog<<"\tVirtual:"<<iface.is_virtual()<<endl;
+        clog<<"\tWireless:"<<iface.is_wireless()<<endl;
 
         clog<<endl;
         clog<<"\tAddresses:"<<endl;

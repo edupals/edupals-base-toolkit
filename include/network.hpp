@@ -241,6 +241,12 @@ namespace edupals
             /*! whenever interface exists or not */
             bool exists();
 
+            /*! whenever the device is virtual */
+            bool is_virtual();
+
+            /*! whenever the device is wireless */
+            bool is_wireless();
+
             /*! Hardware MAC Address */
             struct sockaddr_ll& hwaddress();
             

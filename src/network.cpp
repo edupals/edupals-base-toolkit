@@ -409,6 +409,20 @@ bool Interface::exists()
     return fs::exists(sysfs);
 }
 
+bool Interface::is_virtual()
+{
+    fs::path sysfs = path + "/device";
+
+    return exists() and !fs::exists(sysfs);
+}
+
+bool Interface::is_wireless()
+{
+    fs::path sysfs = path + "/wireless";
+
+    return exists() and fs::exists(sysfs);
+}
+
 struct sockaddr_ll& Interface::hwaddress()
 {
     if (cache==nullptr or cache->update_id!=update_count) {
