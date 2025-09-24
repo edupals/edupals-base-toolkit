@@ -130,6 +130,14 @@ bool test_network()
     struct in6_addr m2 = network::mask6(64);
     clog<<"mask ipv6 "<<m2<<endl;
 
+    clog<<"default route ipv4:"<<endl;
+
+    struct in_addr default_route4;
+    string default_interface4;
+
+    network::get_default_route4(default_route4,default_interface4);
+    clog<<"* "<<default_interface4<<":"<<default_route4<<endl;
+
     return true;
 }
 
