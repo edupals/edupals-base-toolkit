@@ -1,3 +1,11 @@
+edupals-base-toolkit (2.6.0.0) jammy; urgency=medium
+
+  * Added remove method for arrays and structs
+  * Added is_virtual and is_wireless Interface methods
+  * Added a default route compute method 
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Tue, 16 Dec 2025 10:15:00 +0100
+
 edupals-base-toolkit (2.5.0.0) jammy; urgency=medium
 
   * Added Process spawn, wait and get outputs 
