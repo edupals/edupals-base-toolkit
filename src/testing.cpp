@@ -93,6 +93,8 @@ bool test_network()
         clog<<"\tBroadcast:"<<iface.hwbroadcast()<<endl;
         clog<<"\tCarrier:"<<iface.carrier()<<endl;
         clog<<"\tMTU:"<<iface.mtu()<<endl;
+        clog<<"\tVirtual:"<<iface.is_virtual()<<endl;
+        clog<<"\tWireless:"<<iface.is_wireless()<<endl;
 
         clog<<endl;
         clog<<"\tAddresses:"<<endl;
@@ -127,6 +129,14 @@ bool test_network()
 
     struct in6_addr m2 = network::mask6(64);
     clog<<"mask ipv6 "<<m2<<endl;
+
+    clog<<"default route ipv4:"<<endl;
+
+    struct in_addr default_route4;
+    string default_interface4;
+
+    network::get_default_route4(default_route4,default_interface4);
+    clog<<"* "<<default_interface4<<":"<<default_route4<<endl;
 
     return true;
 }
