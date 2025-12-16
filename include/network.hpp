@@ -121,6 +121,9 @@ namespace edupals
         /*! Creates an ipv6 address given an ip/mask */
         struct in6_addr subnet(struct in6_addr& addr, struct in6_addr& mask);
 
+        /*! Gets default ipv4 route and interface name. Returns false if not found */
+        bool get_default_route4(struct in_addr& addr, std::string& interface);
+
         /*!
             Rrepresents an interface address setup:
             - address
@@ -240,6 +243,12 @@ namespace edupals
             
             /*! whenever interface exists or not */
             bool exists();
+
+            /*! whenever the device is virtual */
+            bool is_virtual();
+
+            /*! whenever the device is wireless */
+            bool is_wireless();
 
             /*! Hardware MAC Address */
             struct sockaddr_ll& hwaddress();

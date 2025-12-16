@@ -53,6 +53,35 @@ namespace fs=std::experimental::filesystem;
 thread_local std::vector<CachedInterface> thread_cache;
 thread_local uint32_t update_count;
 
+static vector<string> split(string input,char sep)
+{
+    vector<string> tmp;
+    bool knee = false;
+    string current;
+
+    for (char c:input) {
+
+        if (c != sep) {
+            current.push_back(c);
+            knee = true;
+        }
+        else {
+            if (knee == true) {
+                tmp.push_back(current);
+                current="";
+                knee = false;
+            }
+
+        }
+    }
+
+    if (current.size() > 0) {
+        tmp.push_back(current);
+    }
+
+    return tmp;
+}
+
 struct in_addr edupals::network::ip4(string addr)
 {
     struct in_addr ret;
@@ -283,6 +312,53 @@ struct in6_addr edupals::network::subnet(struct in6_addr& addr, struct in6_addr&
     return value;
 }
 
+bool edupals::network::get_default_route4(struct in_addr& addr, string& interface)
+{
+    ifstream file;
+
+    file.open("/proc/net/route");
+    string line;
+    std::getline(file,line);
+
+    uint32_t best_metric = 0xffffffff;
+    bool found = false;
+
+    try {
+        while(file.good()) {
+            std::getline(file,line);
+            vector<string> tmp = split(line,'\t');
+
+            if (tmp.size() < 11 ) {
+                break;
+            }
+
+            uint32_t destination = std::stoi(tmp[1],0,16);
+            uint32_t flags = std::stoi(tmp[3],0,16);
+
+            if (destination == 0 and (flags & 2) != 0) {
+
+                uint32_t metric = std::stoi(tmp[6],0,16);
+
+                if (metric < best_metric) {
+                    interface = tmp[0];
+                    uint32_t gw = std::stoi(tmp[2],0,16);
+                    addr.s_addr = gw;
+
+                    best_metric = metric;
+                    found = true;
+                }
+            }
+
+        }
+        file.close();
+    }
+    catch(...) {
+        //do nothing?
+    }
+
+    return found;
+}
+
 void CachedInterface::push_address(struct ifaddrs* addr)
 {
     IFAddress ifa(addr->ifa_addr,addr->ifa_netmask,addr->ifa_ifu.ifu_broadaddr);
@@ -407,6 +483,20 @@ bool Interface::exists()
     fs::path sysfs = path;
     
     return fs::exists(sysfs);
+}
+
+bool Interface::is_virtual()
+{
+    fs::path sysfs = path + "/device";
+
+    return exists() and !fs::exists(sysfs);
+}
+
+bool Interface::is_wireless()
+{
+    fs::path sysfs = path + "/wireless";
+
+    return exists() and fs::exists(sysfs);
 }
 
 struct sockaddr_ll& Interface::hwaddress()
